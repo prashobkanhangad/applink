@@ -74,4 +74,5 @@ mongoose.connect(process.env.DB_URL).then(() => {
     })
 }).catch(err => {
     console.log('error in connecting database')
+    console.log(err)
 })

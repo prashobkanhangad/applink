@@ -74,6 +74,40 @@ A modern, accessible design system for B2B SaaS applications built with React an
 npm install
 ```
 
+### Google OAuth Setup
+
+1. **Create a Google Cloud Project**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+
+2. **Enable Google Identity Services API**
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Google Identity Services API" and enable it
+
+3. **Create OAuth 2.0 Credentials**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth client ID"
+   - Choose "Web application"
+   - Add authorized JavaScript origins:
+     - `http://localhost:5173` (for development)
+     - Your production domain (e.g., `https://yourdomain.com`)
+   - Add authorized redirect URIs:
+     - `http://localhost:5173` (for development)
+     - Your production domain
+   - Copy the Client ID
+
+4. **Configure Environment Variables**
+   - Create a `.env` file in the `FrontEnd` directory
+   - Add your Google Client ID:
+     ```
+     VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+     VITE_API_BASE_URL=http://localhost:3000
+     ```
+
+5. **Restart Development Server**
+   - Stop the current dev server (Ctrl+C)
+   - Run `npm run dev` again to load the new environment variables
+
 ### Development
 
 ```bash

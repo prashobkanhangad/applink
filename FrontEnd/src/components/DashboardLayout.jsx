@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { signOut } from '../services/authService';
 
 /**
  * Dashboard Layout Component
@@ -30,11 +31,23 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
     { id: 'analytics', label: 'Analytics', icon: AnalyticsIcon, path: '/dashboard/analytics' },
     { id: 'keys', label: 'Keys', icon: KeysIcon, path: '/dashboard/keys' },
     { id: 'pricing', label: 'Pricing', icon: PricingIcon, path: '/dashboard/pricing' },
+    { id: 'profile', label: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, path: '/dashboard/settings' },
   ];
 
   const handleNavClick = (item) => {
     navigate(item.path);
+  };
+
+  const handleSignOut = () => {
+    try {
+      signOut();
+      navigate('/signup');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Still navigate to signup even if signout fails
+      navigate('/signup');
+    }
   };
 
   return (
@@ -103,19 +116,33 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
           })}
         </nav>
 
-        {/* Bottom Icons */}
-        <div className={`p-4 border-t border-gray-700 flex ${isSidebarOpen ? 'items-center justify-center gap-4' : 'flex-col items-center gap-2'} ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}>
-          <button 
-            className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-            title={!isSidebarOpen ? 'Profile' : undefined}
+        {/* Bottom Section */}
+        <div className="p-4 border-t border-gray-700 space-y-2">
+          {/* Bottom Icons */}
+          <div className={`flex ${isSidebarOpen ? 'items-center justify-center gap-4' : 'flex-col items-center gap-2'} ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}>
+            <button 
+              onClick={() => navigate('/dashboard/profile')}
+              className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+              title={!isSidebarOpen ? 'Profile' : undefined}
+            >
+              <ProfileIcon className="w-5 h-5 text-gray-300" />
+            </button>
+            <button 
+              className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+              title={!isSidebarOpen ? 'Globe' : undefined}
+            >
+              <GlobeIcon className="w-5 h-5 text-gray-300" />
+            </button>
+          </div>
+          
+          {/* Sign Out Button */}
+          <button
+            onClick={handleSignOut}
+            className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-2'} py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-300 hover:bg-red-600 hover:text-white ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}
+            title={!isSidebarOpen ? 'Sign Out' : undefined}
           >
-            <ProfileIcon className="w-5 h-5 text-gray-300" />
-          </button>
-          <button 
-            className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-            title={!isSidebarOpen ? 'Globe' : undefined}
-          >
-            <GlobeIcon className="w-5 h-5 text-gray-300" />
+            <LogoutIcon className="w-5 h-5 flex-shrink-0" />
+            {isSidebarOpen && <span className="truncate">Sign Out</span>}
           </button>
         </div>
       </aside>
@@ -182,17 +209,6 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
           </div>
         </footer>
       </div>
-
-      {/* Floating Chat Button */}
-      <button className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 z-50">
-        <ChatIcon className="w-5 h-5" />
-        <span className="text-sm font-medium">Chat with a human</span>
-      </button>
-
-      {/* Floating Asterisk Icon */}
-      <button className="fixed right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-500 transition-colors z-50">
-        <AsteriskIcon className="w-5 h-5 text-yellow-900" />
-      </button>
     </div>
   );
 };
@@ -280,6 +296,12 @@ const ArrowRightIcon = ({ className }) => (
 const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const LogoutIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
   </svg>
 );
 
