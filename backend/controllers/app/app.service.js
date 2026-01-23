@@ -1,6 +1,8 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
-
+import { App } from "../../models/app.model.js";
+import { throwCustomError } from "../../services/error.js";
+import { sendError, sendSuccess } from "../../services/requestHandler.js";
 dotenv.config();
 
 
@@ -43,3 +45,28 @@ export const createSubdomain = async (subDomain) => {
 
 
 
+
+
+
+export const getAssetLinks = async (host) => {
+  const appExists = await App.findOne({subDomain: host});
+
+  if(!appExists){
+    return null;
+  }
+  const androidConfig = appExists?.configurations?.android;
+  const fingerPrint = [androidConfig?.fingerPrint];
+  const packageName = androidConfig?.packageName;
+  return [
+    {
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": packageName,
+        "sha256_cert_fingerprints": fingerPrint
+          
+        
+      }
+    }
+  ]
+}
