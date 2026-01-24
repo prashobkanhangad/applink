@@ -8,6 +8,7 @@ const route = Router();
 
 
 
+
 route.use("/auth", authRoute);
 
 route.use("/app", appRoute);
