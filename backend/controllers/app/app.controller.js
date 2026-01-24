@@ -251,4 +251,19 @@ export const getAnalytics = async (req, res) => {
     } catch (error) { 
         sendError(req,res,error)
     }   
+}
+
+export const getUserApps = async (req, res) => {
+    try {
+        const {performingUser} = req;
+
+        const apps = await App.find({
+            createdBy: performingUser._id
+        }).select('name subDomain fallbackUrl').sort({ createdAt: -1 });
+
+        await sendSuccess(req, res, "Apps fetched successfully", 200, apps)
+
+    } catch (error) {
+        sendError(req,res,error)
+    }
 }       

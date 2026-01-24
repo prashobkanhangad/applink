@@ -167,6 +167,49 @@ export const getLinks = async () => {
   }
 };
 
+
+export const getAppInfo = async (domain) => {
+  
+}
+
+/**
+ * Get all apps for the current user
+ * @returns {Promise<Object>} List of apps
+ */
+export const getUserApps = async () => {
+  try {
+    const token = getAuthToken();
+    
+    if (!token) {
+      console.error('Authentication token not found. User may need to sign in again.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/app/apps`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to fetch apps: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      apps: data.data || data.apps || [],
+      message: data.message,
+    };
+  } catch (error) {
+    console.error('Get user apps API error:', error);
+    throw error;
+  }
+};
+
 /**
  * Get link details by ID
  * @param {string} linkId - Link ID

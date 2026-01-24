@@ -37,14 +37,29 @@ app.use(bodyParser.urlencoded({
 
 app.get('/.well-known/assetlinks.json',async (req,res)=>{
     const host = req.headers.host;
-
     const assetLinks = await getAssetLinks(host);
     if(!assetLinks){
         throwCustomError(1009);
     }
-    
+
     res.json(assetLinks);
 });
+
+
+app.get('/',async (req,res)=>{
+    const host = req.headers.host;
+    const appInfo = await App.findOne({subDomain: host});
+    if(!appInfo){
+        throwCustomError(1009);
+    }
+    console.log(appInfo,"appInfo");
+    // const url = `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}`;
+    const url = `https://play.google.com/store/apps/details?id=com.whatsapp`;
+    res.redirect(url);
+})
+
+
+
 
 app.get('/health',(req,res)=>{
    res.send("still alive").status(200);

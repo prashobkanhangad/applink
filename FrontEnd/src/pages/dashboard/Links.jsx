@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { createLink, getLinks } from '../../services/appService';
+import { createLink, getLinks, getUserApps } from '../../services/appService';
 
 /**
  * Links Page - Create and Manage Links
@@ -15,6 +15,8 @@ export const Links = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  const [apps, setApps] = useState([]);
+  const [selectedAppId, setSelectedAppId] = useState('');
   const [domain, setDomain] = useState('earlyjobs.chottu.link');
   const [path, setPath] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
@@ -35,6 +37,40 @@ export const Links = () => {
   const [utmContent, setUtmContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
+
+  // Fetch apps on component mount
+  useEffect(() => {
+    const loadApps = async () => {
+      try {
+        const result = await getUserApps();
+        if (result.success) {
+          setApps(Array.isArray(result.apps) ? result.apps : []);
+          // Set default app if available
+          if (result.apps && result.apps.length > 0) {
+            const defaultApp = result.apps[0];
+            setSelectedAppId(defaultApp._id || defaultApp.id);
+            // Format domain: add https:// if subDomain doesn't start with http
+            const subDomain = defaultApp.subDomain || '';
+            const formattedDomain = subDomain.startsWith('http://') || subDomain.startsWith('https://') 
+              ? subDomain 
+              : `https://${subDomain}`;
+            setDomain(formattedDomain);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading apps:', err);
+      }
+    };
+    loadApps();
+  }, []);
+
+  useEffect(() => {
+    const fetchAssetLinks = async () => {
+      const assetLinks = await getAssetLinks(domain);
+      console.log(assetLinks,"assetLinks");
+    }
+    fetchAssetLinks();
+  }, [domain]);
 
   // Fetch links on component mount (only if not in create mode)
   useEffect(() => {
@@ -234,6 +270,36 @@ export const Links = () => {
                       Customise your Short Link Or Dynamic URL to make it more professional and contextual.
                     </p>
                     
+                    {/* App Selection Dropdown */}
+                    <div className="mb-4">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        Select App
+                      </label>
+                      <select
+                        value={selectedAppId}
+                        onChange={(e) => {
+                          const appId = e.target.value;
+                          setSelectedAppId(appId);
+                          const selectedApp = apps.find(app => (app._id || app.id) === appId);
+                          if (selectedApp) {
+                            const subDomain = selectedApp.subDomain || '';
+                            const formattedDomain = subDomain.startsWith('http://') || subDomain.startsWith('https://') 
+                              ? subDomain 
+                              : `https://${subDomain}`;
+                            setDomain(formattedDomain);
+                          }
+                        }}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                      >
+                        <option value="">Select an app</option>
+                        {apps.map((app) => (
+                          <option key={app._id || app.id} value={app._id || app.id}>
+                            {app.name} ({app.subDomain})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     {/* Domain Field */}
                     <div className="mb-4">
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
