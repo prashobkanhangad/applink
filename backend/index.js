@@ -52,32 +52,38 @@ app.get('/.well-known/assetlinks.json',async (req,res)=>{
 
 
 app.get('/',async (req,res)=>{
-    const host = req.headers.host;
-    console.log(host,"host");
-    const platform = detectPlatform(req.headers['user-agent']);
-    const appInfo = await App.findOne({subDomain: host});
-    console.log(platform,"platform");
-    console.log(appInfo,"appInfo");
+    try {
+        const host = req.headers.host;
+        console.log(host,"host");
+        const platform = detectPlatform(req.headers['user-agent']);
+        const appInfo = await App.findOne({subDomain: host});
+        console.log(platform,"platform");
+        console.log(appInfo,"appInfo");
 
-    if(!appInfo){
-        throwCustomError(1009);
-    }
-    let url = null;
-    if(platform === "android"){
-         url = `https://play.google.com/store/apps/details?id=com.whatsapp` || `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}`;
-        res.redirect(url);
-    }else if(platform === "ios"){
-        const url = `https://apps.apple.com/us/app/${appInfo.name}/${appInfo.configurations.ios.bundleId}`;
-        res.redirect(url);
-    }else if(platform === "web"){
-        url = appInfo.fallbackUrl;
-        res.redirect(url);
-    }else{
-        throwCustomError(1016);
-    }
+        if(!appInfo){
+            return res.status(404).send("App not found");
+        }
 
-   
-    res.redirect(url);
+        let url = null;
+        if(platform === "android"){
+            url = appInfo.configurations?.android?.packageName 
+                ? `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}`
+                : appInfo.fallbackUrl;
+            return res.redirect(url);
+        } else if(platform === "ios"){
+            url = appInfo.configurations?.ios?.storeId
+                ? `https://apps.apple.com/app/id${appInfo.configurations.ios.storeId}`
+                : appInfo.fallbackUrl;
+            return res.redirect(url);
+        } else {
+            // web or unknown platform - use fallback
+            url = appInfo.fallbackUrl;
+            return res.redirect(url);
+        }
+    } catch (err) {
+        console.error("Root route error:", err);
+        return res.status(500).send("Internal Server Error");
+    }
 })
 
 

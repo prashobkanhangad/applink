@@ -20,9 +20,13 @@ export const checkDomain = async (req, res) => {
     try {
         const domain = req.hostname;
 
-        console.log(domain);
+        console.log("[checkDomain] ====== Starting domain check ======");
+        console.log("[checkDomain] Hostname from request:", domain);
+        console.log("[checkDomain] Full URL:", req.originalUrl);
+        console.log("[checkDomain] Headers host:", req.headers.host);
 
         if (!domain) {
+            console.log("[checkDomain] ✗ No domain provided");
             return res.status(400).json({
                 status: 'error',
                 message: 'Domain parameter is required'
@@ -37,8 +41,11 @@ export const checkDomain = async (req, res) => {
             .replace(/^www\./, '')
             .replace(/\/$/, '');
 
+        console.log("[checkDomain] Normalized domain:", normalizedDomain);
+
         // Check if domain exists in DomainVerification (verified custom domains)
         // For CNAME verification, the full domain would be subdomain.domain
+        console.log("[checkDomain] Checking DomainVerification collection...");
         const verifiedDomain = await DomainVerification.findOne({
             status: 'verified',
             $or: [
@@ -47,38 +54,65 @@ export const checkDomain = async (req, res) => {
             ]
         });
 
+        console.log("[checkDomain] DomainVerification result:", verifiedDomain ? {
+            domain: verifiedDomain.domain,
+            subdomain: verifiedDomain.subdomain,
+            status: verifiedDomain.status
+        } : "Not found");
+
         if (verifiedDomain) {
             // Check if the hostname matches subdomain.domain
             const expectedFullDomain = `${verifiedDomain.subdomain}.${verifiedDomain.domain}`;
+            console.log("[checkDomain] Expected full domain:", expectedFullDomain);
+            console.log("[checkDomain] Comparing with normalized:", normalizedDomain);
+            
             if (normalizedDomain === expectedFullDomain || normalizedDomain === verifiedDomain.domain) {
+                console.log("[checkDomain] ✓ Match found in DomainVerification! Returning 200");
                 return res.sendStatus(200);
             }
+            console.log("[checkDomain] Domain found but doesn't match expected pattern");
         }
 
         // Check if domain exists in Domain model
+        console.log("[checkDomain] Checking Domain model...");
         const domainRecord = await Domain.findOne({
             domain: normalizedDomain,
             verified: true
         });
 
+        console.log("[checkDomain] Domain model result:", domainRecord ? {
+            domain: domainRecord.domain,
+            verified: domainRecord.verified
+        } : "Not found");
+
         if (domainRecord) {
+            console.log("[checkDomain] ✓ Match found in Domain model! Returning 200");
             return res.sendStatus(200);
         }
 
         // Check if it's a subdomain in App model
+        console.log("[checkDomain] Checking App model for subDomain...");
         const app = await App.findOne({
             subDomain: normalizedDomain
         });
 
+        console.log("[checkDomain] App model result:", app ? {
+            name: app.name,
+            subDomain: app.subDomain
+        } : "Not found");
+
         if (app) {
+            console.log("[checkDomain] ✓ Match found in App model! Returning 200");
             return res.sendStatus(200);
         }
 
         // Domain not found or not verified
+        console.log("[checkDomain] ✗ Domain not found in any collection. Returning 403");
+        console.log("[checkDomain] ====== Domain check complete ======");
         return res.sendStatus(403);
 
     } catch (error) {
-        console.error("Error checking domain:", error);
+        console.error("[checkDomain] ✗ Error checking domain:", error);
         return res.status(500).json({
             status: 'error',
             message: 'Internal server error'
