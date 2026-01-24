@@ -72,6 +72,7 @@ app.get('/.well-known/assetlinks.json',async (req,res)=>{
 
 app.get('/',async (req,res)=>{
     const host = req.headers.host;
+    console.log(host,"host");
     const appInfo = await App.findOne({subDomain: host});
     if(!appInfo){
         throwCustomError(1009);
