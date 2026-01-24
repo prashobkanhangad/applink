@@ -60,6 +60,10 @@
         "1015": {
             "code": 409,
             "error": "subdomain already reserved or not allowed"
+        },
+        "1016": {
+            "code": 404,
+            "error": "platform not supported"
         }
 
     }
