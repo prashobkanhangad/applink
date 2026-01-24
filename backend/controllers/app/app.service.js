@@ -70,3 +70,11 @@ export const getAssetLinks = async (host) => {
     }
   ]
 }
+
+export const detectPlatform = (userAgent) => {
+  const ua = userAgent.toLowerCase();
+
+  if (ua.includes("android")) return "android";
+  if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) return "ios";
+  return "web";
+}
