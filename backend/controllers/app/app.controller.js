@@ -70,7 +70,7 @@ export const createApp = async (req, res) => {
         }
 
         console.log("Creating subdomain now...");
-        await createSubdomain(subDomain);
+        // await createSubdomain(subDomain);
         console.log("Subdomain created successfully.");
 
         await App.create({

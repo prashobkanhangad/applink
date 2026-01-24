@@ -28,4 +28,6 @@ domainRoute.get("/:id", getDomain);
 // Delete a domain
 domainRoute.delete("/:id", deleteDomain);
 
+
+
 export default domainRoute;

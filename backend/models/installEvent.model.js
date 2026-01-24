@@ -1,4 +1,4 @@
-import { Mongoose } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const installEventSchema = new Schema({
     linkId: {
