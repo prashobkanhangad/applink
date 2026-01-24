@@ -18,9 +18,10 @@ import Joi from "joi";
  */
 export const checkDomain = async (req, res) => {
     try {
-        const domain = req.hostname;
+        const domain = req.query.domain;
 
         console.log("[checkDomain] ====== Starting domain check ======");
+        console.log("[checkDomain] Hostname from request:", req.query.domain);
         console.log("[checkDomain] Hostname from request:", domain);
         console.log("[checkDomain] Full URL:", req.originalUrl);
         console.log("[checkDomain] Headers host:", req.headers.host);
