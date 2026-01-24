@@ -44,16 +44,46 @@ export const checkDomain = async (req, res) => {
 
         console.log("[checkDomain] Normalized domain:", normalizedDomain);
 
+        // Parse the domain to extract subdomain and main domain
+        // e.g., "link.earlyjobs.in" -> subdomain: "link", mainDomain: "earlyjobs.in"
+        const domainParts = normalizedDomain.split('.');
+        let parsedSubdomain = null;
+        let parsedMainDomain = normalizedDomain;
+
+        // If domain has more than 2 parts, first part is subdomain
+        // e.g., "link.earlyjobs.in" -> ["link", "earlyjobs", "in"]
+        if (domainParts.length > 2) {
+            parsedSubdomain = domainParts[0];
+            parsedMainDomain = domainParts.slice(1).join('.');
+        }
+
+        console.log("[checkDomain] Parsed subdomain:", parsedSubdomain);
+        console.log("[checkDomain] Parsed main domain:", parsedMainDomain);
+
         // Check if domain exists in DomainVerification (verified custom domains)
-        // For CNAME verification, the full domain would be subdomain.domain
+        // For CNAME verification, we need to match both subdomain and domain fields
         console.log("[checkDomain] Checking DomainVerification collection...");
-        const verifiedDomain = await DomainVerification.findOne({
-            status: 'verified',
-            $or: [
-                { domain: normalizedDomain },
-                // Check if this is a subdomain.domain combination
-            ]
-        });
+        
+        let verifiedDomain = null;
+        
+        if (parsedSubdomain) {
+            // If we have a subdomain, search by both subdomain and domain
+            verifiedDomain = await DomainVerification.findOne({
+                status: 'verified',
+                subdomain: parsedSubdomain,
+                domain: parsedMainDomain
+            });
+            console.log("[checkDomain] Searched with subdomain:", parsedSubdomain, "and domain:", parsedMainDomain);
+        }
+        
+        // If not found with subdomain, try matching just the domain
+        // if (!verifiedDomain) {
+        //     verifiedDomain = await DomainVerification.findOne({
+        //         status: 'verified',
+        //         domain: normalizedDomain
+        //     });
+        //     console.log("[checkDomain] Searched with full domain:", normalizedDomain);
+        // }
 
         console.log("[checkDomain] DomainVerification result:", verifiedDomain ? {
             domain: verifiedDomain.domain,
@@ -62,16 +92,8 @@ export const checkDomain = async (req, res) => {
         } : "Not found");
 
         if (verifiedDomain) {
-            // Check if the hostname matches subdomain.domain
-            const expectedFullDomain = `${verifiedDomain.subdomain}.${verifiedDomain.domain}`;
-            console.log("[checkDomain] Expected full domain:", expectedFullDomain);
-            console.log("[checkDomain] Comparing with normalized:", normalizedDomain);
-            
-            if (normalizedDomain === expectedFullDomain || normalizedDomain === verifiedDomain.domain) {
-                console.log("[checkDomain] ✓ Match found in DomainVerification! Returning 200");
-                return res.sendStatus(200);
-            }
-            console.log("[checkDomain] Domain found but doesn't match expected pattern");
+            console.log("[checkDomain] ✓ Match found in DomainVerification! Returning 200");
+            return res.sendStatus(200);
         }
 
         // Check if domain exists in Domain model
