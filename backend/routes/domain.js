@@ -5,13 +5,11 @@ import {
     getDomains, 
     getDomain, 
     deleteDomain, 
-    checkDomain
 } from "../controllers/domain/domain.controller.js";
 import { verifyJWT } from "../services/jwt.js";
 
 const domainRoute = Router();
 
-domainRoute.get('/check-domain', checkDomain);
 
 
 // All domain routes require authentication
