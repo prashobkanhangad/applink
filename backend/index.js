@@ -9,6 +9,8 @@ import { sendError } from './services/requestHandler.js';
 import { sendAlert } from './services/telegram.js';
 import { logger } from './services/logger.js';
 import mongoose from 'mongoose';
+import { App } from './models/app.model.js';
+import { getAssetLinks } from './controllers/app/app.service.js';
 
 dotenv.config()
 const app = express()
@@ -33,8 +35,20 @@ app.use(bodyParser.urlencoded({
 }));
 
 
+app.get('/.well-known/assetlinks.json',async (req,res)=>{
+    const host = req.headers.host;
 
+    const assetLinks = await getAssetLinks(host);
+    if(!assetLinks){
+        throwCustomError(1009);
+    }
+    
+    res.json(assetLinks);
+});
 
+app.get('/health',(req,res)=>{
+   res.send("still alive").status(200);
+})
 
 app.use('/api/v1', route)
 

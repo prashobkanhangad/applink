@@ -9,16 +9,17 @@ import { App } from "../../models/app.model.js";
 
 export const loginUser = async (req, res) => {
     try {
-        const {idToken, provider, email} = req.body;
+        const {idToken, provider, email, picture} = req.body;
        
         const schema = Joi.object({
             idToken: Joi.string().optional(),
             provider: Joi.string().valid("google", "normal").required(),
             email: Joi.string().email().required(),
+            picture: Joi.string().optional(),
         })
 
         const { error } = schema.validate(req.body)
-
+        console.log(error,"error");
         if (error) {
             throwCustomError(1006)
         }
