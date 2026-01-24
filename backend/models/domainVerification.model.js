@@ -7,15 +7,21 @@ const domainVerificationSchema = new Schema({
         lowercase: true,
         trim: true
     },
-    verificationToken: { 
-        type: String, 
+    subdomain: {
+        type: String,
         required: true,
-        unique: true
+        lowercase: true,
+        trim: true,
+        default: "link"
+    },
+    cnameTarget: {
+        type: String,
+        default: "target.lorrymithra.in"
     },
     verificationMethod: {
         type: String,
-        enum: ["txt", "html"],
-        default: "txt"
+        enum: ["cname"],
+        default: "cname"
     },
     status: {
         type: String,
@@ -39,6 +45,6 @@ const domainVerificationSchema = new Schema({
 
 // Index for faster queries
 domainVerificationSchema.index({ createdBy: 1, domain: 1 });
-domainVerificationSchema.index({ verificationToken: 1 });
+domainVerificationSchema.index({ subdomain: 1, domain: 1 });
 
 export const DomainVerification = model("DomainVerificationSchema", domainVerificationSchema, "domain_verifications");

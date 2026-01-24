@@ -7,6 +7,7 @@ import { addDomain, verifyDomain, getDomains, deleteDomain } from '../../service
  */
 export const Settings = () => {
   const [customDomain, setCustomDomain] = useState('');
+  const [subdomain, setSubdomain] = useState('link');
   const [isAddingDomain, setIsAddingDomain] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,6 +42,11 @@ export const Settings = () => {
       return;
     }
 
+    if (!subdomain.trim()) {
+      setError('Please enter a subdomain');
+      return;
+    }
+
     // Basic domain validation
     const domainPattern = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
     if (!domainPattern.test(customDomain.trim())) {
@@ -48,10 +54,18 @@ export const Settings = () => {
       return;
     }
 
-    // Check if domain already exists
+    // Subdomain validation
+    const subdomainPattern = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i;
+    if (!subdomainPattern.test(subdomain.trim())) {
+      setError('Please enter a valid subdomain (letters, numbers, hyphens only)');
+      return;
+    }
+
+    // Check if domain + subdomain already exists
     const domainLower = customDomain.trim().toLowerCase();
-    if (domains.some(d => d.domain.toLowerCase() === domainLower)) {
-      setError('This domain has already been added');
+    const subdomainLower = subdomain.trim().toLowerCase();
+    if (domains.some(d => d.domain.toLowerCase() === domainLower && d.subdomain?.toLowerCase() === subdomainLower)) {
+      setError('This domain and subdomain combination has already been added');
       return;
     }
 
@@ -63,14 +77,15 @@ export const Settings = () => {
     try {
       const result = await addDomain({
         domain: customDomain.trim(),
-        verificationMethod: 'txt'
+        subdomain: subdomain.trim()
       });
 
       if (result.success) {
         // Reload domains to get the new one with all data
         await loadDomains();
-        setSuccessMessage(result.message || `Domain "${customDomain.trim()}" added successfully! Please configure DNS settings and verify.`);
+        setSuccessMessage(result.message || `Domain "${subdomain.trim()}.${customDomain.trim()}" added successfully! Please configure CNAME record and verify.`);
         setCustomDomain('');
+        setSubdomain('link');
       }
     } catch (error) {
       console.error('Failed to add domain:', error);
@@ -94,9 +109,9 @@ export const Settings = () => {
         
         const updatedDomain = result.domain;
         if (updatedDomain.status === 'verified') {
-          setSuccessMessage(`Domain "${updatedDomain.domain}" has been verified successfully!`);
+          setSuccessMessage(`Domain "${updatedDomain.subdomain}.${updatedDomain.domain}" has been verified successfully!`);
         } else {
-          setVerificationError(`DNS verification failed for ${updatedDomain.domain}. Please ensure DNS records are configured correctly and try again.`);
+          setVerificationError(`CNAME verification failed for ${updatedDomain.subdomain}.${updatedDomain.domain}. Please ensure the CNAME record is configured correctly and try again.`);
         }
       }
     } catch (error) {
@@ -249,16 +264,39 @@ export const Settings = () => {
                     placeholder="example.com"
                     className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Enter your domain name without http:// or https:// (e.g., example.com)
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subdomain
+                </label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="text"
+                    value={subdomain}
+                    onChange={(e) => {
+                      setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                      setError(null);
+                      setSuccessMessage(null);
+                    }}
+                    placeholder="link"
+                    className="w-32 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="text-sm text-gray-500">.{customDomain || 'yourdomain.com'}</span>
                   <button
                     onClick={handleAddDomain}
-                    disabled={isAddingDomain || !customDomain.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    disabled={isAddingDomain || !customDomain.trim() || !subdomain.trim()}
+                    className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed ml-auto"
                   >
                     {isAddingDomain ? 'Adding...' : 'Add Domain'}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Enter your domain name without http:// or https:// (e.g., example.com)
+                  Choose a subdomain for your links (e.g., link, go, app). Your final URL will be: {subdomain || 'link'}.{customDomain || 'yourdomain.com'}
                 </p>
               </div>
 
@@ -282,7 +320,9 @@ export const Settings = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <p className="text-sm font-medium text-gray-900">{domainItem.domain}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {domainItem.subdomain ? `${domainItem.subdomain}.${domainItem.domain}` : domainItem.domain}
+                            </p>
                             {getStatusBadge(domainItem.status)}
                           </div>
                           {domainItem.status === 'verified' && domainItem.verifiedAt && (
@@ -292,7 +332,10 @@ export const Settings = () => {
                           )}
                         </div>
                         <button
-                          onClick={() => handleRemoveDomain(domainItem._id || domainItem.id, domainItem.domain)}
+                          onClick={() => handleRemoveDomain(
+                            domainItem._id || domainItem.id, 
+                            domainItem.subdomain ? `${domainItem.subdomain}.${domainItem.domain}` : domainItem.domain
+                          )}
                           className="px-3 py-1.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
                         >
                           Remove
@@ -304,37 +347,22 @@ export const Settings = () => {
                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                           <h4 className="text-xs font-semibold text-blue-900 mb-2">DNS Configuration Required</h4>
                           <p className="text-xs text-blue-700 mb-3">
-                            Add the following DNS records to verify ownership of your domain:
+                            Add the following CNAME record to verify ownership of your domain:
                           </p>
                           <div className="bg-white rounded border border-blue-200 p-3 mb-3">
                             <div className="text-xs font-mono space-y-2">
-                              {domainItem.verificationMethod === 'txt' ? (
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-blue-600 font-semibold">Type:</span>
-                                  <span>TXT</span>
-                                </div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-blue-600 font-semibold">Name:</span>
-                                    <span>{domainItem.domain}</span>
-                                </div>
-                                <div className="flex items-start gap-2">
-                                  <span className="text-blue-600 font-semibold">Value:</span>
-                                    <span className="break-all">chottu-verify={domainItem.verificationToken}</span>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-blue-600 font-semibold">File Path:</span>
-                                    <span className="break-all">/.well-known/chottu-verify-{domainItem.verificationToken}.html</span>
-                                </div>
-                                  <div className="flex items-start gap-2">
-                                    <span className="text-blue-600 font-semibold">Content:</span>
-                                    <span className="break-all">{domainItem.verificationToken}</span>
-                                </div>
-                                </div>
-                              )}
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-blue-600 font-semibold">Type:</span>
+                                <span>CNAME</span>
+                              </div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-blue-600 font-semibold">Name:</span>
+                                <span>{domainItem.subdomain || 'link'}</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="text-blue-600 font-semibold">Value:</span>
+                                <span className="break-all">{domainItem.cnameTarget || 'target.lorrymithra.in'}</span>
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
@@ -366,7 +394,7 @@ export const Settings = () => {
                             )}
                           </div>
                           <p className="text-xs text-blue-700 mt-3">
-                            After adding the DNS records, click "Verify Domain" to check. DNS changes may take up to 48 hours to propagate.
+                            After adding the CNAME record, click "Verify Domain" to check. DNS changes may take up to 48 hours to propagate.
                           </p>
                         </div>
                       )}
@@ -408,8 +436,8 @@ export const Settings = () => {
                   Custom domains allow you to use your own domain name for your short links, making them more professional and branded.
                 </p>
                 <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
-                  <li>Your domain must be verified before use</li>
-                  <li>DNS configuration is required for domain verification</li>
+                  <li>Your domain must be verified via CNAME record before use</li>
+                  <li>Point your subdomain to <strong>target.lorrymithra.in</strong></li>
                   <li>SSL certificate will be automatically provisioned</li>
                   <li>You can add multiple custom domains</li>
                 </ul>

@@ -1,110 +1,62 @@
 import dns from 'dns/promises';
-import https from 'https';
-import http from 'http';
+
+// The target CNAME that all subdomains should point to
+const CNAME_TARGET = process.env.CNAME_TARGET || 'target.lorrymithra.in';
 
 /**
- * Check if a TXT record exists for domain verification
- * @param {string} domain - The domain to check
- * @param {string} verificationToken - The verification token to look for
- * @returns {Promise<boolean>} - True if verification token found in TXT records
+ * Check if a CNAME record exists for domain verification
+ * @param {string} subdomain - The subdomain to check (e.g., "link")
+ * @param {string} domain - The main domain (e.g., "invyto.in")
+ * @param {string} expectedTarget - The expected CNAME target (e.g., "target.lorrymithra.in")
+ * @returns {Promise<boolean>} - True if CNAME record points to the expected target
  */
-export const verifyTXTRecord = async (domain, verificationToken) => {
+export const verifyCNAMERecord = async (subdomain, domain, expectedTarget = CNAME_TARGET) => {
     try {
-        console.log(`[Domain Verification] Starting TXT record verification for domain: ${domain}`);
-        console.log(`[Domain Verification] Looking for verification token: ${verificationToken}`);
+        const fullDomain = `${subdomain}.${domain}`;
+        console.log(`[Domain Verification] Starting CNAME record verification for: ${fullDomain}`);
+        console.log(`[Domain Verification] Expected CNAME target: ${expectedTarget}`);
         
-        const txtRecords = await dns.resolveTxt(domain);
-        console.log(`[Domain Verification] Found ${txtRecords.length} TXT record(s) for ${domain}`);
+        const cnameRecords = await dns.resolveCname(fullDomain);
+        console.log(`[Domain Verification] Found CNAME record(s) for ${fullDomain}:`, cnameRecords);
         
-        // Flatten the array of arrays (TXT records can be arrays of strings)
-        const allRecords = txtRecords.flat();
-        console.log(`[Domain Verification] Flattened to ${allRecords.length} record(s):`, allRecords);
-        
-        // Check if any record contains the verification token
-        const verificationString = `chottu-verify=${verificationToken}`;
-        console.log(`[Domain Verification] Checking for verification string: ${verificationString}`);
-        
-        const isVerified = allRecords.some(record => record.includes(verificationString));
+        // Check if any CNAME record matches the expected target
+        // Normalize by removing trailing dots and comparing lowercase
+        const normalizedTarget = expectedTarget.toLowerCase().replace(/\.$/, '');
+        const isVerified = cnameRecords.some(record => {
+            const normalizedRecord = record.toLowerCase().replace(/\.$/, '');
+            return normalizedRecord === normalizedTarget;
+        });
         
         if (isVerified) {
-            console.log(`[Domain Verification] ✓ Verification successful for ${domain}`);
+            console.log(`[Domain Verification] ✓ CNAME verification successful for ${fullDomain}`);
         } else {
-            console.log(`[Domain Verification] ✗ Verification failed for ${domain} - verification string not found in TXT records`);
+            console.log(`[Domain Verification] ✗ CNAME verification failed for ${fullDomain} - expected ${expectedTarget}, found:`, cnameRecords);
         }
         
         return isVerified;
     } catch (error) {
-        console.error(`[Domain Verification] Error checking TXT record for ${domain}:`, error.message);
-        console.error(`[Domain Verification] Error details:`, error);
+        console.error(`[Domain Verification] Error checking CNAME record for ${subdomain}.${domain}:`, error.message);
+        if (error.code === 'ENODATA' || error.code === 'ENOTFOUND') {
+            console.log(`[Domain Verification] No CNAME record found for ${subdomain}.${domain}`);
+        }
         return false;
     }
 };
 
 /**
- * Check if an HTML file exists at the verification path
- * @param {string} domain - The domain to check
- * @param {string} verificationToken - The verification token
- * @returns {Promise<boolean>} - True if verification file exists and contains token
- */
-export const verifyHTMLFile = async (domain, verificationToken) => {
-    return new Promise((resolve) => {
-        const verificationPath = `/.well-known/chottu-verify-${verificationToken}.html`;
-        const url = `https://${domain}${verificationPath}`;
-        
-        const request = https.get(url, (res) => {
-            let data = '';
-            
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            
-            res.on('end', () => {
-                // Check if the file contains the verification token
-                const containsToken = data.includes(verificationToken);
-                resolve(res.statusCode === 200 && containsToken);
-            });
-        });
-        
-        request.on('error', (error) => {
-            console.error('Error checking HTML file:', error);
-            resolve(false);
-        });
-        
-        request.setTimeout(5000, () => {
-            request.destroy();
-            resolve(false);
-        });
-    });
-};
-
-/**
- * Verify domain ownership using the specified method
- * @param {string} domain - The domain to verify
- * @param {string} verificationToken - The verification token
- * @param {string} method - Verification method ('txt' or 'html')
+ * Verify domain ownership using CNAME method
+ * @param {string} subdomain - The subdomain (e.g., "link")
+ * @param {string} domain - The main domain (e.g., "invyto.in")
+ * @param {string} cnameTarget - The expected CNAME target
  * @returns {Promise<boolean>} - True if domain is verified
  */
-export const verifyDomain = async (domain, verificationToken, method = 'txt') => {
+export const verifyDomain = async (subdomain, domain, cnameTarget = CNAME_TARGET) => {
     try {
-        if (method === 'txt') {
-            return await verifyTXTRecord(domain, verificationToken);
-        } else if (method === 'html') {
-            return await verifyHTMLFile(domain, verificationToken);
-        }
-        return false;
+        return await verifyCNAMERecord(subdomain, domain, cnameTarget);
     } catch (error) {
         console.error('Error verifying domain:', error);
         return false;
     }
-};
-
-/**
- * Generate a unique verification token
- * @returns {string} - A unique verification token
- */
-export const generateVerificationToken = () => {
-    return Math.random().toString(36).substring(2, 15) + 
-           Math.random().toString(36).substring(2, 15);
 };
 
 /**
@@ -116,4 +68,23 @@ export const isValidDomain = (domain) => {
     // Basic domain validation regex
     const domainPattern = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
     return domainPattern.test(domain);
+};
+
+/**
+ * Validate subdomain format
+ * @param {string} subdomain - The subdomain to validate
+ * @returns {boolean} - True if subdomain format is valid
+ */
+export const isValidSubdomain = (subdomain) => {
+    // Subdomain validation: alphanumeric, hyphens allowed (not at start/end), 1-63 chars
+    const subdomainPattern = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i;
+    return subdomainPattern.test(subdomain);
+};
+
+/**
+ * Get the CNAME target
+ * @returns {string} - The CNAME target domain
+ */
+export const getCNAMETarget = () => {
+    return CNAME_TARGET;
 };

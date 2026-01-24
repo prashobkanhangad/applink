@@ -11,6 +11,7 @@ import { logger } from './services/logger.js';
 import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks } from './controllers/app/app.service.js';
+import { checkDomain } from './controllers/domain/domain.controller.js';
 
 dotenv.config()
 const app = express()
@@ -35,6 +36,11 @@ app.use(bodyParser.urlencoded({
 }));
 
 
+
+
+app.get('/check-domain', checkDomain);
+
+
 app.get('/.well-known/assetlinks.json',async (req,res)=>{
     const host = req.headers.host;
 
@@ -49,6 +55,7 @@ app.get('/.well-known/assetlinks.json',async (req,res)=>{
 app.get('/health',(req,res)=>{
    res.send("still alive").status(200);
 })
+
 
 app.use('/api/v1', route)
 

@@ -4,11 +4,15 @@ import {
     verifyDomainEndpoint, 
     getDomains, 
     getDomain, 
-    deleteDomain 
+    deleteDomain, 
+    checkDomain
 } from "../controllers/domain/domain.controller.js";
 import { verifyJWT } from "../services/jwt.js";
 
 const domainRoute = Router();
+
+domainRoute.get('/check-domain', checkDomain);
+
 
 // All domain routes require authentication
 domainRoute.use(verifyJWT);
@@ -27,6 +31,9 @@ domainRoute.get("/:id", getDomain);
 
 // Delete a domain
 domainRoute.delete("/:id", deleteDomain);
+
+
+
 
 
 

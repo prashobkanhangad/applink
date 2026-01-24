@@ -1,12 +1,90 @@
 import { throwCustomError } from "../../services/error.js";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
 import { DomainVerification } from "../../models/domainVerification.model.js";
+import { Domain } from "../../models/domain.model.js";
+import { App } from "../../models/app.model.js";
 import { 
     verifyDomain, 
-    generateVerificationToken, 
-    isValidDomain 
+    isValidDomain,
+    isValidSubdomain,
+    getCNAMETarget
 } from "../../services/domainVerification.service.js";
 import Joi from "joi";
+
+/**
+ * Check if a domain is valid and configured
+ * GET /check-domain
+ * Public endpoint - no authentication required
+ */
+export const checkDomain = async (req, res) => {
+    try {
+        const domain = req.hostname;
+
+        console.log(domain);
+
+        if (!domain) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Domain parameter is required'
+            });
+        }
+
+        // Normalize domain (remove protocol, www, trailing slashes)
+        const normalizedDomain = domain
+            .toLowerCase()
+            .trim()
+            .replace(/^https?:\/\//, '')
+            .replace(/^www\./, '')
+            .replace(/\/$/, '');
+
+        // Check if domain exists in DomainVerification (verified custom domains)
+        // For CNAME verification, the full domain would be subdomain.domain
+        const verifiedDomain = await DomainVerification.findOne({
+            status: 'verified',
+            $or: [
+                { domain: normalizedDomain },
+                // Check if this is a subdomain.domain combination
+            ]
+        });
+
+        if (verifiedDomain) {
+            // Check if the hostname matches subdomain.domain
+            const expectedFullDomain = `${verifiedDomain.subdomain}.${verifiedDomain.domain}`;
+            if (normalizedDomain === expectedFullDomain || normalizedDomain === verifiedDomain.domain) {
+                return res.sendStatus(200);
+            }
+        }
+
+        // Check if domain exists in Domain model
+        const domainRecord = await Domain.findOne({
+            domain: normalizedDomain,
+            verified: true
+        });
+
+        if (domainRecord) {
+            return res.sendStatus(200);
+        }
+
+        // Check if it's a subdomain in App model
+        const app = await App.findOne({
+            subDomain: normalizedDomain
+        });
+
+        if (app) {
+            return res.sendStatus(200);
+        }
+
+        // Domain not found or not verified
+        return res.sendStatus(403);
+
+    } catch (error) {
+        console.error("Error checking domain:", error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        });
+    }
+};
 
 /**
  * Add a new domain for verification
@@ -14,12 +92,12 @@ import Joi from "joi";
  */
 export const addDomain = async (req, res) => {
     try {
-        const { domain, verificationMethod } = req.body;
+        const { domain, subdomain } = req.body;
         const { performingUser } = req;
 
         const schema = Joi.object({
             domain: Joi.string().required(),
-            verificationMethod: Joi.string().valid("txt", "html").default("txt")
+            subdomain: Joi.string().default("link")
         });
 
         const { error } = schema.validate(req.body);
@@ -35,6 +113,11 @@ export const addDomain = async (req, res) => {
             .replace(/^www\./, '')
             .replace(/\/$/, '');
 
+        // Normalize subdomain
+        let normalizedSubdomain = (subdomain || "link")
+            .toLowerCase()
+            .trim();
+
         // Validate domain format
         if (!isValidDomain(normalizedDomain)) {
             return res.status(400).json({
@@ -43,52 +126,53 @@ export const addDomain = async (req, res) => {
             });
         }
 
-        // Check if domain already exists for this user
+        // Validate subdomain format
+        if (!isValidSubdomain(normalizedSubdomain)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid subdomain format. Use only letters, numbers, and hyphens (e.g., link, app, go)'
+            });
+        }
+
+        // Check if domain + subdomain combination already exists for this user
         const existingDomain = await DomainVerification.findOne({
             domain: normalizedDomain,
+            subdomain: normalizedSubdomain,
             createdBy: performingUser._id
         });
 
         if (existingDomain) {
             return res.status(400).json({
                 status: 'error',
-                message: 'This domain has already been added',
+                message: 'This domain and subdomain combination has already been added',
                 data: existingDomain
             });
         }
 
-        // Generate verification token
-        const verificationToken = generateVerificationToken();
+        const cnameTarget = getCNAMETarget();
 
         // Create domain verification record
         const domainVerification = await DomainVerification.create({
             domain: normalizedDomain,
-            verificationToken,
-            verificationMethod: verificationMethod || "txt",
+            subdomain: normalizedSubdomain,
+            cnameTarget: cnameTarget,
+            verificationMethod: "cname",
             createdBy: performingUser._id,
             status: "pending"
         });
 
         // Prepare verification instructions
         const verificationInstructions = {
-            txt: {
-                type: "TXT",
-                name: normalizedDomain,
-                value: `chottu-verify=${verificationToken}`,
-                instructions: `Add a TXT record to your DNS with the name "${normalizedDomain}" and value "chottu-verify=${verificationToken}"`
-            },
-            html: {
-                type: "HTML File",
-                path: `/.well-known/chottu-verify-${verificationToken}.html`,
-                content: verificationToken,
-                instructions: `Create a file at ${normalizedDomain}/.well-known/chottu-verify-${verificationToken}.html containing the verification token: ${verificationToken}`
-            }
+            type: "CNAME",
+            name: normalizedSubdomain,
+            value: cnameTarget,
+            fullDomain: `${normalizedSubdomain}.${normalizedDomain}`,
+            instructions: `Add a CNAME record to your DNS with the name "${normalizedSubdomain}" pointing to "${cnameTarget}"`
         };
 
-        await sendSuccess(req, res, "Domain added successfully. Please configure verification and verify.", 201, {
+        await sendSuccess(req, res, "Domain added successfully. Please configure CNAME record and verify.", 201, {
             domain: domainVerification,
-            verificationToken,
-            instructions: verificationInstructions[domainVerification.verificationMethod]
+            instructions: verificationInstructions
         });
 
     } catch (error) {
@@ -97,7 +181,7 @@ export const addDomain = async (req, res) => {
 };
 
 /**
- * Verify a domain by checking DNS records
+ * Verify a domain by checking CNAME records
  * POST /api/v1/domain/verify/:id
  */
 export const verifyDomainEndpoint = async (req, res) => {
@@ -123,11 +207,11 @@ export const verifyDomainEndpoint = async (req, res) => {
             return await sendSuccess(req, res, "Domain is already verified", 200, domainVerification);
         }
 
-        // Verify the domain
+        // Verify the domain using CNAME
         const isVerified = await verifyDomain(
+            domainVerification.subdomain,
             domainVerification.domain,
-            domainVerification.verificationToken,
-            domainVerification.verificationMethod
+            domainVerification.cnameTarget
         );
 
         // Update the domain verification status
@@ -145,7 +229,7 @@ export const verifyDomainEndpoint = async (req, res) => {
         if (isVerified) {
             await sendSuccess(req, res, "Domain verified successfully", 200, domainVerification);
         } else {
-            await sendSuccess(req, res, "Domain verification failed. Please check your DNS settings and try again.", 200, {
+            await sendSuccess(req, res, "Domain verification failed. Please check your CNAME record and try again.", 200, {
                 ...domainVerification.toObject(),
                 verified: false
             });
@@ -198,23 +282,16 @@ export const getDomain = async (req, res) => {
 
         // Prepare verification instructions
         const verificationInstructions = {
-            txt: {
-                type: "TXT",
-                name: domain.domain,
-                value: `chottu-verify=${domain.verificationToken}`,
-                instructions: `Add a TXT record to your DNS with the name "${domain.domain}" and value "chottu-verify=${domain.verificationToken}"`
-            },
-            html: {
-                type: "HTML File",
-                path: `/.well-known/chottu-verify-${domain.verificationToken}.html`,
-                content: domain.verificationToken,
-                instructions: `Create a file at ${domain.domain}/.well-known/chottu-verify-${domain.verificationToken}.html containing the verification token: ${domain.verificationToken}`
-            }
+            type: "CNAME",
+            name: domain.subdomain,
+            value: domain.cnameTarget,
+            fullDomain: `${domain.subdomain}.${domain.domain}`,
+            instructions: `Add a CNAME record to your DNS with the name "${domain.subdomain}" pointing to "${domain.cnameTarget}"`
         };
 
         await sendSuccess(req, res, "Domain fetched successfully", 200, {
             ...domain.toObject(),
-            instructions: verificationInstructions[domain.verificationMethod]
+            instructions: verificationInstructions
         });
 
     } catch (error) {
@@ -245,7 +322,7 @@ export const deleteDomain = async (req, res) => {
 
         await DomainVerification.deleteOne({ _id: id });
 
-        await sendSuccess(req, res, "Domain removed successfully", 200);
+        await sendSuccess(req, res, "Domain deleted successfully", 200);
 
     } catch (error) {
         sendError(req, res, error);
