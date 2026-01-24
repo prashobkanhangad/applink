@@ -11,6 +11,7 @@ import { logger } from './services/logger.js';
 import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
+import { checkDomain } from './controllers/domain/domain.controller.js';
 
 dotenv.config()
 const app = express()
@@ -35,29 +36,9 @@ app.use(bodyParser.urlencoded({
 }));
 
 
-// --- CADDY SECURITY CHECK ---
-app.get('/check-domain', (req, res) => {
-    // 1. Get the domain Caddy is asking about
-    const domain = req.query.domain;
-    console.log(`Checking permission for: ${domain}`);
+app.get('/check-domain', checkDomain);
 
-    // 2. The HARDCODED list of allowed domains
-    // (Add your customer's domains here)
-    const allowedDomains = [
-        'link.invyto.in',
-        'shop.custom-user.com',
-        'test-domain.com'
-    ];
 
-    // 3. Check if the domain is in the list
-    if (allowedDomains.includes(domain)) {
-        console.log("Allowed! ✅");
-        res.sendStatus(200); // 200 OK tells Caddy "Yes, proceed"
-    } else {
-        console.log("Blocked! ❌");
-        res.sendStatus(403); // 403 Forbidden tells Caddy "No"
-    }
-});
 
 app.get('/.well-known/assetlinks.json',async (req,res)=>{
     const host = req.headers.host;
@@ -105,6 +86,7 @@ app.get('/',async (req,res)=>{
 app.get('/health',(req,res)=>{
    res.send("still alive").status(200);
 })
+
 
 app.use('/api/v1', route)
 
