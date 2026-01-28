@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link2, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { authenticateWithGoogle, waitForGoogleIdentity } from '../services/authService';
 
 export const Signup = () => {
@@ -161,9 +161,11 @@ export const Signup = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-[hsl(200_85%_50%)] flex items-center justify-center shadow-md">
-                <Link2 className="w-8 h-8 text-primary-foreground" />
-              </div>
+              <img
+                src="/logo_deeplink.png"
+                alt="DeepLink"
+                className="h-24 w-auto object-contain"
+              />
             </motion.div>
 
             {/* Header */}
@@ -177,7 +179,7 @@ export const Signup = () => {
                 Create your account
               </h1>
               <p className="text-muted-foreground">
-                Get started with DeepLinq in seconds
+                Get started with DeepLink in seconds
               </p>
             </motion.div>
 
@@ -201,14 +203,14 @@ export const Signup = () => {
             <AnimatePresence>
               {successMessage && (
                 <motion.div
-                  className="mb-4 p-4 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-3"
+                  className="mb-4 p-4 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-3 dark:bg-green-500/20 dark:border-green-500/30"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <p className="text-sm text-green-600">{successMessage}</p>
+                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <p className="text-sm text-green-600 dark:text-green-400">{successMessage}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -299,14 +301,14 @@ export const Signup = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              By continuing, you agree to DeepLinq's{' '}
-              <a href="#terms" className="text-primary hover:text-primary/80 underline underline-offset-2">
+              By continuing, you agree to DeepLink's{' '}
+              <Link to="/terms" className="text-primary hover:text-primary/80 underline underline-offset-2">
                 Terms of Service
-              </a>{' '}
+              </Link>{' '}
               and{' '}
-              <a href="#privacy" className="text-primary hover:text-primary/80 underline underline-offset-2">
+              <Link to="/privacy" className="text-primary hover:text-primary/80 underline underline-offset-2">
                 Privacy Policy
-              </a>
+              </Link>
               .
             </motion.p>
 

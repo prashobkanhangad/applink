@@ -24,7 +24,7 @@ export const CTASection = () => {
             <span className="text-gradient">Better Links?</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Join thousands of developers and marketers who trust DeepLinq to power 
+            Join thousands of developers and marketers who trust DeepLink to power 
             their user acquisition. Start free, upgrade when you're ready.
           </p>
 

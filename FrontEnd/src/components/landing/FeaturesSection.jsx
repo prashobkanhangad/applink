@@ -70,7 +70,7 @@ export const FeaturesSection = () => {
             <span className="text-gradient">Own Your Links</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            From simple redirects to complex attribution funnels, DeepLinq handles it all 
+            From simple redirects to complex attribution funnels, DeepLink handles it all 
             with enterprise-grade reliability.
           </p>
         </motion.div>

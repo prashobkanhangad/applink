@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Link2 } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const navLinks = [
   { name: "Features", href: "#features" },
@@ -13,24 +14,27 @@ const navLinks = [
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <motion.a
-            href="#"
-            className="flex items-center gap-2 text-foreground"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200_85%_50%)] flex items-center justify-center shadow-md">
-              <Link2 className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">DeepLinq</span>
-          </motion.a>
+          <Link to="/">
+            <motion.div
+              className="flex items-center text-foreground"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <img
+                src="/logo_deeplink.png"
+                alt="DeepLink"
+                className="h-14 w-auto object-contain"
+              />
+            </motion.div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
@@ -55,6 +59,17 @@ export const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+            </button>
             <Link to="/signup">
               <Button variant="ghost" className="text-muted-foreground">
                 Log In
@@ -67,13 +82,26 @@ export const Header = () => {
             </Link>
           </motion.div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-foreground p-2"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile: theme toggle + menu button */}
+          <div className="md:hidden flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+            </button>
+            <button
+              className="text-foreground p-2"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -98,6 +126,25 @@ export const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                <button
+                  onClick={() => {
+                    toggleTheme();
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors font-medium"
+                >
+                  {theme === "light" ? (
+                    <>
+                      <Moon className="w-5 h-5" />
+                      Dark mode
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="w-5 h-5" />
+                      Light mode
+                    </>
+                  )}
+                </button>
                 <Link to="/signup" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="justify-center w-full">
                     Log In

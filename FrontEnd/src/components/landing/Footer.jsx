@@ -1,4 +1,5 @@
-import { Link2, Github, Twitter, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Github, Twitter, Linkedin } from "lucide-react";
 
 const footerLinks = {
   Product: [
@@ -8,7 +9,7 @@ const footerLinks = {
     { name: "Changelog", href: "#" },
   ],
   Company: [
-    { name: "About", href: "#" },
+    { name: "About", href: "/about" },
     { name: "Blog", href: "#" },
     { name: "Careers", href: "#" },
     { name: "Contact", href: "#" },
@@ -20,10 +21,10 @@ const footerLinks = {
     { name: "Help Center", href: "#" },
   ],
   Legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "Cookie Policy", href: "#" },
-    { name: "GDPR", href: "#" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+    { name: "Cookie Policy", href: "/cookies" },
+    { name: "GDPR", href: "/privacy" },
   ],
 };
 
@@ -40,12 +41,14 @@ export const Footer = () => {
         <div className="grid lg:grid-cols-6 gap-12 mb-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <a href="#" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(200_85%_50%)] flex items-center justify-center shadow-md">
-                <Link2 className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">DeepLinq</span>
-            </a>
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <img
+                src="/logo_deeplink.png"
+                alt="DeepLink"
+                className="h-14 w-auto object-contain"
+              />
+              <span className="text-xl font-bold">DeepLink</span>
+            </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xs">
               The intelligent deep linking platform trusted by developers and marketers worldwide.
             </p>
@@ -69,12 +72,21 @@ export const Footer = () => {
               <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.name}
-                    </a>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        to={link.href}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -85,7 +97,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DeepLinq. All rights reserved.
+            © {new Date().getFullYear()} DeepLink. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
             Made with precision for developers everywhere.

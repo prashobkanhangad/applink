@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden link-pattern">
+    <section className="relative min-h-screen flex items-center justify-center pt-28 overflow-hidden link-pattern">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />
@@ -16,7 +16,7 @@ export const HeroSection = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border mb-8 mt-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -107,7 +107,7 @@ export const HeroSection = () => {
                   <div className="w-3 h-3 rounded-full bg-green-500/80" />
                 </div>
                 <div className="flex-1 bg-background rounded-lg px-4 py-2 text-sm text-muted-foreground font-mono border border-border">
-                  deeplinq.io/dashboard
+                  deeplink.io/dashboard
                 </div>
               </div>
 
@@ -126,7 +126,7 @@ export const HeroSection = () => {
                       <span className="text-sm text-muted-foreground">{card.title}</span>
                     </div>
                     <div className="text-2xl font-bold text-foreground mb-1">{card.value}</div>
-                    <div className="text-sm text-green-600 font-medium">{card.change}</div>
+                    <div className="text-sm text-green-600 dark:text-green-400 font-medium">{card.change}</div>
                   </div>
                 ))}
               </div>
