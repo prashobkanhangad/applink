@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { authenticateWithGoogle, waitForGoogleIdentity } from '../services/authService';
 import { PageMeta } from '../components/PageMeta';
+import { useTheme } from '../contexts/ThemeContext';
 
 const META = {
   title: 'Sign Up',
@@ -12,6 +13,8 @@ const META = {
 
 export const Signup = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -169,7 +172,7 @@ export const Signup = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <img
-                src="/logo_deeplink.png"
+                src={logoSrc}
                 alt="DeepLink"
                 className="h-24 w-auto object-contain"
               />

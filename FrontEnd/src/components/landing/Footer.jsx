@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Github, Twitter, Linkedin } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const footerLinks = {
   Product: [
@@ -36,6 +37,9 @@ const socialLinks = [
 ];
 
 export const Footer = () => {
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
+
   return (
     <footer className="bg-secondary/50 border-t border-border py-16 lg:py-20">
       <div className="container mx-auto px-6">
@@ -44,7 +48,7 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <img
-                src="/logo_deeplink.png"
+                src={logoSrc}
                 alt="DeepLink"
                 className="h-14 w-auto object-contain"
               />

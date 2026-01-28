@@ -29,7 +29,7 @@ export const Header = () => {
               transition={{ duration: 0.5 }}
             >
               <img
-                src="/logo_deeplink.png"
+                src={theme === "dark" ? "/logo_light.png" : "/logo_dark.png"}
                 alt="DeepLink"
                 className="h-14 w-auto object-contain"
               />

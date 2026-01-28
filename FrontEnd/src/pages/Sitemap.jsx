@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Home, FileText, Shield, Cookie, UserPlus, LayoutGrid } from "lucide-react";
 import { PageMeta } from "../components/PageMeta";
+import { useTheme } from "../contexts/ThemeContext";
 
 const META = {
   title: "Sitemap",
@@ -55,6 +56,9 @@ const groups = [
 ];
 
 export const Sitemap = () => {
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden link-pattern">
       <PageMeta title={META.title} description={META.description} path="/sitemap" />
@@ -67,7 +71,7 @@ export const Sitemap = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-foreground">
-              <img src="/logo_deeplink.png" alt="DeepLink" className="h-14 w-auto object-contain" />
+              <img src={logoSrc} alt="DeepLink" className="h-14 w-auto object-contain" />
               <span className="text-xl font-bold">DeepLink</span>
             </Link>
             <Link
