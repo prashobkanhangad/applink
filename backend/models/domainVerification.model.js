@@ -40,6 +40,15 @@ const domainVerificationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    // Soft delete fields
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 

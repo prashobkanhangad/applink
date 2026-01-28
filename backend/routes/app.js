@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createApp, createAppLink, getAllLinks, updateAppLink, getAnalytics, getUserApps } from "../controllers/app/app.controller.js";
+import { createApp, createAppLink, getAllLinks, updateAppLink, getUserApps, getLinkDetails, getLinkAnalytics } from "../controllers/app/app.controller.js";
 import { verifyJWT } from "../services/jwt.js";
 
 
@@ -17,7 +17,9 @@ appRoute.put("/link/:appId",updateAppLink);
 
 appRoute.get("/links",getAllLinks);
 
-appRoute.get("/link/:id",getAnalytics);
+// Link details and analytics endpoints
+appRoute.get("/link/:id", getLinkDetails);
+appRoute.get("/link/:id/analytics", getLinkAnalytics);
 
 appRoute.get("/apps",getUserApps);
 

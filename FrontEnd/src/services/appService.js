@@ -83,6 +83,7 @@ export const createApp = async (appData) => {
  * @param {string} appConfig.name - App name
  * @param {string} appConfig.subDomain - Subdomain (e.g., "dev.something.com")
  * @param {string} appConfig.fallbackUrl - Fallback URL for mobile devices
+ * @param {string} [appConfig.domainId] - Custom domain ID (optional)
  * @param {Object} [appConfig.android] - Android configuration (optional)
  * @param {string} [appConfig.android.packageName] - Android package name
  * @param {string} [appConfig.android.fingerPrint] - SHA256 fingerprint
@@ -99,6 +100,11 @@ export const createAppWithConfigurations = async (appConfig) => {
     fallbackUrl: appConfig.fallbackUrl,
     configurations: {},
   };
+
+  // Add domainId if provided (for custom domains)
+  if (appConfig.domainId) {
+    payload.domainId = appConfig.domainId;
+  }
 
   // Add Android configuration if provided
   if (appConfig.android && (appConfig.android.packageName || appConfig.android.fingerPrint)) {

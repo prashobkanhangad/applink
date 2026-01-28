@@ -199,6 +199,32 @@ export const addDomain = async (req, res) => {
             createdBy: performingUser._id
         });
 
+        const cnameTarget = getCNAMETarget();
+
+        // If domain exists and is soft-deleted, restore it
+        if (existingDomain && existingDomain.isDeleted) {
+            existingDomain.isDeleted = false;
+            existingDomain.deletedAt = null;
+            existingDomain.status = 'pending'; // Reset verification status
+            existingDomain.verifiedAt = null;
+            existingDomain.cnameTarget = cnameTarget;
+            await existingDomain.save();
+
+            const verificationInstructions = {
+                type: "CNAME",
+                name: normalizedSubdomain,
+                value: cnameTarget,
+                fullDomain: `${normalizedSubdomain}.${normalizedDomain}`,
+                instructions: `Add a CNAME record to your DNS with the name "${normalizedSubdomain}" pointing to "${cnameTarget}"`
+            };
+
+            return await sendSuccess(req, res, "Domain restored successfully. Please configure CNAME record and verify.", 201, {
+                domain: existingDomain,
+                instructions: verificationInstructions
+            });
+        }
+
+        // If domain exists and is not deleted, return error
         if (existingDomain) {
             return res.status(400).json({
                 status: 'error',
@@ -206,8 +232,6 @@ export const addDomain = async (req, res) => {
                 data: existingDomain
             });
         }
-
-        const cnameTarget = getCNAMETarget();
 
         // Create domain verification record
         const domainVerification = await DomainVerification.create({
@@ -247,10 +271,11 @@ export const verifyDomainEndpoint = async (req, res) => {
         const { id } = req.params;
         const { performingUser } = req;
 
-        // Find the domain verification record
+        // Find the domain verification record (exclude soft-deleted)
         const domainVerification = await DomainVerification.findOne({
             _id: id,
-            createdBy: performingUser._id
+            createdBy: performingUser._id,
+            isDeleted: { $ne: true }
         });
 
         if (!domainVerification) {
@@ -307,7 +332,8 @@ export const getDomains = async (req, res) => {
         const { performingUser } = req;
 
         const domains = await DomainVerification.find({
-            createdBy: performingUser._id
+            createdBy: performingUser._id,
+            isDeleted: { $ne: true } // Exclude soft-deleted domains
         }).sort({ createdAt: -1 });
 
         await sendSuccess(req, res, "Domains fetched successfully", 200, domains);
@@ -328,7 +354,8 @@ export const getDomain = async (req, res) => {
 
         const domain = await DomainVerification.findOne({
             _id: id,
-            createdBy: performingUser._id
+            createdBy: performingUser._id,
+            isDeleted: { $ne: true } // Exclude soft-deleted domains
         });
 
         if (!domain) {
@@ -358,7 +385,7 @@ export const getDomain = async (req, res) => {
 };
 
 /**
- * Delete a domain verification record
+ * Soft delete a domain verification record
  * DELETE /api/v1/domain/:id
  */
 export const deleteDomain = async (req, res) => {
@@ -368,7 +395,8 @@ export const deleteDomain = async (req, res) => {
 
         const domain = await DomainVerification.findOne({
             _id: id,
-            createdBy: performingUser._id
+            createdBy: performingUser._id,
+            isDeleted: { $ne: true } // Only find non-deleted domains
         });
 
         if (!domain) {
@@ -378,9 +406,18 @@ export const deleteDomain = async (req, res) => {
             });
         }
 
-        await DomainVerification.deleteOne({ _id: id });
+        // Soft delete - set isDeleted flag and deletedAt timestamp
+        domain.isDeleted = true;
+        domain.deletedAt = new Date();
+        await domain.save();
 
-        await sendSuccess(req, res, "Domain deleted successfully", 200);
+        // Remove domainId reference from any apps using this domain
+        await App.updateMany(
+            { domainId: id },
+            { $set: { domainId: null } }
+        );
+
+        await sendSuccess(req, res, "Domain removed successfully", 200);
 
     } catch (error) {
         sendError(req, res, error);

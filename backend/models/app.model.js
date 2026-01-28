@@ -22,7 +22,13 @@
     configurations: {
         android: androidConfigSchema,
         ios: iosConfigSchema
-    },  
+    },
+    // Reference to custom domain (DomainVerification collection)
+    domainId: {
+        type: Schema.Types.ObjectId,
+        ref: 'DomainVerificationSchema',
+        default: null
+    },
     createdBy:{
     type: Schema.Types.ObjectId,
     ref: 'User'

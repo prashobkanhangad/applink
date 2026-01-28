@@ -13,6 +13,7 @@ import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
 import { manageHome, manageAssetLinks } from './controllers/root/root.controller.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
+import { initCronJobs } from './services/cron.service.js';
 
 dotenv.config()
 const app = express()
@@ -118,6 +119,10 @@ process.on('SIGINT', async () => {
 
 mongoose.connect(process.env.DB_URL).then(() => {
     console.log("connected to database")
+    
+    // Initialize cron jobs for domain verification
+    initCronJobs();
+    
     const server = app.listen(PORT, () => {
         console.log(`server started on port: ${PORT}`)
         server.on('error', (err) => {

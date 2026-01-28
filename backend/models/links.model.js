@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const linkSchema = new Schema({
     appId: {
         type: Schema.Types.ObjectId,
-        ref: 'App'
+        ref: 'AppSchema'
     },
     domain: { type: String, required: true },
     path: { type: String, required: true },

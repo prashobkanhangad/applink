@@ -359,7 +359,7 @@ export const Profile = () => {
           </div>
 
           {/* Security Section */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 mt-6">
+          {/* <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 mt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Security</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
@@ -390,7 +390,7 @@ export const Profile = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </main>
     </DashboardLayout>

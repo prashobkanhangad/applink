@@ -24,7 +24,6 @@ export const Links = () => {
   const [linkName, setLinkName] = useState('');
   const [appleBehavior, setAppleBehavior] = useState('Open the Dynamic URL in a browser');
   const [androidBehavior, setAndroidBehavior] = useState('Open the Dynamic URL in a browser');
-  const [selectedSocialPreview, setSelectedSocialPreview] = useState('web');
   const [enableSocialMetaTags, setEnableSocialMetaTags] = useState(false);
   const [previewTitle, setPreviewTitle] = useState('');
   const [previewImageUrl, setPreviewImageUrl] = useState('');
@@ -257,142 +256,119 @@ export const Links = () => {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Step 1: Set up your Short Link Or Dynamic URL */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-                <div className="flex items-start gap-3 mb-4">
-                  <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                    1
+              <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 1 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                {/* Collapsed Header - Clickable when not current step */}
+                <div 
+                  className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 1 && currentStep > 1 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                  onClick={() => currentStep > 1 && setCurrentStep(1)}
+                >
+                  <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 1 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                    {currentStep > 1 ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : '1'}
                   </span>
                   <div className="flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                       Set up your Short Link Or Dynamic URL
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                    {/* Show summary when collapsed */}
+                    {currentStep > 1 && (
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                        {domain}/{path}
+                      </p>
+                    )}
+                  </div>
+                  {currentStep > 1 && (
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  )}
+                </div>
+                
+                {/* Expanded Content - Only show when current step */}
+                {currentStep === 1 && (
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-4 ml-11">
                       Customise your Short Link Or Dynamic URL to make it more professional and contextual.
                     </p>
                     
-                    {/* App Selection Dropdown */}
-                    <div className="mb-4">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        Select App
-                      </label>
-                      <select
-                        value={selectedAppId}
-                        onChange={(e) => {
-                          const appId = e.target.value;
-                          setSelectedAppId(appId);
-                          const selectedApp = apps.find(app => (app._id || app.id) === appId);
-                          if (selectedApp) {
-                            const subDomain = selectedApp.subDomain || '';
-                            const formattedDomain = subDomain.startsWith('http://') || subDomain.startsWith('https://') 
-                              ? subDomain 
-                              : `https://${subDomain}`;
-                            setDomain(formattedDomain);
-                          }
-                        }}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-                      >
-                        <option value="">Select an app</option>
-                        {apps.map((app) => (
-                          <option key={app._id || app.id} value={app._id || app.id}>
-                            {app.name} ({app.subDomain})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Domain Field */}
-                    <div className="mb-4">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        Domain
-                      </label>
-                      <input
-                        type="text"
-                        value={domain}
-                        onChange={(e) => setDomain(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
-                        readOnly
-                      />
-                    </div>
-
-                    {/* Path Field */}
-                    <div className="mb-4">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        Path <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={path}
-                        onChange={(e) => setPath(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        placeholder="/ e.g. home"
-                      />
-                    </div>
-
-                    {/* Next Button */}
-                    <div className="flex justify-end">
-                      <button
-                        onClick={handleNext}
-                        disabled={!path || path.trim() === ''}
-                        className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2: Set up your dynamic link */}
-              {currentStep >= 2 && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                      2
-                    </span>
-                    <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                        Set up your dynamic link
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-600 mb-4">
-                        A dynamic link is a deep link into your app that works whether or not your app is installed. On desktop it will go to the deep link url.
-                      </p>
-                      
-                      {/* Destination URL Field */}
+                    <div className="ml-11">
+                      {/* App Selection Dropdown */}
                       <div className="mb-4">
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                          Destination URL
+                          Select App
                         </label>
-                        <input
-                          type="url"
-                          value={destinationUrl}
-                          onChange={(e) => setDestinationUrl(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          placeholder="E.g.: https://yourapp.com/welcome-page"
-                        />
+                        <select
+                          value={selectedAppId}
+                          onChange={(e) => {
+                            const appId = e.target.value;
+                            setSelectedAppId(appId);
+                            const selectedApp = apps.find(app => (app._id || app.id) === appId);
+                            if (selectedApp) {
+                              const subDomain = selectedApp.subDomain || '';
+                              const formattedDomain = subDomain.startsWith('http://') || subDomain.startsWith('https://') 
+                                ? subDomain 
+                                : `https://${subDomain}`;
+                              setDomain(formattedDomain);
+                            }
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                        >
+                          <option value="">Select an app</option>
+                          {apps.map((app) => {
+                            // Check if app is verified (either uses .chottu.link subdomain or has verified custom domain)
+                            const isSubdomain = app.subDomain?.endsWith('.chottu.link');
+                            const isVerified = isSubdomain || app.domainId?.status === 'verified';
+                            const isPending = app.domainId && app.domainId.status !== 'verified';
+                            
+                            return (
+                              <option 
+                                key={app._id || app.id} 
+                                value={app._id || app.id}
+                                disabled={!isVerified}
+                              >
+                                {app.name} ({app.subDomain}){isPending ? ' - ⏳ Pending Verification' : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
 
-                      {/* Link Name Field */}
+                      {/* Domain Field */}
                       <div className="mb-4">
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                          Link Name
+                          Domain
                         </label>
                         <input
                           type="text"
-                          value={linkName}
-                          onChange={(e) => setLinkName(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          placeholder="e.g. Seasonal Promo"
+                          value={domain}
+                          onChange={(e) => setDomain(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
+                          readOnly
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Pick a name that helps you recognize the link easily
-                        </p>
+                      </div>
+
+                      {/* Path Field */}
+                      <div className="mb-4">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                          Path <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={path}
+                          onChange={(e) => setPath(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="/ e.g. home"
+                        />
                       </div>
 
                       {/* Next Button */}
                       <div className="flex justify-end">
                         <button
                           onClick={handleNext}
-                          disabled={!destinationUrl || destinationUrl.trim() === ''}
+                          disabled={!path || path.trim() === ''}
                           className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                         >
                           Next
@@ -400,294 +376,442 @@ export const Links = () => {
                       </div>
                     </div>
                   </div>
+                )}
+              </div>
+
+              {/* Step 2: Set up your dynamic link */}
+              {currentStep >= 2 && (
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 2 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                  {/* Collapsed Header - Clickable when not current step */}
+                  <div 
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 2 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                    onClick={() => currentStep !== 2 && setCurrentStep(2)}
+                  >
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 2 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                      {currentStep > 2 ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : '2'}
+                    </span>
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                        Set up your dynamic link
+                      </h3>
+                      {/* Show summary when collapsed */}
+                      {currentStep > 2 && (
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+                          {linkName || 'Unnamed'} → {destinationUrl}
+                        </p>
+                      )}
+                    </div>
+                    {currentStep > 2 && (
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    )}
+                  </div>
+                  
+                  {/* Expanded Content - Only show when current step */}
+                  {currentStep === 2 && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-4 ml-11">
+                        A dynamic link is a deep link into your app that works whether or not your app is installed. On desktop it will go to the deep link url.
+                      </p>
+                      
+                      <div className="ml-11">
+                        {/* Destination URL Field */}
+                        <div className="mb-4">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                            Destination URL
+                          </label>
+                          <input
+                            type="url"
+                            value={destinationUrl}
+                            onChange={(e) => setDestinationUrl(e.target.value)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="E.g.: https://yourapp.com/welcome-page"
+                          />
+                        </div>
+
+                        {/* Link Name Field */}
+                        <div className="mb-4">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                            Link Name
+                          </label>
+                          <input
+                            type="text"
+                            value={linkName}
+                            onChange={(e) => setLinkName(e.target.value)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="e.g. Seasonal Promo"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Pick a name that helps you recognize the link easily
+                          </p>
+                        </div>
+
+                        {/* Next Button */}
+                        <div className="flex justify-end">
+                          <button
+                            onClick={handleNext}
+                            disabled={!destinationUrl || destinationUrl.trim() === ''}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Step 3: Define link behaviour for Apple */}
               {currentStep >= 3 && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                      3
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 3 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                  {/* Collapsed Header - Clickable when not current step */}
+                  <div 
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 3 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                    onClick={() => currentStep !== 3 && setCurrentStep(3)}
+                  >
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 3 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                      {currentStep > 3 ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : '3'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Define link behaviour for Apple
                       </h3>
-                      
-                      {/* Radio Options */}
-                      <div className="space-y-3">
-                        <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="appleBehavior"
-                            value="Open the Dynamic URL in a browser"
-                            checked={appleBehavior === 'Open the Dynamic URL in a browser'}
-                            onChange={(e) => setAppleBehavior(e.target.value)}
-                            className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                          />
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-gray-900">
-                              Open the Dynamic URL in a browser
-                            </span>
-                          </div>
-                        </label>
+                      {/* Show summary when collapsed */}
+                      {currentStep > 3 && (
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          {appleBehavior.includes('App') ? '📱 Open in App' : '🌐 Open in Browser'}
+                        </p>
+                      )}
+                    </div>
+                    {currentStep > 3 && (
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    )}
+                  </div>
+                  
+                  {/* Expanded Content - Only show when current step */}
+                  {currentStep === 3 && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                      <div className="ml-11">
+                        {/* Radio Options */}
+                        <div className="space-y-3">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="appleBehavior"
+                              value="Open the Dynamic URL in a browser"
+                              checked={appleBehavior === 'Open the Dynamic URL in a browser'}
+                              onChange={(e) => setAppleBehavior(e.target.value)}
+                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">
+                                Open the Dynamic URL in a browser
+                              </span>
+                            </div>
+                          </label>
 
-                        <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="appleBehavior"
-                            value="Open the Dynamic URL in your Apple App"
-                            checked={appleBehavior === 'Open the Dynamic URL in your Apple App'}
-                            onChange={(e) => setAppleBehavior(e.target.value)}
-                            className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                          />
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-gray-900">
-                              Open the Dynamic URL in your Apple App
-                            </span>
-                          </div>
-                        </label>
-                      </div>
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="appleBehavior"
+                              value="Open the Dynamic URL in your Apple App"
+                              checked={appleBehavior === 'Open the Dynamic URL in your Apple App'}
+                              onChange={(e) => setAppleBehavior(e.target.value)}
+                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">
+                                Open the Dynamic URL in your Apple App
+                              </span>
+                            </div>
+                          </label>
+                        </div>
 
-                      {/* Next Button */}
-                      <div className="flex justify-end mt-4">
-                        <button
-                          onClick={handleNext}
-                          className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          Next
-                        </button>
+                        {/* Next Button */}
+                        <div className="flex justify-end mt-4">
+                          <button
+                            onClick={handleNext}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            Next
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
               {/* Step 4: Define link behaviour for Android */}
               {currentStep >= 4 && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                      4
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 4 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                  {/* Collapsed Header - Clickable when not current step */}
+                  <div 
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 4 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                    onClick={() => currentStep !== 4 && setCurrentStep(4)}
+                  >
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 4 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                      {currentStep > 4 ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : '4'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Define link behaviour for Android
                       </h3>
-                      
-                      {/* Radio Options */}
-                      <div className="space-y-3">
-                        <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="androidBehavior"
-                            value="Open the Dynamic URL in a browser"
-                            checked={androidBehavior === 'Open the Dynamic URL in a browser'}
-                            onChange={(e) => setAndroidBehavior(e.target.value)}
-                            className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                          />
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-gray-900">
-                              Open the Dynamic URL in a browser
-                            </span>
-                          </div>
-                        </label>
+                      {/* Show summary when collapsed */}
+                      {currentStep > 4 && (
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          {androidBehavior.includes('App') ? '📱 Open in App' : '🌐 Open in Browser'}
+                        </p>
+                      )}
+                    </div>
+                    {currentStep > 4 && (
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    )}
+                  </div>
+                  
+                  {/* Expanded Content - Only show when current step */}
+                  {currentStep === 4 && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                      <div className="ml-11">
+                        {/* Radio Options */}
+                        <div className="space-y-3">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="androidBehavior"
+                              value="Open the Dynamic URL in a browser"
+                              checked={androidBehavior === 'Open the Dynamic URL in a browser'}
+                              onChange={(e) => setAndroidBehavior(e.target.value)}
+                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">
+                                Open the Dynamic URL in a browser
+                              </span>
+                            </div>
+                          </label>
 
-                        <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                          <input
-                            type="radio"
-                            name="androidBehavior"
-                            value="Open the Dynamic URL in your Android App"
-                            checked={androidBehavior === 'Open the Dynamic URL in your Android App'}
-                            onChange={(e) => setAndroidBehavior(e.target.value)}
-                            className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                          />
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-gray-900">
-                              Open the Dynamic URL in your Android App
-                            </span>
-                          </div>
-                        </label>
-                      </div>
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <input
+                              type="radio"
+                              name="androidBehavior"
+                              value="Open the Dynamic URL in your Android App"
+                              checked={androidBehavior === 'Open the Dynamic URL in your Android App'}
+                              onChange={(e) => setAndroidBehavior(e.target.value)}
+                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">
+                                Open the Dynamic URL in your Android App
+                              </span>
+                            </div>
+                          </label>
+                        </div>
 
-                      {/* Next Button */}
-                      <div className="flex justify-end mt-4">
-                        <button
-                          onClick={handleNext}
-                          className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          Next
-                        </button>
+                        {/* Next Button */}
+                        <div className="flex justify-end mt-4">
+                          <button
+                            onClick={handleNext}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            Next
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
               {/* Step 5: Campaign tracking, social tags and advanced options */}
               {currentStep >= 5 && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <div className="flex items-start gap-3 mb-4">
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 5 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                  {/* Header */}
+                  <div className="flex items-center gap-3 p-4 sm:p-6">
                     <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       5
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Campaign tracking, social tags and advanced options (optional)
                       </h3>
-                      
-                      {/* Add social meta tags */}
-                      <div className="mb-6">
-                        <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={enableSocialMetaTags}
-                            onChange={(e) => setEnableSocialMetaTags(e.target.checked)}
-                            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            Add social meta tags for better sharing
-                          </span>
-                        </label>
-
-                        {enableSocialMetaTags && (
-                          <div className="ml-6 space-y-4">
-                            {/* Preview Title */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Preview title (st)
-                              </label>
-                              <input
-                                type="text"
-                                value={previewTitle}
-                                onChange={(e) => setPreviewTitle(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="E.g.: Seasonal Promo"
-                              />
-                            </div>
-
-                            {/* Preview Image URL */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Preview image URL (si)
-                              </label>
-                              <input
-                                type="url"
-                                value={previewImageUrl}
-                                onChange={(e) => setPreviewImageUrl(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="E.g.: https://mydomain.com/images/promo.jpg"
-                              />
-                            </div>
-
-                            {/* Preview Description */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Preview description (sd)
-                              </label>
-                              <textarea
-                                value={previewDescription}
-                                onChange={(e) => setPreviewDescription(e.target.value)}
-                                rows={3}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. Some description..."
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Track a campaign with UTM parameters */}
-                      <div>
-                        <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={enableUTMTracking}
-                            onChange={(e) => setEnableUTMTracking(e.target.checked)}
-                            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            Track a campaign with UTM parameters
-                          </span>
-                        </label>
-
-                        {enableUTMTracking && (
-                          <div className="ml-6 space-y-4">
-                            {/* Campaign Source */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Campaign Source (utm_source)
-                              </label>
-                              <input
-                                type="text"
-                                value={utmSource}
-                                onChange={(e) => setUtmSource(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. ChottuLink"
-                              />
-                            </div>
-
-                            {/* Campaign Medium */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Campaign medium (utm_medium)
-                              </label>
-                              <input
-                                type="text"
-                                value={utmMedium}
-                                onChange={(e) => setUtmMedium(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. cpc"
-                              />
-                            </div>
-
-                            {/* Campaign Name */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Campaign name (utm_campaign)
-                              </label>
-                              <input
-                                type="text"
-                                value={utmCampaign}
-                                onChange={(e) => setUtmCampaign(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. spring sale"
-                              />
-                            </div>
-
-                            {/* Term Name */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                Term name (utm_term)
-                              </label>
-                              <input
-                                type="text"
-                                value={utmTerm}
-                                onChange={(e) => setUtmTerm(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. email+spring+offer"
-                              />
-                            </div>
-
-                            {/* UTM Content */}
-                            <div>
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                                UTM Content (utm_content)
-                              </label>
-                              <input
-                                type="text"
-                                value={utmContent}
-                                onChange={(e) => setUtmContent(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="e.g. image_top_banner"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
+                  
+                  {/* Content - Always show for step 5 since it's the last step */}
+                  {currentStep === 5 && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                      <div className="ml-11">
+                        {/* Add social meta tags */}
+                        <div className="mb-6">
+                          <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={enableSocialMetaTags}
+                              onChange={(e) => setEnableSocialMetaTags(e.target.checked)}
+                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                            <span className="text-sm font-medium text-gray-900">
+                              Add social meta tags for better sharing
+                            </span>
+                          </label>
+
+                          {enableSocialMetaTags && (
+                            <div className="ml-6 space-y-4">
+                              {/* Preview Title */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Preview title (st)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={previewTitle}
+                                  onChange={(e) => setPreviewTitle(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="E.g.: Seasonal Promo"
+                                />
+                              </div>
+
+                              {/* Preview Image URL */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Preview image URL (si)
+                                </label>
+                                <input
+                                  type="url"
+                                  value={previewImageUrl}
+                                  onChange={(e) => setPreviewImageUrl(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="E.g.: https://mydomain.com/images/promo.jpg"
+                                />
+                              </div>
+
+                              {/* Preview Description */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Preview description (sd)
+                                </label>
+                                <textarea
+                                  value={previewDescription}
+                                  onChange={(e) => setPreviewDescription(e.target.value)}
+                                  rows={3}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. Some description..."
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Track a campaign with UTM parameters */}
+                        <div>
+                          <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={enableUTMTracking}
+                              onChange={(e) => setEnableUTMTracking(e.target.checked)}
+                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                            <span className="text-sm font-medium text-gray-900">
+                              Track a campaign with UTM parameters
+                            </span>
+                          </label>
+
+                          {enableUTMTracking && (
+                            <div className="ml-6 space-y-4">
+                              {/* Campaign Source */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Campaign Source (utm_source)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={utmSource}
+                                  onChange={(e) => setUtmSource(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. ChottuLink"
+                                />
+                              </div>
+
+                              {/* Campaign Medium */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Campaign medium (utm_medium)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={utmMedium}
+                                  onChange={(e) => setUtmMedium(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. cpc"
+                                />
+                              </div>
+
+                              {/* Campaign Name */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Campaign name (utm_campaign)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={utmCampaign}
+                                  onChange={(e) => setUtmCampaign(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. spring sale"
+                                />
+                              </div>
+
+                              {/* Term Name */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  Term name (utm_term)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={utmTerm}
+                                  onChange={(e) => setUtmTerm(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. email+spring+offer"
+                                />
+                              </div>
+
+                              {/* UTM Content */}
+                              <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                  UTM Content (utm_content)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={utmContent}
+                                  onChange={(e) => setUtmContent(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  placeholder="e.g. image_top_banner"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -798,82 +922,103 @@ export const Links = () => {
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900">QR Code</h3>
                   <QuestionMarkIcon className="w-4 h-4 text-gray-400" />
                 </div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px]">
-                  <QRCodeIcon className="w-12 h-12 text-gray-400 mb-2" />
-                  <p className="text-xs sm:text-sm text-gray-500 text-center">
-                    Enter a path to generate QR code
-                  </p>
-                </div>
+                {domain && path && path.trim() !== '' ? (
+                  <div className="flex flex-col items-center">
+                    {/* QR Code Image */}
+                    <div className="bg-white p-3 rounded-lg border border-gray-200 mb-3">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`${domain}/${path}`)}`}
+                        alt="QR Code"
+                        className="w-[180px] h-[180px]"
+                      />
+                    </div>
+                    {/* Link URL */}
+                    <p className="text-xs text-gray-500 text-center mb-3 break-all px-2">
+                      {domain}/{path}
+                    </p>
+                    {/* Download Button */}
+                    <a
+                      href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&format=png&data=${encodeURIComponent(`${domain}/${path}`)}`}
+                      download={`qr-${path}.png`}
+                      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download QR
+                    </a>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px]">
+                    <QRCodeIcon className="w-12 h-12 text-gray-400 mb-2" />
+                    <p className="text-xs sm:text-sm text-gray-500 text-center">
+                      Enter a path to generate QR code
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Social Link Preview Section */}
+              {/* Link Preview Section */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Social Link Preview</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Link Preview</h3>
                   <QuestionMarkIcon className="w-4 h-4 text-gray-400" />
-                </div>
-                
-                {/* Social Media Icons */}
-                <div className="flex items-center gap-2 mb-4">
-                  <button
-                    onClick={() => setSelectedSocialPreview('web')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      selectedSocialPreview === 'web'
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                    }`}
-                  >
-                    <GlobeIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedSocialPreview('twitter')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      selectedSocialPreview === 'twitter'
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                    }`}
-                  >
-                    <TwitterIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedSocialPreview('linkedin')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      selectedSocialPreview === 'linkedin'
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                    }`}
-                  >
-                    <LinkedInIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedSocialPreview('facebook')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      selectedSocialPreview === 'facebook'
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                    }`}
-                  >
-                    <FacebookIcon className="w-5 h-5" />
-                  </button>
                 </div>
 
                 {/* Preview Box */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px] mb-4">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
-                  <p className="text-xs sm:text-sm text-gray-500 text-center">
-                    Enter a link to generate a preview
-                  </p>
-                </div>
+                {enableSocialMetaTags && (previewTitle || previewImageUrl || previewDescription) ? (
+                  <div className="border border-gray-200 rounded-lg overflow-hidden mb-4 bg-white shadow-sm">
+                    {previewImageUrl ? (
+                      <div className="aspect-video bg-gray-100 relative overflow-hidden">
+                        <img 
+                          src={previewImageUrl} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect fill="%23f3f4f6"/></svg>'; }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
+                        <ImageIcon className="w-10 h-10 text-gray-400 mb-2" />
+                        <p className="text-xs text-gray-500">Add image URL</p>
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <p className="text-xs text-gray-500 mb-1 truncate">
+                        {domain.replace(/^https?:\/\//, '')}
+                      </p>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+                        {previewTitle || linkName || 'Your Link Title'}
+                      </h4>
+                      {previewDescription && (
+                        <p className="text-xs text-gray-600 line-clamp-2">
+                          {previewDescription}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px] mb-4">
+                    <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
+                    <p className="text-xs sm:text-sm text-gray-500 text-center">
+                      Enable social meta tags to see preview
+                    </p>
+                  </div>
+                )}
 
                 {/* Preview Labels */}
                 <div className="space-y-2">
                   <div>
                     <label className="text-xs text-gray-500">Preview Title</label>
-                    <p className="text-sm text-gray-900 mt-1">-</p>
+                    <p className="text-sm text-gray-900 mt-1">
+                      {enableSocialMetaTags && previewTitle ? previewTitle : '-'}
+                    </p>
                   </div>
                   <div>
                     <label className="text-xs text-gray-500">Preview Description</label>
-                    <p className="text-sm text-gray-900 mt-1">-</p>
+                    <p className="text-sm text-gray-900 mt-1 line-clamp-2">
+                      {enableSocialMetaTags && previewDescription ? previewDescription : '-'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1070,30 +1215,6 @@ const QRCodeIcon = ({ className }) => (
 const ImageIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-);
-
-const GlobeIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-  </svg>
-);
-
-const TwitterIcon = ({ className }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
-
-const LinkedInIcon = ({ className }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-  </svg>
-);
-
-const FacebookIcon = ({ className }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 );
 
