@@ -3,6 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { authenticateWithGoogle, waitForGoogleIdentity } from '../services/authService';
+import { PageMeta } from '../components/PageMeta';
+
+const META = {
+  title: 'Sign Up',
+  description: 'Create your DeepLink account. Get started with deep linking and attribution in seconds. Sign in with Google.',
+};
 
 export const Signup = () => {
   const navigate = useNavigate();
@@ -139,6 +145,7 @@ export const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden link-pattern">
+      <PageMeta title={META.title} description={META.description} path="/signup" />
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />

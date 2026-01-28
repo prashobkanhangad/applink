@@ -1,10 +1,17 @@
 import { LegalPageLayout } from "../components/legal/LegalPageLayout";
+import { PageMeta } from "../components/PageMeta";
 
 const lastUpdated = "January 27, 2025";
+
+const META = {
+  title: "Terms of Service",
+  description: "DeepLink's Terms of Service govern your access to and use of our website, APIs, SDKs, and deep linking services. Read our terms and conditions.",
+};
 
 export const TermsOfService = () => {
   return (
     <LegalPageLayout title="Terms of Service" lastUpdated={lastUpdated}>
+      <PageMeta title={META.title} description={META.description} path="/terms" />
       <p>
         Welcome to DeepLink. These Terms of Service ("Terms") govern your access to and use of our website, APIs, SDKs, and related services (collectively, the "Services"). By using our Services, you agree to these Terms.
       </p>

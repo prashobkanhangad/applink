@@ -15,6 +15,7 @@ const footerLinks = {
     { name: "Contact", href: "#" },
   ],
   Resources: [
+    { name: "Sitemap", href: "/sitemap" },
     { name: "API Reference", href: "#" },
     { name: "SDK Downloads", href: "#" },
     { name: "Case Studies", href: "#" },
@@ -99,9 +100,14 @@ export const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} DeepLink. All rights reserved.
           </p>
-          <p className="text-sm text-muted-foreground">
-            Made with precision for developers everywhere.
-          </p>
+          <div className="flex items-center gap-6">
+            <Link to="/sitemap" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Sitemap
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              Made with precision for developers everywhere.
+            </p>
+          </div>
         </div>
       </div>
     </footer>
