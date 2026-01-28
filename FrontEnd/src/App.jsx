@@ -8,6 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CookiePolicy } from './pages/CookiePolicy';
+import { Sitemap } from './pages/Sitemap';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/sitemap" element={<Sitemap />} />
         <Route path="/dashboard" element={<Dashboard />} />
         {/* <Route path="/dashboard/links" element={<Links />} /> */}
         {/* <Route path="/dashboard/settings" element={<Settings />} /> */}

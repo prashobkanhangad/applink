@@ -2,10 +2,17 @@ import React from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { Section, Container } from '../design-system';
+import { PageMeta } from '../components/PageMeta';
+
+const META = {
+  title: 'About',
+  description: 'We build tools that help teams work better together. Learn about DeepLink\'s mission, product philosophy, and long-term vision.',
+};
 
 export const About = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <PageMeta title={META.title} description={META.description} path="/about" />
       <Header />
       
       <main className="flex-grow">

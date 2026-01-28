@@ -1,10 +1,17 @@
 import { LegalPageLayout } from "../components/legal/LegalPageLayout";
+import { PageMeta } from "../components/PageMeta";
 
 const lastUpdated = "January 27, 2025";
+
+const META = {
+  title: "Privacy Policy",
+  description: "DeepLink's Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our deep linking platform and services.",
+};
 
 export const PrivacyPolicy = () => {
   return (
     <LegalPageLayout title="Privacy Policy" lastUpdated={lastUpdated}>
+      <PageMeta title={META.title} description={META.description} path="/privacy" />
       <p>
         DeepLink ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our deep linking platform and related services.
       </p>

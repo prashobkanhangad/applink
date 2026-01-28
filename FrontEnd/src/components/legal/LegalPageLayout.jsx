@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export const LegalPageLayout = ({ title, lastUpdated, children }) => {
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden link-pattern">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -15,7 +19,7 @@ export const LegalPageLayout = ({ title, lastUpdated, children }) => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-foreground">
               <img
-                src="/logo_deeplink.png"
+                src={logoSrc}
                 alt="DeepLink"
                 className="h-14 w-auto object-contain"
               />

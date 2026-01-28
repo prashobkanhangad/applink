@@ -1,10 +1,17 @@
 import { LegalPageLayout } from "../components/legal/LegalPageLayout";
+import { PageMeta } from "../components/PageMeta";
 
 const lastUpdated = "January 27, 2025";
+
+const META = {
+  title: "Cookie Policy",
+  description: "DeepLink's Cookie Policy explains how we use cookies and similar technologies on our website and services. Learn about cookie types and your choices.",
+};
 
 export const CookiePolicy = () => {
   return (
     <LegalPageLayout title="Cookie Policy" lastUpdated={lastUpdated}>
+      <PageMeta title={META.title} description={META.description} path="/cookies" />
       <p>
         This Cookie Policy explains how DeepLink ("we," "us," or "our") uses cookies and similar technologies when you use our website and services. It should be read alongside our Privacy Policy.
       </p>
