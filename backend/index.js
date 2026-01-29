@@ -54,6 +54,8 @@ app.get('/health', (req, res) => {
     res.send("still alive").status(200);
 })
 
+app.use('/api/v1', route)
+
 app.use('*', async (req, res) => {
     const host = req.headers.host;
     const originalUrl = req.originalUrl;
@@ -101,7 +103,7 @@ app.use('*', async (req, res) => {
 
 
 
-app.use('/api/v1', route)
+
 
 process.on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
