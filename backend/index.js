@@ -20,7 +20,11 @@ const app = express()
 const PORT = process.env.PORT;
 
 app.use(helmet());
-app.use(cors());
+console.log("cors origin", process.env.CORS_ORIGIN)
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}));
 
 
 app.use(
