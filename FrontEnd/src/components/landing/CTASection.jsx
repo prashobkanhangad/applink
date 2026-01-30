@@ -20,12 +20,12 @@ export const CTASection = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Ready to Build{" "}
-            <span className="text-gradient">Better Links?</span>
+            Use App Deep Links to{" "}
+            <span className="text-gradient">Increase Retention</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Join thousands of developers and marketers who trust DeepLink to power 
-            their user acquisition. Start free, upgrade when you're ready.
+            Join thousands of developers and marketers who trust Deeplink as their deep linking platform 
+            for user acquisition. Start free, upgrade when you're ready.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

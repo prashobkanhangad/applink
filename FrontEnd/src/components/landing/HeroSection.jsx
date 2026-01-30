@@ -22,29 +22,40 @@ export const HeroSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Sparkles className="w-4 h-4 text-primary" />
-         
+            <span className="text-sm font-medium text-muted-foreground">
+              Trusted by 10,000+ developers worldwide
+            </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline - Primary keyword for SEO */}
           <motion.h1
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Deep Links That{" "}
-            <span className="text-gradient">Actually Work</span>
+            Smart Deep Linking{" "}
+            <span className="text-gradient">Platform for Apps & Web</span>
           </motion.h1>
 
-          {/* Subheadline */}
+          {/* First 100 words - Context lock with primary & secondary keywords */}
           <motion.p
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Build seamless user journeys with intelligent deep linking and real-time attribution. 
-            Send users exactly where they need to go, every single time.
+            Deeplink is a powerful deep linking platform that helps businesses create smart deep links for mobile apps and websites. With support for mobile deep linking and app deep links, Deeplink ensures users land in the right place across Android, iOS, and web.
+          </motion.p>
+          <motion.p
+            className="text-sm text-muted-foreground mb-10"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Link to="/deep-linking-platform" className="text-primary hover:underline underline-offset-2">
+              Learn more about our deep linking platform →
+            </Link>
           </motion.p>
 
           {/* CTA Buttons */}
@@ -105,7 +116,7 @@ export const HeroSection = () => {
                   <div className="w-3 h-3 rounded-full bg-green-500/80" />
                 </div>
                 <div className="flex-1 bg-background rounded-lg px-4 py-2 text-sm text-muted-foreground font-mono border border-border">
-                  deeplink.io/dashboard
+                  deeplink.in/dashboard
                 </div>
               </div>
 

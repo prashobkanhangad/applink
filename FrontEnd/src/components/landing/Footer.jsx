@@ -4,14 +4,15 @@ import { useTheme } from "../../contexts/ThemeContext";
 
 const footerLinks = {
   Product: [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "Documentation", href: "#docs" },
-    { name: "Changelog", href: "#" },
+    { name: "Features", href: "/#features" },
+    { name: "Pricing", href: "/#pricing" },
+    { name: "Deep Linking Platform", href: "/deep-linking-platform" },
+    { name: "Deferred Deep Linking", href: "/deferred-deep-linking" },
+    { name: "App Deep Links", href: "/app-deep-links" },
   ],
   Company: [
     { name: "About", href: "/about" },
-    { name: "Blog", href: "#" },
+    { name: "Blog", href: "/blog" },
     { name: "Careers", href: "#" },
     { name: "Contact", href: "#" },
   ],
