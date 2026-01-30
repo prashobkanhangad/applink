@@ -22,9 +22,7 @@ export const HeroSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">
-              Trusted by 10,000+ developers worldwide
-            </span>
+         
           </motion.div>
 
           {/* Headline */}
