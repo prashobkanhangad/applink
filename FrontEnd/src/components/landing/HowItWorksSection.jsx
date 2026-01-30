@@ -5,20 +5,20 @@ const steps = [
   {
     icon: Link2,
     number: "01",
-    title: "Create Your Link",
-    description: "Generate a smart link in seconds with our dashboard or API. Set fallbacks, add parameters, customize everything."
+    title: "Create Your Smart Deep Link",
+    description: "Generate a smart deep link in seconds with our dashboard or API. Set fallbacks, add parameters, customize everything."
   },
   {
     icon: MousePointer,
     number: "02",
     title: "Share Everywhere",
-    description: "Use your link in ads, emails, social posts, QR codes—anywhere. One link adapts to all platforms automatically."
+    description: "Use your app deep link in ads, emails, social posts, QR codes—anywhere. One link adapts to all platforms automatically."
   },
   {
     icon: Smartphone,
     number: "03",
     title: "Users Land Perfectly",
-    description: "Your audience opens the app to exactly the right screen. If they don't have the app, they're guided to install it first."
+    description: "With mobile deep linking, your audience opens the app to exactly the right screen. No app? They're guided to install first."
   },
   {
     icon: BarChart,
@@ -46,11 +46,11 @@ export const HowItWorksSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Deep Linking Made{" "}
-            <span className="text-gradient">Simple</span>
+            Mobile Deep Linking for{" "}
+            <span className="text-gradient">Android & iOS Apps</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Get started in minutes, not weeks. Here's how it works.
+            Get started in minutes, not weeks. Here's how app deep links work.
           </p>
         </motion.div>
 

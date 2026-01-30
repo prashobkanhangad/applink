@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Home, FileText, Shield, Cookie, UserPlus, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Home, FileText, Shield, Cookie, UserPlus, LayoutGrid, BookOpen } from "lucide-react";
 import { PageMeta } from "../components/PageMeta";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -26,7 +26,9 @@ const groups = [
     links: [
       { name: "Features", href: "/#features" },
       { name: "Pricing", href: "/#pricing" },
-      { name: "Documentation", href: "/#docs" },
+      { name: "Deep Linking Platform", href: "/deep-linking-platform" },
+      { name: "Deferred Deep Linking", href: "/deferred-deep-linking" },
+      { name: "App Deep Links", href: "/app-deep-links" },
     ],
   },
   {
@@ -34,6 +36,17 @@ const groups = [
     icon: FileText,
     links: [
       { name: "About", href: "/about" },
+      { name: "Blog", href: "/blog" },
+    ],
+  },
+  {
+    title: "Blog Posts",
+    icon: BookOpen,
+    links: [
+      { name: "Firebase Dynamic Links Alternatives 2025", href: "/blog/firebase-dynamic-links-alternatives-2025" },
+      { name: "What Is Deep Linking?", href: "/blog/what-is-deep-linking" },
+      { name: "Deferred Deep Linking for Product Managers", href: "/blog/deferred-deep-linking-for-product-managers" },
+      { name: "How to Implement Deep Linking", href: "/blog/how-to-implement-deep-linking-android-ios" },
     ],
   },
   {
