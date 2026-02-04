@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
+
 import { initCronJobs } from './services/cron.service.js';
 
 dotenv.config()
@@ -38,6 +39,8 @@ app.use(bodyParser.urlencoded({
 
 
 app.get('/check-domain', checkDomain);
+
+
 
 
 

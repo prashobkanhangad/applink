@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "DeepLink (root)"
+    },
+    {
+      "path": "deeplink_sdk",
+      "name": "deeplink_sdk (Flutter)"
+    }
+  ],
+  "settings": {
+    "dart.analysisServerFolding": true
+  }
+}

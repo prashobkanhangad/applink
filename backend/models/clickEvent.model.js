@@ -1,4 +1,3 @@
-import { required } from "joi";
 import { Schema, model } from "mongoose";
 
 
@@ -6,7 +5,7 @@ import { Schema, model } from "mongoose";
 const clickEventSchema = new Schema({
     linkId: {
         type: Schema.Types.ObjectId,
-        ref: 'Link' 
+        ref: 'Link'
     },
     platform: {
         type: String,
@@ -15,7 +14,7 @@ const clickEventSchema = new Schema({
     },
     browser: {
         type: String,
-      required: true
+        required: true
     },
     userAgent: {
         type: String,
@@ -36,6 +35,10 @@ const clickEventSchema = new Schema({
     city: {
         type: String,
         required: true
+    },
+    utm: {
+        type: Schema.Types.Mixed,
+        default: {}
     }
 }, { timestamps: true });
 

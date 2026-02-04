@@ -10,3 +10,5 @@ yarn-error.log*
 pnpm-debug.log*
 FrontEnd/node_modules
 backend/node_modules
+demo
+deeplink_sdk
