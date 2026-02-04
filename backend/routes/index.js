@@ -3,6 +3,7 @@ import authRoute from "./auth.js";
 import appRoute from "./app.js";
 import planRoute from "./plan.js";
 import domainRoute from "./domain.js";
+import sdkRoute from "./sdk.js";
 
 const route = Router();
 
@@ -17,6 +18,7 @@ route.use("/plans", planRoute);
 
 route.use("/domain", domainRoute);
 
+route.use("/sdk", sdkRoute);
 
 
 
