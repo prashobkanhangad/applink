@@ -16,7 +16,7 @@
     const appSChema = new Schema({
     name: String,
     // platform: {enum: ["android", "ios"]},
-    status: {enum: ["active", "disabled"]},
+    status: { type: String, enum: ["active", "disabled"], default: "active" },
     subDomain: String,
     fallbackUrl: String,
     configurations: {

@@ -11,6 +11,7 @@ import { logger } from './services/logger.js';
 import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
+import { manageHome, manageAssetLinks } from './controllers/root/root.controller.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
 
 import { initCronJobs } from './services/cron.service.js';
@@ -20,7 +21,11 @@ const app = express()
 const PORT = process.env.PORT;
 
 app.use(helmet());
-app.use(cors());
+console.log("cors origin", process.env.CORS_ORIGIN)
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+}));
 
 
 app.use(
@@ -44,61 +49,70 @@ app.get('/check-domain', checkDomain);
 
 
 
-app.get('/.well-known/assetlinks.json',async (req,res)=>{
+
+
+
+
+// for dynamically setting asset links for the app
+app.get('/.well-known/assetlinks.json', manageAssetLinks)
+
+// for redirecting to the app on the home page
+app.get('/', manageHome)
+
+app.get('/health', (req, res) => {
+    res.send("still alive").status(200);
+})
+
+app.use('/api/v1', route)
+
+app.use('*', async (req, res) => {
     const host = req.headers.host;
-    const assetLinks = await getAssetLinks(host);
-    if(!assetLinks){
+    const originalUrl = req.originalUrl;
+
+    const appInfo = await App.findOne({ subDomain: host });
+
+    if (!appInfo) {
         throwCustomError(1009);
     }
 
-    res.json(assetLinks);
-});
+    const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
 
 
-app.get('/',async (req,res)=>{
-    try {
-        const host = req.headers.host;
-        console.log(host,"host");
-        const platform = detectPlatform(req.headers['user-agent']);
-        const appInfo = await App.findOne({subDomain: host});
-        console.log(platform,"platform");
-        console.log(appInfo,"appInfo");
+    if (!linkInfo) {
+        throwCustomError(1008);
+    }
 
-        if(!appInfo){
-            return res.status(404).send("App not found");
+    const platform = detectPlatform(req.headers['user-agent']);
+
+
+    if (platform === "android") {
+        if (linkInfo.androidBehavior === "open_app") {
+            const cleanPath = originalUrl.replace(/^\//, '');
+            const intentUrl =
+                `intent://${cleanPath}` +
+                `#Intent;scheme=https;package=${appInfo.packageName};end;`;
+
+            return res.redirect(302, intentUrl);
         }
 
-        let url = null;
-        if(platform === "android"){
-            url = appInfo.configurations?.android?.packageName 
-                ? `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}`
-                : appInfo.fallbackUrl;
-            return res.redirect(url);
-        } else if(platform === "ios"){
-            url = appInfo.configurations?.ios?.storeId
-                ? `https://apps.apple.com/app/id${appInfo.configurations.ios.storeId}`
-                : appInfo.fallbackUrl;
-            return res.redirect(url);
-        } else {
-            // web or unknown platform - use fallback
-            url = appInfo.fallbackUrl;
-            return res.redirect(url);
+        if (linkInfo.androidBehavior === "open_url") {
+
         }
-    } catch (err) {
-        console.error("Root route error:", err);
-        return res.status(500).send("Internal Server Error");
+
+    } else if (platform === "ios") {
+        res.redirect(appInfo.configurations.ios.bundleId);
+    } else {
+        res.redirect(appInfo.fallbackUrl);
     }
 })
 
 
 
 
-app.get('/health',(req,res)=>{
-   res.send("still alive").status(200);
-})
 
 
-app.use('/api/v1', route)
+
+
 
 process.on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);

@@ -5,7 +5,6 @@ import {
     getDomains, 
     getDomain, 
     deleteDomain, 
-    checkDomain
 } from "../controllers/domain/domain.controller.js";
 import { verifyJWT } from "../services/jwt.js";
 
