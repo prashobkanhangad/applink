@@ -5,6 +5,10 @@ const installEventSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Link'
     },
+    packageName: {
+        type: String,
+        default: null
+    },
     platform: {
         type: String,
         enum: ["web", "ios", "android"],
