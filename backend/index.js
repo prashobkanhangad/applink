@@ -13,7 +13,7 @@ import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
 import { manageHome, manageAssetLinks } from './controllers/root/root.controller.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
-import {morgan} from 'morgan';
+import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
 
 dotenv.config()
