@@ -15,7 +15,7 @@ export const handleTrackInstall = async (req, res) => {
                 userAgent: device_brand + " " + device_model + " " + manufacturer,
 
                 browser: "android",
-                ipAddress: ip ?? 'unknown',
+                ipAddress: 'unknown',
                 country: 'unknown',
                 state: 'unknown',
                 city: 'unknown',
