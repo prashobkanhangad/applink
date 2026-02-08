@@ -7,7 +7,7 @@ export const handleTrackInstall = async (req, res) => {
         const { referrer, install_type, app_package, device_brand, device_model, manufacturer, os, os_version } = req.body;
         if(os === "android"){
             await InstallEvent.create({
-                linkId: linkId || undefined,
+                linkId: new mongoose.Types.ObjectId(),
                 packageName: app_package,
                 platform: "android",
                 OSVersion: os_version,
