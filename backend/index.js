@@ -47,7 +47,6 @@ app.use(bodyParser.urlencoded({
 
 app.get('/check-domain', checkDomain);
 
-
 // for dynamically setting asset links for the app
 app.get('/.well-known/assetlinks.json', manageAssetLinks)
 
@@ -60,46 +59,46 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1', route)
 
-app.use('*', async (req, res) => {
-    const host = req.headers.host;
-    const originalUrl = req.originalUrl;
+// app.use('*', async (req, res) => {
+//     const host = req.headers.host;
+//     const originalUrl = req.originalUrl;
 
-    const appInfo = await App.findOne({ subDomain: host });
+//     const appInfo = await App.findOne({ subDomain: host });
 
-    if (!appInfo) {
-        throwCustomError(1009);
-    }
+//     if (!appInfo) {
+//         throwCustomError(1009);
+//     }
 
-    const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
-
-
-    if (!linkInfo) {
-        throwCustomError(1008);
-    }
-
-    const platform = detectPlatform(req.headers['user-agent']);
+//     const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
 
 
-    if (platform === "android") {
-        if (linkInfo.androidBehavior === "open_app") {
-            const cleanPath = originalUrl.replace(/^\//, '');
-            const intentUrl =
-                `intent://${cleanPath}` +
-                `#Intent;scheme=https;package=${appInfo.packageName};end;`;
+//     if (!linkInfo) {
+//         throwCustomError(1008);
+//     }
 
-            return res.redirect(302, intentUrl);
-        }
+//     const platform = detectPlatform(req.headers['user-agent']);
 
-        if (linkInfo.androidBehavior === "open_url") {
 
-        }
+//     if (platform === "android") {
+//         if (linkInfo.androidBehavior === "open_app") {
+//             const cleanPath = originalUrl.replace(/^\//, '');
+//             const intentUrl =
+//                 `intent://${cleanPath}` +
+//                 `#Intent;scheme=https;package=${appInfo.packageName};end;`;
 
-    } else if (platform === "ios") {
-        res.redirect(appInfo.configurations.ios.bundleId);
-    } else {
-        res.redirect(appInfo.fallbackUrl);
-    }
-})
+//             return res.redirect(302, intentUrl);
+//         }
+
+//         if (linkInfo.androidBehavior === "open_url") {
+
+//         }
+
+//     } else if (platform === "ios") {
+//         res.redirect(appInfo.configurations.ios.bundleId);
+//     } else {
+//         res.redirect(appInfo.fallbackUrl);
+//     }
+// })
 
 
 
