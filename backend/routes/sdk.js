@@ -1,14 +1,10 @@
 import { Router } from "express";
 import { getAllPlans } from "../controllers/plans/plans.controller.js";
-
+import { handleTrackInstall } from "../controllers/sdk/sdk.controller.js";
 const sdkRoute = Router();
 
 // route to get all plans
-sdkRoute.post("/install", async (req, res)=>{
-  
-    console.log("installed successfully",req.body);
-    res.send("installed successfully").status(200);
-});
+    sdkRoute.post("/install",handleTrackInstall);
 
 
 export default sdkRoute;

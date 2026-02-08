@@ -19,7 +19,7 @@ export const manageHome = async (req, res) => {
         let url = null;
 
         if(platform === "android"){
-             url = `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}?referrer=deeplink`;
+             url = `https://play.google.com/store/apps/details?id=${appInfo.configurations.android.packageName}&referrer=utm_source%3Dfacebook%26utm_medium%3Dcpc%26utm_campaign%3Dapp_launch`;
             return res.redirect(url);
         }else if(platform === "ios"){
             const url = `https://apps.apple.com/us/app/${appInfo.name}/${appInfo.configurations.ios.bundleId}`;
