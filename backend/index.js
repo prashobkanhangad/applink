@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv'
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import cors from 'cors'
-import route from './routes/index.js';
 import { throwCustomError } from './services/error.js';
 import { sendError } from './services/requestHandler.js';
 import { sendAlert } from './services/telegram.js';
@@ -13,12 +12,15 @@ import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
 import { manageHome, manageAssetLinks } from './controllers/root/root.controller.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
-
+import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
+import indexRoute from './routes/index.js';
 
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT;
+
+app.use(morgan('dev'));
 
 app.use(helmet());
 console.log("cors origin", process.env.CORS_ORIGIN)
@@ -45,7 +47,6 @@ app.use(bodyParser.urlencoded({
 
 app.get('/check-domain', checkDomain);
 
-
 // for dynamically setting asset links for the app
 app.get('/.well-known/assetlinks.json', manageAssetLinks)
 
@@ -56,48 +57,48 @@ app.get('/health', (req, res) => {
     res.send("still alive").status(200);
 })
 
-app.use('/api/v1', route)
+app.use('/api/v1', indexRoute)
 
-app.use('*', async (req, res) => {
-    const host = req.headers.host;
-    const originalUrl = req.originalUrl;
+// app.use('*', async (req, res) => {
+//     const host = req.headers.host;
+//     const originalUrl = req.originalUrl;
 
-    const appInfo = await App.findOne({ subDomain: host });
+//     const appInfo = await App.findOne({ subDomain: host });
 
-    if (!appInfo) {
-        throwCustomError(1009);
-    }
+//     if (!appInfo) {
+//         throwCustomError(1009);
+//     }
 
-    const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
-
-
-    if (!linkInfo) {
-        throwCustomError(1008);
-    }
-
-    const platform = detectPlatform(req.headers['user-agent']);
+//     const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
 
 
-    if (platform === "android") {
-        if (linkInfo.androidBehavior === "open_app") {
-            const cleanPath = originalUrl.replace(/^\//, '');
-            const intentUrl =
-                `intent://${cleanPath}` +
-                `#Intent;scheme=https;package=${appInfo.packageName};end;`;
+//     if (!linkInfo) {
+//         throwCustomError(1008);
+//     }
 
-            return res.redirect(302, intentUrl);
-        }
+//     const platform = detectPlatform(req.headers['user-agent']);
 
-        if (linkInfo.androidBehavior === "open_url") {
 
-        }
+//     if (platform === "android") {
+//         if (linkInfo.androidBehavior === "open_app") {
+//             const cleanPath = originalUrl.replace(/^\//, '');
+//             const intentUrl =
+//                 `intent://${cleanPath}` +
+//                 `#Intent;scheme=https;package=${appInfo.packageName};end;`;
 
-    } else if (platform === "ios") {
-        res.redirect(appInfo.configurations.ios.bundleId);
-    } else {
-        res.redirect(appInfo.fallbackUrl);
-    }
-})
+//             return res.redirect(302, intentUrl);
+//         }
+
+//         if (linkInfo.androidBehavior === "open_url") {
+
+//         }
+
+//     } else if (platform === "ios") {
+//         res.redirect(appInfo.configurations.ios.bundleId);
+//     } else {
+//         res.redirect(appInfo.fallbackUrl);
+//     }
+// })
 
 
 

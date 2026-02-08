@@ -5,14 +5,16 @@ import planRoute from "./plan.js";
 import domainRoute from "./domain.js";
 import trackRoute from "./track.js";
 import linksRoute from "./links.js";
+import sdkRoute from "./sdk.js";
 
-const route = Router();
+const indexRoute = Router();
 
-route.use("/auth", authRoute);
-route.use("/app", appRoute);
-route.use("/plans", planRoute);
-route.use("/domain", domainRoute);
-route.use("/track", trackRoute);
-route.use("/links", linksRoute);
+indexRoute.use("/auth", authRoute);
+indexRoute.use("/app", appRoute);
+indexRoute.use("/plans", planRoute);
+indexRoute.use("/domain", domainRoute);
+indexRoute.use("/track", trackRoute);
+indexRoute.use("/links", linksRoute);
+indexRoute.use("/sdk", sdkRoute);
 
-export default route;
+export default indexRoute;
