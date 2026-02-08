@@ -1,5 +1,6 @@
 import { InstallEvent } from "../../models/installEvent.model.js";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
+import mongoose from "mongoose";
 
 export const handleTrackInstall = async (req, res) => {
     try {
