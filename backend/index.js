@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv'
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import cors from 'cors'
-import route from './routes/index.js';
 import { throwCustomError } from './services/error.js';
 import { sendError } from './services/requestHandler.js';
 import { sendAlert } from './services/telegram.js';
@@ -15,6 +14,7 @@ import { manageHome, manageAssetLinks } from './controllers/root/root.controller
 import { checkDomain } from './controllers/domain/domain.controller.js';
 import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
+import indexRoute from './routes/index.js';
 
 dotenv.config()
 const app = express()
@@ -57,7 +57,7 @@ app.get('/health', (req, res) => {
     res.send("still alive").status(200);
 })
 
-app.use('/api/v1', route)
+app.use('/api/v1', indexRoute)
 
 // app.use('*', async (req, res) => {
 //     const host = req.headers.host;
