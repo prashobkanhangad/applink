@@ -46,13 +46,6 @@ app.use(bodyParser.urlencoded({
 app.get('/check-domain', checkDomain);
 
 
-
-
-
-
-
-
-
 // for dynamically setting asset links for the app
 app.get('/.well-known/assetlinks.json', manageAssetLinks)
 

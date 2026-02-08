@@ -157,6 +157,55 @@ export const handleRedirect = async (req, res) => {
 };
 
 /**
+ * Resolve a deep link URL and return link data (no redirect).
+ * GET /api/v1/links/resolve?url=https://subdomain.example.com/path
+ * Public endpoint for SDK/app to fetch destinationUrl, utm, etc.
+ */
+export const resolveLink = async (req, res) => {
+    try {
+        const rawUrl = req.query.url;
+        if (!rawUrl || typeof rawUrl !== "string") {
+            return res.status(400).json({ error: "Missing or invalid query: url" });
+        }
+        let hostname;
+        let pathname;
+        try {
+            const u = new URL(rawUrl);
+            hostname = u.hostname;
+            pathname = u.pathname || "/";
+        } catch (_) {
+            return res.status(400).json({ error: "Invalid URL" });
+        }
+        const app = await App.findOne({ subDomain: hostname });
+        if (!app) {
+            return res.status(404).json({ error: "App not found for this domain" });
+        }
+        const pathWithSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
+        const pathWithoutSlash = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+        const link = await Link.findOne({
+            appId: app._id,
+            $or: [
+                { path: pathWithSlash },
+                { path: pathWithoutSlash },
+            ],
+        }).lean();
+        if (!link) {
+            return res.status(404).json({ error: "Link not found" });
+        }
+        return res.json({
+            destinationUrl: link.destinationUrl,
+            linkName: link.linkName,
+            utm: link.utm || {},
+            androidBehavior: link.androidBehavior,
+            iosBehavior: link.iosBehavior,
+        });
+    } catch (err) {
+        console.error("Resolve link error:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+/**
  * Helper for analytics - logs click events
  * Fire and forget (don't await) to keep redirect fast
  */
