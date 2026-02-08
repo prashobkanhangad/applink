@@ -164,7 +164,9 @@ export const handleRedirect = async (req, res) => {
 export const resolveLink = async (req, res) => {
     try {
         const rawUrl = req.query.url;
+        console.log("[resolveLink] request url:", rawUrl);
         if (!rawUrl || typeof rawUrl !== "string") {
+            console.log("[resolveLink] missing or invalid url");
             return res.status(400).json({ error: "Missing or invalid query: url" });
         }
         let hostname;
@@ -173,25 +175,31 @@ export const resolveLink = async (req, res) => {
             const u = new URL(rawUrl);
             hostname = u.hostname;
             pathname = u.pathname || "/";
+            console.log("[resolveLink] parsed hostname:", hostname, "pathname:", pathname);
         } catch (_) {
+            console.log("[resolveLink] invalid URL format");
             return res.status(400).json({ error: "Invalid URL" });
         }
         const app = await App.findOne({ subDomain: hostname });
         if (!app) {
+            console.log("[resolveLink] app not found for domain:", hostname);
             return res.status(404).json({ error: "App not found for this domain" });
         }
+        console.log("[resolveLink] app found:", app._id);
         const pathWithSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
         const pathWithoutSlash = pathname.startsWith("/") ? pathname.slice(1) : pathname;
         const link = await Link.findOne({
             appId: app._id,
-            $or: [
-                { path: pathWithSlash },
-                { path: pathWithoutSlash },
-            ],
+            // $or: [
+            //     { path: pathWithSlash },
+            //     { path: pathWithoutSlash },
+            // ],
         }).lean();
         if (!link) {
+            console.log("[resolveLink] link not found for path:", pathname);
             return res.status(404).json({ error: "Link not found" });
         }
+        console.log("[resolveLink] link found:", link.linkName, "destination:", link.destinationUrl);
         return res.json({
             destinationUrl: link.destinationUrl,
             linkName: link.linkName,
@@ -200,7 +208,7 @@ export const resolveLink = async (req, res) => {
             iosBehavior: link.iosBehavior,
         });
     } catch (err) {
-        console.error("Resolve link error:", err);
+        console.error("[resolveLink] error:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
