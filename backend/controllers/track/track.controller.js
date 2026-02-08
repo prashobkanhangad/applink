@@ -30,16 +30,16 @@ const unknown = "unknown";
  */
 export const handleTrackInstall = async (req, res) => {
     try {
-        const { platform, referrer, model } = req.body || {};
-        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined });
+        const { platform, referrer, model, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, country: bodyCountry, state: bodyState, city: bodyCity, deviceId: bodyDeviceId, OSVersion: bodyOSVersion, ipAddress: bodyIpAddress } = req.body || {};
+        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined });
 
         const ip = getClientIp(req);
         const userAgentStr = req.headers["user-agent"] || unknown;
         const ua = useragent.parse(userAgentStr);
         const resolvedPlatform = platform || detectPlatform(userAgentStr);
-        const browser = ua?.browser || ua?.source || unknown;
-        const osVersion = ua?.os || unknown;
-        const deviceId = model || referrer || unknown;
+        const browser = bodyBrowser ?? ua?.browser ?? ua?.source ?? unknown;
+        const osVersion = bodyOSVersion ?? ua?.os ?? unknown;
+        const deviceId = bodyDeviceId ?? model ?? referrer ?? unknown;
 
         console.log("[handleTrackInstall] resolved:", { ip, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
 
@@ -75,13 +75,14 @@ export const handleTrackInstall = async (req, res) => {
 
         await InstallEvent.create({
             linkId: linkId || undefined,
+            packageName: packageName || undefined,
             platform: resolvedPlatform,
             browser,
-            userAgent: userAgentStr,
-            ipAddress: ip,
-            country: unknown,
-            state: unknown,
-            city: unknown,
+            userAgent: bodyUserAgent ?? userAgentStr,
+            ipAddress: bodyIpAddress ?? ip,
+            country: bodyCountry ?? unknown,
+            state: bodyState ?? unknown,
+            city: bodyCity ?? unknown,
             deviceId,
             OSVersion: osVersion,
         });
