@@ -5,7 +5,7 @@ const linkSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'AppSchema'
     },
-    domain: { type: String, required: true },
+    // domain: { type: String, required: true },
     path: { type: String, required: true },
     destinationUrl: { type: String, required: true },
     linkName: { type: String, required: true },

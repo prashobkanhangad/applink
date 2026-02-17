@@ -64,6 +64,10 @@
         "1016": {
             "code": 404,
             "error": "platform not supported"
+        },
+        "1017": {
+            "code": 404,
+            "error": "the url you are trying to access is not valid"
         }
 
     }

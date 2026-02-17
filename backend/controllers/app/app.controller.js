@@ -4,6 +4,8 @@ import { App } from "../../models/app.model.js";
 import { Link } from "../../models/links.model.js";
 import { createSubdomain } from "./app.service.js";
 import Joi from "joi";
+import { ClickEvent } from "../../models/clickEvent.model.js";
+
 
 export const createApp = async (req, res) => {
     try {
@@ -233,7 +235,6 @@ export const createAppLink =async  (req, res) => {
         console.log("[createAppLink] Creating link in database...");
         const linkData = {
             appId,
-            domain,
             path,
             destinationUrl,
             linkName,
@@ -470,3 +471,49 @@ export const getUserApps = async (req, res) => {
         sendError(req,res,error)
     }
 }       
+
+
+
+export const checkValidDeepLink = async (req, res) => {
+
+    try {
+        const host = req.get("host");
+        const fullPath = req.originalUrl;   // real path
+        const path = req.originalUrl.split("?")[0];
+
+        const appExists = await App.findOne({ subDomain: host });
+
+        console.log(appExists,"appExists<");
+        const linkExists = await Link.findOne({ path: path, appId: appExists._id }).populate('appId');
+
+        if (!appExists || !linkExists) {
+            throwCustomError(1017);
+        }
+
+        if (appExists.subDomain !== linkExists.appId.subDomain) {
+            throwCustomError(1017);
+        }
+
+        const app = linkExists.appId;
+
+
+        if (app.subDomain !== host) {
+            throwCustomError(1017);
+        }
+
+        await ClickEvent.create({
+            linkId: linkExists._id,
+            platform: "web",
+            browser: "test",
+            userAgent: "test",
+            ipAddress: req.ip,
+            country: "test",
+            state: "test",
+            city: "test",
+        })
+
+        await sendSuccess(req, res, "deep link validated successfully", 201)
+    } catch (error) {
+        sendError(req, res, error)
+    }
+}
