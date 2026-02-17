@@ -3,7 +3,8 @@ import { Schema, model } from "mongoose";
 const installEventSchema = new Schema({
     linkId: {
         type: Schema.Types.ObjectId,
-        ref: 'Link'
+        ref: 'Link',
+        default: null
     },
     packageName: {
         type: String,
