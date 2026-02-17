@@ -339,6 +339,7 @@ export const getCurrentUser = async () => {
     const token = localStorage.getItem('authToken');
     
     if (!token) {
+      handleAuthFailure('Please sign in to access the dashboard.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -352,9 +353,7 @@ export const getCurrentUser = async () => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Token expired or invalid, clear storage
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
+        handleAuthFailure('Session expired. Please sign in again.');
         throw new Error('Session expired. Please sign in again.');
       }
       const errorData = await response.json().catch(() => ({}));
@@ -383,6 +382,25 @@ export const getCurrentUser = async () => {
     console.error('Get current user API error:', error);
     throw error;
   }
+};
+
+/**
+ * Handle auth failure - clear storage and redirect to signup
+ * Call this when token is missing, expired, or invalid
+ * @param {string} [message] - Message to show on signup page (e.g., "Session expired")
+ */
+export const handleAuthFailure = (message = 'Please sign in to continue.') => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('user');
+  if (window.google?.accounts?.id) {
+    try {
+      window.google.accounts.id.disableAutoSelect();
+    } catch (e) {
+      console.warn('Failed to revoke Google session:', e);
+    }
+  }
+  const params = new URLSearchParams({ message });
+  window.location.href = `/signup?${params.toString()}`;
 };
 
 /**

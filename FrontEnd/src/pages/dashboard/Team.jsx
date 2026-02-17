@@ -36,7 +36,7 @@ export const Team = () => {
   if (isLoading) {
     return (
       <DashboardLayout title="Team" subtitle="Manage your team members">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-8 py-8">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="text-center py-12">
@@ -54,7 +54,7 @@ export const Team = () => {
   if (!isEnterprise) {
     return (
       <DashboardLayout title="Team" subtitle="Manage your team members">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-8 py-8">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="text-center py-12">
@@ -97,7 +97,7 @@ export const Team = () => {
   // Show team management UI for enterprise users
   return (
     <DashboardLayout title="Team" subtitle="Manage your team members">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-8 py-8">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="text-center py-12">

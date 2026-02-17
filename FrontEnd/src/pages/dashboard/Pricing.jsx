@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
 
 /**
- * Pricing Page
+ * Pricing Page - matches homepage pricing section UI style
  */
 export const Pricing = () => {
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
@@ -16,123 +16,137 @@ export const Pricing = () => {
     renewsOn: 'February 16, 2026',
   };
 
-  // Icon Components
-  const IndieIcon = () => (
-    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+  const SparklesIcon = () => (
+    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
     </svg>
   );
 
-  const GrowthIcon = () => (
-    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  const CheckIcon = () => (
+    <svg className="w-3 h-3 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   );
 
-  const ScaleIcon = () => (
-    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-    </svg>
-  );
-
-  const EnterpriseIcon = () => (
-    <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+  const XIcon = () => (
+    <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
 
   const plans = [
     {
+      name: 'Forever Free',
+      subtitle: 'Forever Free Pack (upto 25K MAU)',
+      description: '2K Monthly Active Users',
+      price: { monthly: 0, yearly: 0 },
+      period: '',
+      features: [
+        { text: 'Free upto 25K MAU', included: true },
+        { text: '1 Android and iOS app', included: true },
+        { text: 'Unlimited Deeplinks via SDK', included: true },
+        // { text: 'Hosted on chottu.link subdomain', included: true },
+        { text: 'Custom domain', included: true },
+
+        { text: 'Limited support', included: false },
+      ],
+      cta: 'Current Plan',
+      popular: false,
+      isFree: true,
+    },
+    {
       name: 'Indie',
-      Icon: IndieIcon,
-      description: 'Premium subscription with additional features',
+      subtitle: 'Premium subscription with additional features',
+      description: 'Under 50K Monthly Active Users',
       price: { monthly: 19, yearly: 190 },
-      userLimit: 'under 75K Monthly Active Users',
+      period: '/mo',
       features: [
         { text: 'Upto 75K MAU Supported', included: true },
         { text: 'Email support', included: true },
         { text: 'Link analytics', included: true },
         { text: 'App Install analytics', included: true },
-        { text: 'No custom domain', included: false },
+
       ],
+      cta: 'Choose Plan',
+      popular: false,
     },
     {
       name: 'Growth',
-      Icon: GrowthIcon,
-      description: 'Premium subscription with all features unlocked',
+      subtitle: 'Premium subscription with all features unlocked',
+      description: 'Under 150K Monthly Active Users',
       price: { monthly: 39, yearly: 390 },
-      userLimit: 'under 150K Monthly Active Users',
+      period: '/mo',
       features: [
         { text: 'Upto 150K MAU Supported', included: true },
         { text: 'All Indie features', included: true },
         { text: 'Custom domain support', included: true },
         { text: 'Invite team members', included: true },
       ],
+      cta: 'Choose Plan',
+      popular: true,
     },
     {
       name: 'Scale',
-      Icon: ScaleIcon,
-      description: 'Premium subscription with all features unlocked',
+      subtitle: 'Premium subscription with all features unlocked',
+      description: 'Under 500K Monthly Active Users',
       price: { monthly: 99, yearly: 990 },
-      userLimit: 'under 500K Monthly Active Users',
+      period: '/mo',
       features: [
         { text: 'Upto 500K MAU Supported', included: true },
         { text: 'All Growth features', included: true },
         { text: 'Webhook support (coming soon)', included: true },
         { text: 'Priority support', included: true },
       ],
-    },
-    {
-      name: 'Enterprise',
-      Icon: EnterpriseIcon,
-      description: 'Contact sales for pricing',
-      price: null, // Custom pricing
-      userLimit: 'over 500K Monthly Active Users',
-      features: [
-        { text: 'Over 500K MAU Supported', included: true },
-        { text: 'All Scale Plan Features', included: true },
-        { text: 'Custom Support Plan', included: true },
-        { text: 'Manage multiple apps', included: true },
-        { text: 'Manage multiple environments', included: true },
-      ],
-      isEnterprise: true,
+      cta: 'Choose Plan',
+      popular: false,
     },
   ];
 
-  const CheckIcon = () => (
-    <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
+  const getPriceDisplay = (plan) => {
+    if (plan.isEnterprise || plan.price === null) return 'Custom';
+    const amount = plan.price[billingPeriod];
+    return amount === 0 ? '$0' : `$${amount}`;
+  };
 
-  const XIcon = () => (
-    <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  );
+  const getPeriodDisplay = (plan) => {
+    if (plan.isEnterprise || plan.isFree) return plan.period || '';
+    return plan.period || '/mo';
+  };
 
   return (
     <DashboardLayout title="Pricing" subtitle="Choose the right plan for you">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {/* Section Header - homepage style */}
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+              Simple, Transparent <span className="text-gray-900">Pricing</span>
+            </h2>
+            <p className="text-lg text-gray-600">
+              Start free, scale as you grow. No hidden fees, no surprises.
+            </p>
+          </div>
+
           {/* Current Plan Section */}
-          <div className="mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
-                  Current Plan
-                </span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-xl font-semibold text-gray-900">{currentPlan.name}</h3>
-                {currentPlan.isFree && (
-                  <span className="px-2 py-1 text-xs font-semibold text-purple-600 bg-purple-100 rounded">
-                    FREE
+          <div className="mb-10">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
+                    Current Plan
                   </span>
-                )}
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl font-semibold text-gray-900">{currentPlan.name}</h3>
+                  {currentPlan.isFree && (
+                    <span className="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded">
+                      FREE
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600">{currentPlan.description}</p>
               </div>
-              <p className="text-sm text-gray-600 mb-6">{currentPlan.description}</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 flex-shrink-0">
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="text-lg font-semibold text-gray-900 mb-1">{currentPlan.duration}</div>
                   <div className="text-xs text-gray-600">Duration</div>
@@ -145,14 +159,14 @@ export const Pricing = () => {
             </div>
           </div>
 
-          {/* Billing Period Toggle */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex bg-white rounded-lg border border-gray-200 p-1">
+          {/* Billing Period Toggle - homepage style (black accent) */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
               <button
                 onClick={() => setBillingPeriod('monthly')}
                 className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
                   billingPeriod === 'monthly'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gray-900 text-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -162,7 +176,7 @@ export const Pricing = () => {
                 onClick={() => setBillingPeriod('yearly')}
                 className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
                   billingPeriod === 'yearly'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-gray-900 text-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -171,61 +185,80 @@ export const Pricing = () => {
             </div>
           </div>
 
-          {/* Pricing Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {plans.map((plan) => (
+          {/* Pricing Cards - homepage style: rounded-2xl, popular badge, same layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {plans.map((plan, i) => (
               <div
                 key={plan.name}
-                className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col"
+                className={`relative rounded-2xl p-6 lg:p-8 flex flex-col ${
+                  plan.popular
+                    ? 'bg-gradient-to-b from-gray-100 to-white border-2 border-gray-900/30 shadow-xl shadow-gray-900/10'
+                    : 'bg-white border border-gray-200 shadow-sm'
+                }`}
               >
-                {/* Plan Icon */}
-                <div className="mb-4">
-                  <plan.Icon />
-                </div>
-
-                {/* Plan Name */}
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
-
-                {/* Plan Description */}
-                <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-
-                {/* Price */}
-                <div className="mb-4">
-                  {plan.isEnterprise ? (
-                    <div className="text-2xl font-bold text-gray-900">Custom Pricing</div>
-                  ) : (
-                    <div>
-                      <span className="text-2xl font-bold text-gray-900">
-                        $ {plan.price[billingPeriod]}
-                      </span>
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      <SparklesIcon />
+                      Most Popular
                     </div>
+                  </div>
+                )}
+
+                {/* Plan Header */}
+                <div className="mb-5">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-0.5">{plan.name}</h3>
+                  {plan.subtitle && (
+                    <p className="text-gray-600 text-xs mb-2">{plan.subtitle}</p>
                   )}
+                  <p className="text-gray-600 text-sm mb-3">{plan.description}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-gray-900">{getPriceDisplay(plan)}</span>
+                    {getPeriodDisplay(plan) && (
+                      <span className="text-gray-600 text-sm">{getPeriodDisplay(plan)}</span>
+                    )}
+                  </div>
                 </div>
 
-                {/* User Limit */}
-                <p className="text-xs text-gray-500 mb-6">{plan.userLimit}</p>
-
-                {/* Features List */}
-                <ul className="space-y-3 mb-6 flex-1">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      {feature.included ? <CheckIcon /> : <XIcon />}
-                      <span className={`text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
+                {/* Features */}
+                <ul className="space-y-2.5 mb-6 flex-grow">
+                  {plan.features.map((feature, j) => (
+                    <li
+                      key={j}
+                      className={`flex items-start gap-2.5 ${!feature.included ? 'opacity-60' : ''}`}
+                    >
+                      {feature.included ? (
+                        <div className="w-5 h-5 rounded-full bg-gray-900/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <CheckIcon />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <XIcon />
+                        </div>
+                      )}
+                      <span
+                        className={`text-sm ${
+                          feature.included
+                            ? 'text-gray-700'
+                            : 'text-gray-500 line-through'
+                        }`}
+                      >
                         {feature.text}
                       </span>
                     </li>
                   ))}
                 </ul>
 
-                {/* CTA Button */}
+                {/* CTA Button - hero / hero-outline style with black */}
                 <button
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    plan.isEnterprise
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
-                      : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors mt-auto ${
+                    plan.popular
+                      ? 'bg-gray-900 text-white hover:bg-black shadow-lg hover:shadow-xl'
+                      : 'border-2 border-gray-900 text-gray-900 hover:bg-gray-900/10'
                   }`}
                 >
-                  {plan.isEnterprise ? 'Contact Sales' : 'Choose Plan'}
+                  {plan.cta}
                 </button>
               </div>
             ))}

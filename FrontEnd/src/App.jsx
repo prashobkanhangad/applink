@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Header, Footer } from './components/landing';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Signup } from './pages/Signup';
@@ -48,10 +49,10 @@ function App() {
         <Route path="/blog/what-is-deep-linking" element={<WhatIsDeepLinking />} />
         <Route path="/blog/deferred-deep-linking-for-product-managers" element={<DeferredDeepLinkingForProductManagers />} />
         <Route path="/blog/how-to-implement-deep-linking-android-ios" element={<HowToImplementDeepLinking />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         {/* <Route path="/dashboard/links" element={<Links />} /> */}
         {/* <Route path="/dashboard/settings" element={<Settings />} /> */}
-        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

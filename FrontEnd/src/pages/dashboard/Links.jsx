@@ -223,7 +223,7 @@ export const Links = () => {
   if (isCreateMode) {
     return (
       <DashboardLayout title="Links Manager" subtitle="Create Link">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             {/* Back Button */}
             <div className="mb-6">
@@ -256,13 +256,13 @@ export const Links = () => {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Step 1: Set up your Short Link Or Dynamic URL */}
-              <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 1 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+              <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 1 ? 'border-gray-400 ring-2 ring-gray-200' : 'border-gray-200'}`}>
                 {/* Collapsed Header - Clickable when not current step */}
                 <div 
                   className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 1 && currentStep > 1 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                   onClick={() => currentStep > 1 && setCurrentStep(1)}
                 >
-                  <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 1 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                  <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>
                     {currentStep > 1 ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -314,7 +314,7 @@ export const Links = () => {
                               setDomain(formattedDomain);
                             }
                           }}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
                         >
                           <option value="">Select an app</option>
                           {apps.map((app) => {
@@ -345,7 +345,7 @@ export const Links = () => {
                           type="text"
                           value={domain}
                           onChange={(e) => setDomain(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50"
                           readOnly
                         />
                       </div>
@@ -359,7 +359,7 @@ export const Links = () => {
                           type="text"
                           value={path}
                           onChange={(e) => setPath(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                           placeholder="/ e.g. home"
                         />
                       </div>
@@ -381,13 +381,13 @@ export const Links = () => {
 
               {/* Step 2: Set up your dynamic link */}
               {currentStep >= 2 && (
-                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 2 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 2 ? 'border-gray-400 ring-2 ring-gray-200' : 'border-gray-200'}`}>
                   {/* Collapsed Header - Clickable when not current step */}
                   <div 
                     className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 2 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                     onClick={() => currentStep !== 2 && setCurrentStep(2)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 2 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 2 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -429,7 +429,7 @@ export const Links = () => {
                             type="url"
                             value={destinationUrl}
                             onChange={(e) => setDestinationUrl(e.target.value)}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                             placeholder="E.g.: https://yourapp.com/welcome-page"
                           />
                         </div>
@@ -443,7 +443,7 @@ export const Links = () => {
                             type="text"
                             value={linkName}
                             onChange={(e) => setLinkName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                             placeholder="e.g. Seasonal Promo"
                           />
                           <p className="text-xs text-gray-500 mt-1">
@@ -469,13 +469,13 @@ export const Links = () => {
 
               {/* Step 3: Define link behaviour for Apple */}
               {currentStep >= 3 && (
-                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 3 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 3 ? 'border-gray-400 ring-2 ring-gray-200' : 'border-gray-200'}`}>
                   {/* Collapsed Header - Clickable when not current step */}
                   <div 
                     className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 3 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                     onClick={() => currentStep !== 3 && setCurrentStep(3)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 3 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 3 ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 3 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -513,7 +513,7 @@ export const Links = () => {
                               value="Open the Dynamic URL in a browser"
                               checked={appleBehavior === 'Open the Dynamic URL in a browser'}
                               onChange={(e) => setAppleBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                              className="mt-1 w-4 h-4 text-gray-900 border-gray-300 focus:ring-gray-900"
                             />
                             <div className="flex-1">
                               <span className="text-sm font-medium text-gray-900">
@@ -529,7 +529,7 @@ export const Links = () => {
                               value="Open the Dynamic URL in your Apple App"
                               checked={appleBehavior === 'Open the Dynamic URL in your Apple App'}
                               onChange={(e) => setAppleBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                              className="mt-1 w-4 h-4 text-gray-900 border-gray-300 focus:ring-gray-900"
                             />
                             <div className="flex-1">
                               <span className="text-sm font-medium text-gray-900">
@@ -556,13 +556,13 @@ export const Links = () => {
 
               {/* Step 4: Define link behaviour for Android */}
               {currentStep >= 4 && (
-                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 4 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 4 ? 'border-gray-400 ring-2 ring-gray-200' : 'border-gray-200'}`}>
                   {/* Collapsed Header - Clickable when not current step */}
                   <div 
                     className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 4 ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                     onClick={() => currentStep !== 4 && setCurrentStep(4)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 4 ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 4 ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 4 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -600,7 +600,7 @@ export const Links = () => {
                               value="Open the Dynamic URL in a browser"
                               checked={androidBehavior === 'Open the Dynamic URL in a browser'}
                               onChange={(e) => setAndroidBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                              className="mt-1 w-4 h-4 text-gray-900 border-gray-300 focus:ring-gray-900"
                             />
                             <div className="flex-1">
                               <span className="text-sm font-medium text-gray-900">
@@ -616,7 +616,7 @@ export const Links = () => {
                               value="Open the Dynamic URL in your Android App"
                               checked={androidBehavior === 'Open the Dynamic URL in your Android App'}
                               onChange={(e) => setAndroidBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                              className="mt-1 w-4 h-4 text-gray-900 border-gray-300 focus:ring-gray-900"
                             />
                             <div className="flex-1">
                               <span className="text-sm font-medium text-gray-900">
@@ -643,10 +643,10 @@ export const Links = () => {
 
               {/* Step 5: Campaign tracking, social tags and advanced options */}
               {currentStep >= 5 && (
-                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 5 ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-200'}`}>
+                <div className={`bg-white rounded-xl border shadow-sm transition-all duration-300 ${currentStep === 5 ? 'border-gray-400 ring-2 ring-gray-200' : 'border-gray-200'}`}>
                   {/* Header */}
                   <div className="flex items-center gap-3 p-4 sm:p-6">
-                    <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                    <span className="flex-shrink-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       5
                     </span>
                     <div className="flex-1">
@@ -667,7 +667,7 @@ export const Links = () => {
                               type="checkbox"
                               checked={enableSocialMetaTags}
                               onChange={(e) => setEnableSocialMetaTags(e.target.checked)}
-                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                              className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
                             <span className="text-sm font-medium text-gray-900">
                               Add social meta tags for better sharing
@@ -685,7 +685,7 @@ export const Links = () => {
                                   type="text"
                                   value={previewTitle}
                                   onChange={(e) => setPreviewTitle(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="E.g.: Seasonal Promo"
                                 />
                               </div>
@@ -699,7 +699,7 @@ export const Links = () => {
                                   type="url"
                                   value={previewImageUrl}
                                   onChange={(e) => setPreviewImageUrl(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="E.g.: https://mydomain.com/images/promo.jpg"
                                 />
                               </div>
@@ -713,7 +713,7 @@ export const Links = () => {
                                   value={previewDescription}
                                   onChange={(e) => setPreviewDescription(e.target.value)}
                                   rows={3}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="e.g. Some description..."
                                 />
                               </div>
@@ -728,7 +728,7 @@ export const Links = () => {
                               type="checkbox"
                               checked={enableUTMTracking}
                               onChange={(e) => setEnableUTMTracking(e.target.checked)}
-                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                              className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
                             <span className="text-sm font-medium text-gray-900">
                               Track a campaign with UTM parameters
@@ -746,8 +746,8 @@ export const Links = () => {
                                   type="text"
                                   value={utmSource}
                                   onChange={(e) => setUtmSource(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                  placeholder="e.g. ChottuLink"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                                  placeholder="e.g. Deeplink.in"
                                 />
                               </div>
 
@@ -760,7 +760,7 @@ export const Links = () => {
                                   type="text"
                                   value={utmMedium}
                                   onChange={(e) => setUtmMedium(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="e.g. cpc"
                                 />
                               </div>
@@ -774,7 +774,7 @@ export const Links = () => {
                                   type="text"
                                   value={utmCampaign}
                                   onChange={(e) => setUtmCampaign(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="e.g. spring sale"
                                 />
                               </div>
@@ -788,7 +788,7 @@ export const Links = () => {
                                   type="text"
                                   value={utmTerm}
                                   onChange={(e) => setUtmTerm(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="e.g. email+spring+offer"
                                 />
                               </div>
@@ -802,7 +802,7 @@ export const Links = () => {
                                   type="text"
                                   value={utmContent}
                                   onChange={(e) => setUtmContent(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                   placeholder="e.g. image_top_banner"
                                 />
                               </div>
@@ -843,7 +843,7 @@ export const Links = () => {
                       {currentStep >= 3 ? (
                         <CheckIcon className="w-5 h-5 text-green-500" />
                       ) : (
-                        <EditIcon className="w-5 h-5 text-blue-600" />
+                        <EditIcon className="w-5 h-5 text-gray-900" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -862,7 +862,7 @@ export const Links = () => {
                       {currentStep >= 4 ? (
                         <CheckIcon className="w-5 h-5 text-green-500" />
                       ) : (
-                        <EditIcon className="w-5 h-5 text-blue-600" />
+                        <EditIcon className="w-5 h-5 text-gray-900" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -881,7 +881,7 @@ export const Links = () => {
                       {currentStep >= 5 ? (
                         <CheckIcon className="w-5 h-5 text-green-500" />
                       ) : (
-                        <EditIcon className="w-5 h-5 text-blue-600" />
+                        <EditIcon className="w-5 h-5 text-gray-900" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -907,7 +907,7 @@ export const Links = () => {
                 <button
                   onClick={handleCreate}
                   disabled={isCreating || !path || !destinationUrl || !linkName || linkName.trim().length < 3 || linkName.trim().length > 30}
-                  className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {isCreating ? 'Creating...' : 'Create'}
                 </button>
@@ -940,7 +940,7 @@ export const Links = () => {
                     <a
                       href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&format=png&data=${encodeURIComponent(`${domain}/${path}`)}`}
                       download={`qr-${path}.png`}
-                      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1033,7 +1033,7 @@ export const Links = () => {
   // Show links list view
   return (
     <DashboardLayout title="Links Manager" subtitle="Link List">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Header with Create Button */}
           <div className="flex items-center justify-between mb-6">
@@ -1043,7 +1043,7 @@ export const Links = () => {
             </div>
             <button
               onClick={handleCreateClick}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1069,7 +1069,7 @@ export const Links = () => {
           {isLoading ? (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
                 <p className="text-gray-600">Loading links...</p>
               </div>
             </div>
@@ -1077,8 +1077,8 @@ export const Links = () => {
             /* Empty State */
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                 </div>
@@ -1088,7 +1088,7 @@ export const Links = () => {
                 </p>
                 <button
                   onClick={handleCreateClick}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors"
                 >
                   Create Your First Link
                 </button>
@@ -1161,11 +1161,11 @@ export const Links = () => {
                         >
                           <button
                             onClick={() => navigate(`/dashboard/links/${link._id || link.id || index}`)}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            className="text-gray-900 hover:text-black mr-4"
                           >
                             View
                           </button>
-                          <button className="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
+                          <button className="text-gray-900 hover:text-black mr-4">Edit</button>
                           <button className="text-red-600 hover:text-red-900">Delete</button>
                         </td>
                       </tr>

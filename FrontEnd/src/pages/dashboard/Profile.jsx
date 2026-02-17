@@ -129,7 +129,7 @@ export const Profile = () => {
   if (isLoading) {
     return (
       <DashboardLayout title="Profile" subtitle="Account">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -144,7 +144,7 @@ export const Profile = () => {
   if (!user) {
     return (
       <DashboardLayout title="Profile" subtitle="Account">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center py-12">
               {error ? (
@@ -169,7 +169,7 @@ export const Profile = () => {
 
   return (
     <DashboardLayout title="Profile" subtitle="Account">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Success Message */}
           {successMessage && (
