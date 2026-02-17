@@ -30,8 +30,8 @@ const unknown = "unknown";
  */
 export const handleTrackInstall = async (req, res) => {
     try {
-        const { platform, referrer, model, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, country: bodyCountry, state: bodyState, city: bodyCity, deviceId: bodyDeviceId, OSVersion: bodyOSVersion, ipAddress: bodyIpAddress } = req.body || {};
-        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined });
+        const { platform, referrer, model, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, country: bodyCountry, state: bodyState, city: bodyCity, deviceId: bodyDeviceId, OSVersion: bodyOSVersion, ipAddress: bodyIpAddress, linkId: bodyLinkId } = req.body || {};
+        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined, linkId: bodyLinkId || undefined });
 
         const ip = getClientIp(req);
         const userAgentStr = req.headers["user-agent"] || unknown;
@@ -43,34 +43,39 @@ export const handleTrackInstall = async (req, res) => {
 
         console.log("[handleTrackInstall] resolved:", { ip, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
 
-        let linkId = null;
+        let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
 
-        if (platform === "android" && referrer) {
-            responsePayload = { method: "referrer", data: referrer };
-            console.log("[handleTrackInstall] android with referrer");
-        } else if (platform === "ios") {
-            const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-            const match = await ClickEvent.findOne({
-                ipAddress: ip,
-                createdAt: { $gt: oneHourAgo }
-            })
-                .sort({ createdAt: -1 })
-                .lean();
+        // If linkId is provided in the request, use it; otherwise try to determine it
+        if (!linkId) {
+            if (platform === "android" && referrer) {
+                responsePayload = { method: "referrer", data: referrer };
+                console.log("[handleTrackInstall] android with referrer");
+            } else if (platform === "ios") {
+                const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+                const match = await ClickEvent.findOne({
+                    ipAddress: ip,
+                    createdAt: { $gt: oneHourAgo }
+                })
+                    .sort({ createdAt: -1 })
+                    .lean();
 
-            if (match) {
-                linkId = match.linkId || null;
-                if (match.utm && Object.keys(match.utm).length > 0) {
-                    responsePayload = match.utm;
-                    console.log("[handleTrackInstall] ios matched click, linkId:", linkId, "utm keys:", Object.keys(match.utm));
+                if (match) {
+                    linkId = match.linkId || null;
+                    if (match.utm && Object.keys(match.utm).length > 0) {
+                        responsePayload = match.utm;
+                        console.log("[handleTrackInstall] ios matched click, linkId:", linkId, "utm keys:", Object.keys(match.utm));
+                    } else {
+                        console.log("[handleTrackInstall] ios matched click, no utm");
+                    }
                 } else {
-                    console.log("[handleTrackInstall] ios matched click, no utm");
+                    console.log("[handleTrackInstall] ios no click match (organic)");
                 }
             } else {
-                console.log("[handleTrackInstall] ios no click match (organic)");
+                console.log("[handleTrackInstall] organic");
             }
         } else {
-            console.log("[handleTrackInstall] organic");
+            console.log("[handleTrackInstall] linkId provided in request:", linkId);
         }
 
         await InstallEvent.create({
