@@ -1,6 +1,7 @@
 import { InstallEvent } from "../../models/installEvent.model.js";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
 import mongoose from "mongoose";
+import axios from "axios";
 
 export const handleTrackInstall = async (req, res) => {
     try {
@@ -44,6 +45,7 @@ export const handleTrackInstall = async (req, res) => {
         }
          sendSuccess(req,res,"install tracked successfully",200);
     } catch (error) {
+        console.log(error,"error");
          sendError(req,res,error)
     }
 }
