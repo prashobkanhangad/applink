@@ -15,7 +15,7 @@ import { checkDomain } from './controllers/domain/domain.controller.js';
 import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
 import indexRoute from './routes/index.js';
-
+import { checkValidDeepLink } from './controllers/app/app.controller.js';
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT;
@@ -60,46 +60,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1', indexRoute)
 
-// app.use('*', async (req, res) => {
-//     const host = req.headers.host;
-//     const originalUrl = req.originalUrl;
-
-//     const appInfo = await App.findOne({ subDomain: host });
-
-//     if (!appInfo) {
-//         throwCustomError(1009);
-//     }
-
-//     const linkInfo = await Link.findOne({ domain: host, path: originalUrl });
-
-
-//     if (!linkInfo) {
-//         throwCustomError(1008);
-//     }
-
-//     const platform = detectPlatform(req.headers['user-agent']);
-
-
-//     if (platform === "android") {
-//         if (linkInfo.androidBehavior === "open_app") {
-//             const cleanPath = originalUrl.replace(/^\//, '');
-//             const intentUrl =
-//                 `intent://${cleanPath}` +
-//                 `#Intent;scheme=https;package=${appInfo.packageName};end;`;
-
-//             return res.redirect(302, intentUrl);
-//         }
-
-//         if (linkInfo.androidBehavior === "open_url") {
-
-//         }
-
-//     } else if (platform === "ios") {
-//         res.redirect(appInfo.configurations.ios.bundleId);
-//     } else {
-//         res.redirect(appInfo.fallbackUrl);
-//     }
-// })
+app.use('*', checkValidDeepLink)
 
 
 

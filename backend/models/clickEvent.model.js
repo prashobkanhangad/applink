@@ -36,10 +36,10 @@ const clickEventSchema = new Schema({
         type: String,
         required: true
     },
-    utm: {
-        type: Schema.Types.Mixed,
-        default: {}
-    }
+    // utm: {
+    //     type: Schema.Types.Mixed,
+    //     default: {}
+    // }
 }, { timestamps: true });
 
 export const ClickEvent = model("ClickEvent", clickEventSchema, "clickEvents");
