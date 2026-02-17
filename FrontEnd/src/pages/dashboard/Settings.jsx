@@ -183,7 +183,7 @@ export const Settings = () => {
 
   return (
     <DashboardLayout title="Settings" subtitle="Manage your account settings">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Custom Domain Section */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">

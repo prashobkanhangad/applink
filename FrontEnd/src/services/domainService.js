@@ -3,6 +3,8 @@
  * Handles domain verification API calls
  */
 
+import { handleAuthFailure } from './authService';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
 
 /**
@@ -29,6 +31,7 @@ export const addDomain = async (domainData) => {
     const token = getAuthToken();
     
     if (!token) {
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -42,6 +45,9 @@ export const addDomain = async (domainData) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to add domain: ${response.statusText}`);
     }
@@ -70,6 +76,7 @@ export const verifyDomain = async (domainId) => {
     const token = getAuthToken();
     
     if (!token) {
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -82,6 +89,9 @@ export const verifyDomain = async (domainId) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to verify domain: ${response.statusText}`);
     }
@@ -107,6 +117,7 @@ export const getDomains = async () => {
     const token = getAuthToken();
     
     if (!token) {
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -119,6 +130,9 @@ export const getDomains = async () => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch domains: ${response.statusText}`);
     }
@@ -157,6 +171,9 @@ export const getDomain = async (domainId) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch domain: ${response.statusText}`);
     }

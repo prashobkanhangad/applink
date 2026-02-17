@@ -3,6 +3,8 @@
  * Handles app creation and management API calls
  */
 
+import { handleAuthFailure } from './authService';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
 
 /**
@@ -44,7 +46,7 @@ export const createApp = async (appData) => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
     
@@ -61,6 +63,9 @@ export const createApp = async (appData) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to create app: ${response.statusText}`);
     }
@@ -144,7 +149,7 @@ export const getLinks = async () => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -157,6 +162,9 @@ export const getLinks = async () => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch links: ${response.statusText}`);
     }
@@ -187,7 +195,7 @@ export const getUserApps = async () => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -200,6 +208,9 @@ export const getUserApps = async () => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch apps: ${response.statusText}`);
     }
@@ -226,7 +237,7 @@ export const getLinkDetails = async (linkId) => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -239,6 +250,9 @@ export const getLinkDetails = async (linkId) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch link details: ${response.statusText}`);
     }
@@ -267,7 +281,7 @@ export const getLinkAnalytics = async (linkId, startDate, endDate) => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
 
@@ -285,6 +299,9 @@ export const getLinkAnalytics = async (linkId, startDate, endDate) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to fetch link analytics: ${response.statusText}`);
     }
@@ -326,7 +343,7 @@ export const createLink = async (linkData) => {
     const token = getAuthToken();
     
     if (!token) {
-      console.error('Authentication token not found. User may need to sign in again.');
+      handleAuthFailure('Please sign in to continue.');
       throw new Error('Authentication required. Please sign in.');
     }
     
@@ -342,6 +359,9 @@ export const createLink = async (linkData) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleAuthFailure('Session expired. Please sign in again.');
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Failed to create link: ${response.statusText}`);
     }

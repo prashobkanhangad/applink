@@ -7,7 +7,7 @@ import { DashboardLayout } from '../../components/DashboardLayout';
 export const Analytics = () => {
   return (
     <DashboardLayout title="Analytics" subtitle="View your link performance">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">

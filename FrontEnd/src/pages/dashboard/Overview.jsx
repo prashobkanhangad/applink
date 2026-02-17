@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
-import { createAppWithConfigurations, getUserApps } from '../../services/appService';
+import { createAppWithConfigurations, getUserApps, getLinks } from '../../services/appService';
 import { getCurrentUser } from '../../services/authService';
 import { getDomains, addDomain, verifyDomain } from '../../services/domainService';
 
@@ -43,6 +43,10 @@ export const Overview = () => {
   const [userApps, setUserApps] = useState([]);
   const [isLoadingApps, setIsLoadingApps] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null); // For viewing app details
+  const [stats, setStats] = useState({ linksCount: 0, totalClicks: 0 });
+
+  // Format number for display (e.g., 1100 -> "1.1K")
+  const formatCompact = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
 
   // Check if app exists and fetch custom domains on component mount
   useEffect(() => {
@@ -85,6 +89,18 @@ export const Overview = () => {
           }
         } catch (domainErr) {
           console.error('[Overview] Error fetching custom domains:', domainErr);
+        }
+
+        // Fetch links for stats
+        try {
+          const linksResult = await getLinks();
+          if (linksResult.success && linksResult.links) {
+            const links = Array.isArray(linksResult.links) ? linksResult.links : [];
+            const totalClicks = links.reduce((sum, link) => sum + (link.clickCount || link.clicks || 0), 0);
+            setStats({ linksCount: links.length, totalClicks });
+          }
+        } catch (linksErr) {
+          console.error('[Overview] Error fetching links:', linksErr);
         }
       } catch (err) {
         console.error('Error checking app existence:', err);
@@ -298,7 +314,7 @@ export const Overview = () => {
   if (isSubmitted) {
     return (
       <DashboardLayout title="Overview" subtitle="Home">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             <div className="max-w-2xl mx-auto">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 sm:p-12 text-center">
@@ -346,7 +362,7 @@ export const Overview = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
                     onClick={() => window.location.href = '/dashboard/links'}
-                    className="px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors"
                   >
                     Create Your First Link
                   </button>
@@ -369,10 +385,10 @@ export const Overview = () => {
   if (isLoading) {
     return (
       <DashboardLayout title="Overview" subtitle="Home">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
               <p className="text-gray-600 mt-4">Loading...</p>
             </div>
           </div>
@@ -381,12 +397,41 @@ export const Overview = () => {
     );
   }
 
+  // Stat cards - Clicks & Link Created (matches dashboard pattern)
+  const StatCards = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCompact(stats.totalClicks)}</p>
+          <p className="text-sm text-gray-600 mt-0.5">Clicks</p>
+        </div>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.linksCount}</p>
+          <p className="text-sm text-gray-600 mt-0.5">Link Created</p>
+        </div>
+      </div>
+    </div>
+  );
+
   // Show app exists view if app already exists
   if (isAppExists) {
     return (
       <DashboardLayout title="Overview" subtitle="Home">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+            <StatCards />
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Apps List Card */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 lg:col-span-2">
@@ -401,13 +446,13 @@ export const Overview = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     {userInfo?.currentPlan && (
-                      <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                      <div className="px-3 py-1 bg-gray-100 text-gray-900 text-xs font-medium rounded-full">
                         {userInfo.currentPlan}
                       </div>
                     )}
                     <button
                       onClick={() => setIsAppExists(false)}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -420,7 +465,7 @@ export const Overview = () => {
                 {/* Apps List */}
                 {isLoadingApps ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
                     <span className="ml-2 text-gray-600">Loading apps...</span>
                   </div>
                 ) : userApps.length > 0 ? (
@@ -431,17 +476,17 @@ export const Overview = () => {
                         onClick={() => setSelectedApp(selectedApp?._id === app._id ? null : app)}
                         className={`border rounded-lg p-4 transition-all cursor-pointer group ${
                           selectedApp?._id === app._id 
-                            ? 'border-blue-400 bg-blue-50/50 shadow-md' 
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/30'
+                            ? 'border-gray-700 bg-gray-50/50 shadow-md' 
+                            : 'border-gray-200 hover:border-gray-500 hover:bg-gray-50/30'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                               {app.name?.charAt(0)?.toUpperCase() || 'A'}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                              <h3 className="font-semibold text-gray-900 group-hover:text-gray-900 transition-colors">
                                 {app.name || 'Unnamed App'}
                               </h3>
                               <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -486,8 +531,8 @@ export const Overview = () => {
                               }}
                               className={`p-1.5 rounded-lg transition-all ${
                                 selectedApp?._id === app._id 
-                                  ? 'bg-blue-100 text-blue-600' 
-                                  : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                                  ? 'bg-gray-200 text-gray-900' 
+                                  : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
                               }`}
                               title={selectedApp?._id === app._id ? 'Close' : 'Open'}
                             >
@@ -540,9 +585,9 @@ export const Overview = () => {
 
                         {/* Expanded App Details Panel */}
                         {selectedApp?._id === app._id && (
-                          <div className="mt-4 pt-4 border-t border-blue-200 bg-blue-50/50 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg">
+                          <div className="mt-4 pt-4 border-t border-gray-200 bg-gray-50/50 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg">
                             <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                               App Configuration
@@ -588,7 +633,7 @@ export const Overview = () => {
                               </a>
                               <button
                                 onClick={() => window.location.href = `/dashboard/links?app=${app._id}`}
-                                className="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
+                                className="px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-black transition-colors inline-flex items-center gap-1"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -614,6 +659,16 @@ export const Overview = () => {
                                 </svg>
                                 Settings
                               </button>
+                              <button
+                                onClick={() => window.location.href = `/dashboard/settings?app=${app._id}`}
+                                className="px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-1"
+                                title="Edit app configuration"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828L18.172 5.172z" />
+                                </svg>
+                                Edit
+                              </button>
                             </div>
                           </div>
                         )}
@@ -623,19 +678,19 @@ export const Overview = () => {
                     {/* Add New App Card */}
                     {/* <button
                       onClick={() => setIsAppExists(false)}
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer group w-full"
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-gray-600 hover:bg-gray-50/50 transition-all cursor-pointer group w-full"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 group-hover:bg-blue-100 rounded-lg flex items-center justify-center transition-colors">
-                          <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+                          <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
                         </div>
                         <div className="text-left">
-                          <h3 className="font-semibold text-gray-600 group-hover:text-blue-600 transition-colors">
+                          <h3 className="font-semibold text-gray-600 group-hover:text-gray-900 transition-colors">
                             Add New App
                           </h3>
-                          <p className="text-xs text-gray-400 group-hover:text-blue-500 transition-colors">
+                          <p className="text-xs text-gray-400 group-hover:text-gray-900 transition-colors">
                             Configure another application
                           </p>
                         </div>
@@ -650,7 +705,7 @@ export const Overview = () => {
                     <p className="text-gray-500 mb-4">No apps found</p>
                     <button
                       onClick={() => setIsAppExists(false)}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+                      className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors inline-flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -665,7 +720,7 @@ export const Overview = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => window.location.href = '/dashboard/links'}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors flex items-center justify-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -710,11 +765,11 @@ export const Overview = () => {
                     Integration Guide
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-                    Easily create, customize, and manage links with our SDK. Follow simple steps to integrate ChottulinksDK into your app.
+                    Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
                   </p>
                   <a
                     href="#"
-                    className="text-sm text-blue-600 hover:text-blue-700 underline font-medium"
+                    className="text-sm text-gray-900 hover:text-black underline font-medium"
                   >
                     Go To Docs
                   </a>
@@ -729,15 +784,16 @@ export const Overview = () => {
 
   return (
     <DashboardLayout title="Overview" subtitle="Home">
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <StatCards />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Getting Started Card */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 lg:col-span-2">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                    {userApps.length > 0 ? 'Add New App' : 'Getting Started with ChottuLink!'}
+                    {userApps.length > 0 ? 'Add New App' : 'Getting Started with Deeplink.in!'}
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">
                     {userApps.length > 0 ? 'Configure a new application' : 'Fill the form to get full access to your workspace'}
@@ -778,7 +834,7 @@ export const Overview = () => {
                       isStepCompleted(1) 
                         ? 'bg-green-500 text-white' 
                         : currentStep === 1 
-                          ? 'bg-primary-600 text-white' 
+                          ? 'bg-gray-900 text-white' 
                           : 'bg-gray-300 text-gray-600'
                     }`}>
                       {isStepCompleted(1) ? (
@@ -805,7 +861,7 @@ export const Overview = () => {
                           disabled={!isStepActive(1)}
                           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                             domainType === 'subdomain'
-                              ? 'bg-blue-500 text-white'
+                              ? 'bg-gray-900 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
@@ -816,7 +872,7 @@ export const Overview = () => {
                           disabled={!isStepActive(1)}
                           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                             domainType === 'custom'
-                              ? 'bg-blue-500 text-white'
+                              ? 'bg-gray-900 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
@@ -841,7 +897,7 @@ export const Overview = () => {
                                 }
                               }}
                               disabled={!isStepActive(1)}
-                              className="w-full pl-[72px] pr-[100px] py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full pl-[72px] pr-[100px] py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="select-subdomain"
                             />
                             <span className="absolute right-3 text-sm text-gray-500 pointer-events-none">
@@ -851,7 +907,7 @@ export const Overview = () => {
                           <button
                             onClick={() => handleStepContinue(1, subdomain)}
                             disabled={!subdomain || subdomain.trim() === '' || !isStepActive(1)}
-                            className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                           >
                             Continue
                           </button>
@@ -877,7 +933,7 @@ export const Overview = () => {
                                     }
                                   }}
                                   disabled={!isStepActive(1)}
-                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                                 >
                                   <option value="">Select a custom domain</option>
                                   {customDomains.map((d) => (
@@ -895,7 +951,7 @@ export const Overview = () => {
                                   }
                                 }}
                                 disabled={!selectedCustomDomain || (selectedCustomDomain?.status !== 'verified' && !dnsSetupConfirmed) || !isStepActive(1)}
-                                className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                               >
                                 Continue
                               </button>
@@ -904,13 +960,13 @@ export const Overview = () => {
 
                           {/* DNS Setup Instructions for pending domains */}
                           {selectedCustomDomain && selectedCustomDomain.status !== 'verified' && !showAddDomainForm && (
-                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                              <p className="text-xs text-blue-800 mb-2 font-semibold">
+                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                              <p className="text-xs text-gray-900 mb-2 font-semibold">
                                 📋 DNS Configuration Required
                               </p>
-                              <div className="text-xs text-blue-700 mb-3">
+                              <div className="text-xs text-gray-700 mb-3">
                                 <p className="mb-2">Add this CNAME record to your DNS provider:</p>
-                                <div className="bg-white p-2 rounded border border-blue-200 font-mono text-xs">
+                                <div className="bg-white p-2 rounded border border-gray-200 font-mono text-xs">
                                   <p>Type: <strong>CNAME</strong></p>
                                   <p>Name: <strong>{selectedCustomDomain.subdomain}</strong></p>
                                   <p>Value: <strong>{selectedCustomDomain.cnameTarget || 'target.lorrymithra.in'}</strong></p>
@@ -923,9 +979,9 @@ export const Overview = () => {
                                   type="checkbox"
                                   checked={dnsSetupConfirmed}
                                   onChange={(e) => setDnsSetupConfirmed(e.target.checked)}
-                                  className="mt-0.5 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                  className="mt-0.5 w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                                 />
-                                <span className="text-xs text-blue-800">
+                                <span className="text-xs text-gray-900">
                                   I have configured the CNAME record in my DNS settings
                                 </span>
                               </label>
@@ -958,7 +1014,7 @@ export const Overview = () => {
                             <button
                               onClick={() => setShowAddDomainForm(true)}
                               disabled={!isStepActive(1)}
-                              className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                              className="text-xs text-gray-900 hover:text-black font-medium flex items-center gap-1"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -986,7 +1042,7 @@ export const Overview = () => {
                                     setCustomDomainError(null);
                                   }}
                                   placeholder="example.com"
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                                 />
                               </div>
 
@@ -1001,7 +1057,7 @@ export const Overview = () => {
                                       setCustomDomainError(null);
                                     }}
                                     placeholder="link"
-                                    className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                                   />
                                   <span className="text-sm text-gray-500">.{newCustomDomain || 'yourdomain.com'}</span>
                                 </div>
@@ -1014,7 +1070,7 @@ export const Overview = () => {
                                 <button
                                   onClick={handleAddCustomDomain}
                                   disabled={isAddingCustomDomain || !newCustomDomain.trim() || !newCustomSubdomain.trim()}
-                                  className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                  className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
                                   {isAddingCustomDomain ? 'Adding...' : 'Add Domain'}
                                 </button>
@@ -1063,7 +1119,7 @@ export const Overview = () => {
                       isStepCompleted(2) 
                         ? 'bg-green-500 text-white' 
                         : currentStep === 2 
-                          ? 'bg-primary-600 text-white' 
+                          ? 'bg-gray-900 text-white' 
                           : 'bg-gray-300 text-gray-600'
                     }`}>
                       {isStepCompleted(2) ? (
@@ -1090,13 +1146,13 @@ export const Overview = () => {
                             }
                           }}
                           disabled={!isStepActive(2)}
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                           placeholder="https://example.com/fallback"
                         />
                         <button
                           onClick={() => handleStepContinue(2, fallbackUrl)}
                           disabled={!fallbackUrl || fallbackUrl.trim() === '' || !isStepActive(2)}
-                          className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           Continue
                         </button>
@@ -1112,7 +1168,7 @@ export const Overview = () => {
                       isStepCompleted(3) 
                         ? 'bg-green-500 text-white' 
                         : currentStep === 3 
-                          ? 'bg-primary-600 text-white' 
+                          ? 'bg-gray-900 text-white' 
                           : 'bg-gray-300 text-gray-600'
                     }`}>
                       {isStepCompleted(3) ? (
@@ -1137,7 +1193,7 @@ export const Overview = () => {
                             checked={hasAndroidApp}
                             onChange={(e) => setHasAndroidApp(e.target.checked)}
                             disabled={!isStepActive(3)}
-                            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                           <span className="text-sm text-gray-700">I have an Android App</span>
                         </label>
@@ -1155,7 +1211,7 @@ export const Overview = () => {
                               value={androidPackageName}
                               onChange={(e) => setAndroidPackageName(e.target.value)}
                               disabled={!isStepActive(3)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="e.g. com.example.myapp"
                             />
                             <p className="text-xs text-gray-500 mt-1">Sends Android users to the specified URL</p>
@@ -1169,7 +1225,7 @@ export const Overview = () => {
                                 checked={enableAppLinks}
                                 onChange={(e) => setEnableAppLinks(e.target.checked)}
                                 disabled={!isStepActive(3)}
-                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                               />
                               <span className="text-sm text-gray-700">Enable App Links</span>
                             </label>
@@ -1188,7 +1244,7 @@ export const Overview = () => {
                               value={sha256Fingerprint}
                               onChange={(e) => setSha256Fingerprint(e.target.value)}
                               disabled={!isStepActive(3)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="e.g. AB:CD:EF:12:34:56:78:90:12:34:56:78:90:AB:CD:EF:12:34:56:78"
                             />
                           </div>
@@ -1202,7 +1258,7 @@ export const Overview = () => {
                           value={androidRedirectUrl}
                           onChange={(e) => setAndroidRedirectUrl(e.target.value)}
                           disabled={!isStepActive(3)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                           placeholder="https://play.google.com/store/apps/details?id=..."
                         />
                       </div>
@@ -1217,7 +1273,7 @@ export const Overview = () => {
                             }
                           }}
                           disabled={!androidRedirectUrl || androidRedirectUrl.trim() === '' || (hasAndroidApp && !androidPackageName.trim()) || !isStepActive(3) || isSubmitting}
-                          className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           {isSubmitting ? 'Creating...' : 'Continue'}
                         </button>
@@ -1233,7 +1289,7 @@ export const Overview = () => {
                       isStepCompleted(4) 
                         ? 'bg-green-500 text-white' 
                         : currentStep === 4 
-                          ? 'bg-primary-600 text-white' 
+                          ? 'bg-gray-900 text-white' 
                           : 'bg-gray-300 text-gray-600'
                     }`}>
                       {isStepCompleted(4) ? (
@@ -1258,7 +1314,7 @@ export const Overview = () => {
                             checked={hasIosApp}
                             onChange={(e) => setHasIosApp(e.target.checked)}
                             disabled={!isStepActive(4)}
-                            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                           <span className="text-sm text-gray-700">I have an iOS App</span>
                         </label>
@@ -1276,7 +1332,7 @@ export const Overview = () => {
                               value={appleTeamId}
                               onChange={(e) => setAppleTeamId(e.target.value)}
                               disabled={!isStepActive(4)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="e.g. 1A2BC3D4EF"
                             />
                           </div>
@@ -1291,7 +1347,7 @@ export const Overview = () => {
                               value={appleBundleId}
                               onChange={(e) => setAppleBundleId(e.target.value)}
                               disabled={!isStepActive(4)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="e.g. com.example.myapp"
                             />
                           </div>
@@ -1306,7 +1362,7 @@ export const Overview = () => {
                               value={appStoreId}
                               onChange={(e) => setAppStoreId(e.target.value)}
                               disabled={!isStepActive(4)}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                               placeholder="e.g. 1234567890"
                             />
                           </div>
@@ -1319,7 +1375,7 @@ export const Overview = () => {
                                 checked={enableUniversalLinks}
                                 onChange={(e) => setEnableUniversalLinks(e.target.checked)}
                                 disabled={!isStepActive(4)}
-                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                               />
                               <span className="text-sm text-gray-700">Enable Universal Links</span>
                             </label>
@@ -1334,7 +1390,7 @@ export const Overview = () => {
                           value={iosRedirectUrl}
                           onChange={(e) => setIosRedirectUrl(e.target.value)}
                           disabled={!isStepActive(4)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                           placeholder="https://apps.apple.com/app/id..."
                         />
                       </div>
@@ -1349,7 +1405,7 @@ export const Overview = () => {
                             }
                           }}
                           disabled={!iosRedirectUrl || iosRedirectUrl.trim() === '' || (hasIosApp && (!appleTeamId.trim() || !appleBundleId.trim())) || !isStepActive(4) || isSubmitting}
-                          className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition-colors whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           {isSubmitting ? 'Submitting...' : 'Submit'}
                         </button>
@@ -1366,11 +1422,11 @@ export const Overview = () => {
                 Integration Guide
               </h2>
               <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-                Easily create, customize, and manage links with our SDK. Follow simple steps to integrate ChottulinksDK into your app.
+                Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
               </p>
               <a
                 href="#"
-                className="text-sm text-blue-600 hover:text-blue-700 underline font-medium"
+                className="text-sm text-gray-900 hover:text-black underline font-medium"
               >
                 Go To Docs
               </a>

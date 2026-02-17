@@ -51,7 +51,13 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
   };
 
   return (
-    <div className="min-h-screen flex bg-white relative">
+    <div className="min-h-screen flex bg-background relative overflow-hidden link-pattern">
+      {/* Background Pattern - same as home page */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-[hsl(200_85%_50%)]/5 blur-[100px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
+      </div>
+
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
@@ -60,28 +66,32 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
         />
       )}
       
-      {/* Dark Sidebar */}
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 lg:w-16'} fixed lg:relative inset-y-0 left-0 bg-gray-800 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out z-50 lg:z-auto`}>
+      {/* Sidebar - black background */}
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 lg:w-16'} fixed lg:relative inset-y-0 left-0 bg-black border-r border-gray-800 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out z-50 lg:z-auto`}>
         {/* Logo */}
-        <div className={`h-16 ${isSidebarOpen ? 'px-6' : 'px-4'} flex items-center justify-between border-b border-gray-700 ${!isSidebarOpen ? 'lg:flex' : ''}`}>
+        <div className={`h-16 ${isSidebarOpen ? 'px-6' : 'px-4'} flex items-center justify-between border-b border-gray-800 ${!isSidebarOpen ? 'lg:flex' : ''}`}>
           {isSidebarOpen && (
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">C</span>
-            </div>
+            <img
+              src="/logo_light.png"
+              alt="Deeplink"
+              className="h-12 w-auto max-w-[180px] object-contain"
+            />
           )}
           {!isSidebarOpen && (
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center mx-auto">
-              <span className="text-white font-semibold text-lg">C</span>
-            </div>
+            <img
+              src="/logo_light.png"
+              alt="Deeplink"
+              className="h-12 w-auto object-contain mx-auto"
+            />
           )}
           {/* Close button for mobile */}
           {isSidebarOpen && (
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-1 rounded hover:bg-gray-700"
+              className="lg:hidden p-1 rounded hover:bg-gray-800"
               aria-label="Close sidebar"
             >
-              <CloseIcon className="w-5 h-5 text-gray-300" />
+              <CloseIcon className="w-5 h-5 text-gray-400" />
             </button>
           )}
         </div>
@@ -103,13 +113,13 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
                 }}
                 className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-2'} py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? 'bg-white text-black'
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
                 title={!isSidebarOpen ? item.label : undefined}
               >
-                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-black' : 'text-gray-500'}`} />
                 {isSidebarOpen && <span className="truncate">{item.label}</span>}
               </button>
             );
@@ -117,28 +127,13 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
         </nav>
 
         {/* Bottom Section */}
-        <div className="p-4 border-t border-gray-700 space-y-2">
-          {/* Bottom Icons */}
-          <div className={`flex ${isSidebarOpen ? 'items-center justify-center gap-4' : 'flex-col items-center gap-2'} ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}>
-            <button 
-              onClick={() => navigate('/dashboard/profile')}
-              className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-              title={!isSidebarOpen ? 'Profile' : undefined}
-            >
-              <ProfileIcon className="w-5 h-5 text-gray-300" />
-            </button>
-            <button 
-              className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-              title={!isSidebarOpen ? 'Globe' : undefined}
-            >
-              <GlobeIcon className="w-5 h-5 text-gray-300" />
-            </button>
-          </div>
+        <div className="p-4 border-t border-gray-800 space-y-2">
+          
           
           {/* Sign Out Button */}
           <button
             onClick={handleSignOut}
-            className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-2'} py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-300 hover:bg-red-600 hover:text-white ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}
+            className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-2'} py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:bg-gray-800 hover:text-red-400 ${!isSidebarOpen ? 'lg:flex hidden' : ''}`}
             title={!isSidebarOpen ? 'Sign Out' : undefined}
           >
             <LogoutIcon className="w-5 h-5 flex-shrink-0" />
@@ -148,9 +143,9 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto">
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto relative z-10">
         {/* Header */}
-        <header className="h-20 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-shrink-0">
+        <header className="h-20 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Toggle Sidebar Button */}
             <button
@@ -190,10 +185,10 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
         {children}
 
         {/* Footer */}
-        <footer className="mt-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-t border-gray-200 bg-white">
+        <footer className="mt-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-              ©2026 ChottuLink | Tavas Analytics Inc. v1.2.2
+              ©2026 Deeplink.in | Tavas Analytics Inc. v1.2.2
             </p>
             <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
               <a href="#" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">

@@ -115,7 +115,7 @@ export const LinkAnalytics = () => {
   if (isLoading) {
     return (
       <DashboardLayout title="Link Analytics" subtitle="Loading...">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
@@ -130,7 +130,7 @@ export const LinkAnalytics = () => {
   if (error && !linkData) {
     return (
       <DashboardLayout title="Link Analytics" subtitle="Error">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
               <p className="text-red-600">{error}</p>
@@ -153,7 +153,7 @@ export const LinkAnalytics = () => {
 
   return (
     <DashboardLayout title="Link Analytics" subtitle={linkData?.linkName || 'Link Details'}>
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           
           {/* Header with Breadcrumb and Date Range */}
