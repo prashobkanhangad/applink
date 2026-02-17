@@ -19,6 +19,7 @@ import indexRoute from './routes/index.js';
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT;
+app.set("trust proxy", true);
 
 app.use(morgan('dev'));
 
