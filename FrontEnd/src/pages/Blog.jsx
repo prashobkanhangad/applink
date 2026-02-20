@@ -27,7 +27,7 @@ export const Blog = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-foreground">
               <img src={logoSrc} alt="Deeplink" className="h-14 w-auto object-contain" />
-              <span className="text-xl font-bold">Deeplink</span>
+
             </Link>
             <Link
               to="/"

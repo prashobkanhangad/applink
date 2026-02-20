@@ -53,7 +53,7 @@ export const Footer = () => {
                 alt="DeepLink"
                 className="h-14 w-auto object-contain"
               />
-              <span className="text-xl font-bold">DeepLink</span>
+
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xs">
               The intelligent deep linking platform trusted by developers and marketers worldwide.

@@ -5,6 +5,7 @@ import { Link } from "../../models/links.model.js";
 import { createSubdomain } from "./app.service.js";
 import Joi from "joi";
 import { ClickEvent } from "../../models/clickEvent.model.js";
+import { InstallEvent } from "../../models/installEvent.model.js";
 
 
 export const createApp = async (req, res) => {
@@ -305,6 +306,31 @@ export const getAllLinks = async (req, res) => {
         sendError(req,res,error)
     }
 }
+
+// Overview stats for dashboard (links count, total clicks, total installs)
+export const getOverviewStats = async (req, res) => {
+    try {
+        const { performingUser } = req;
+        const apps = await App.find({ createdBy: performingUser._id }).select('_id');
+        const appIds = apps.map(a => a._id);
+        const links = await Link.find({ appId: { $in: appIds } }).select('_id');
+        const linkIds = links.map(l => l._id);
+
+        const [linksCount, totalClicks, totalInstalls] = await Promise.all([
+            Promise.resolve(links.length),
+            linkIds.length ? ClickEvent.countDocuments({ linkId: { $in: linkIds } }) : 0,
+            linkIds.length ? InstallEvent.countDocuments({ linkId: { $in: linkIds } }) : 0,
+        ]);
+
+        await sendSuccess(req, res, "Overview stats fetched successfully", 200, {
+            linksCount,
+            totalClicks,
+            totalInstalls,
+        });
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
 
 export const getLinkInfo = async (req, res) => {
     try {

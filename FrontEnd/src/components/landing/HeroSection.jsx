@@ -71,9 +71,11 @@ export const HeroSection = () => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button variant="hero-outline" size="xl">
-              View Documentation
-            </Button>
+            <a href="https://docs.deeplink.in/" target="_blank" rel="noopener noreferrer">
+              <Button variant="hero-outline" size="xl">
+                View Documentation
+              </Button>
+            </a>
           </motion.div>
 
           {/* Stats */}

@@ -18,7 +18,7 @@ export const Links = () => {
   const [apps, setApps] = useState([]);
   const [selectedAppId, setSelectedAppId] = useState('');
   const [domain, setDomain] = useState('earlyjobs.chottu.link');
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState('/');
   const [currentStep, setCurrentStep] = useState(1);
   const [destinationUrl, setDestinationUrl] = useState('');
   const [linkName, setLinkName] = useState('');
@@ -191,7 +191,7 @@ export const Links = () => {
         setSuccessMessage(result.message || 'Link created successfully!');
         // Reset form and navigate back to list view after successful creation
         setTimeout(() => {
-          setPath('');
+          setPath('/');
           setDestinationUrl('');
           setLinkName('');
           setCurrentStep(1);
@@ -358,7 +358,14 @@ export const Links = () => {
                         <input
                           type="text"
                           value={path}
-                          onChange={(e) => setPath(e.target.value)}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (v === '' || !v.startsWith('/')) {
+                              setPath(v === '' ? '/' : '/' + v.replace(/^\/+/, ''));
+                            } else {
+                              setPath(v);
+                            }
+                          }}
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                           placeholder="/ e.g. home"
                         />
@@ -934,7 +941,7 @@ export const Links = () => {
                     </div>
                     {/* Link URL */}
                     <p className="text-xs text-gray-500 text-center mb-3 break-all px-2">
-                      {domain}/{path}
+                      {domain}{path}
                     </p>
                     {/* Download Button */}
                     <a
