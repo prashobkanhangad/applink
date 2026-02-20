@@ -201,6 +201,7 @@ export const resolveLink = async (req, res) => {
         }
         console.log("[resolveLink] link found:", link.linkName, "destination:", link.destinationUrl);
         return res.json({
+            linkId: link._id?.toString() || null,
             destinationUrl: link.destinationUrl,
             linkName: link.linkName,
             utm: link.utm || {},

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
-import { createAppWithConfigurations, getUserApps, getLinks } from '../../services/appService';
+import { createAppWithConfigurations, getUserApps, getOverviewStats } from '../../services/appService';
 import { getCurrentUser } from '../../services/authService';
 import { getDomains, addDomain, verifyDomain } from '../../services/domainService';
 
@@ -43,7 +43,7 @@ export const Overview = () => {
   const [userApps, setUserApps] = useState([]);
   const [isLoadingApps, setIsLoadingApps] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null); // For viewing app details
-  const [stats, setStats] = useState({ linksCount: 0, totalClicks: 0 });
+  const [stats, setStats] = useState({ linksCount: 0, totalClicks: 0, totalInstalls: 0 });
 
   // Format number for display (e.g., 1100 -> "1.1K")
   const formatCompact = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
@@ -91,16 +91,20 @@ export const Overview = () => {
           console.error('[Overview] Error fetching custom domains:', domainErr);
         }
 
-        // Fetch links for stats
-        try {
-          const linksResult = await getLinks();
-          if (linksResult.success && linksResult.links) {
-            const links = Array.isArray(linksResult.links) ? linksResult.links : [];
-            const totalClicks = links.reduce((sum, link) => sum + (link.clickCount || link.clicks || 0), 0);
-            setStats({ linksCount: links.length, totalClicks });
+        // Fetch overview stats (links count, clicks, installs) when app exists
+        if (result.isAppExists) {
+          try {
+            const statsResult = await getOverviewStats();
+            if (statsResult.success) {
+              setStats({
+                linksCount: statsResult.linksCount ?? 0,
+                totalClicks: statsResult.totalClicks ?? 0,
+                totalInstalls: statsResult.totalInstalls ?? 0,
+              });
+            }
+          } catch (statsErr) {
+            console.error('[Overview] Error fetching overview stats:', statsErr);
           }
-        } catch (linksErr) {
-          console.error('[Overview] Error fetching links:', linksErr);
         }
       } catch (err) {
         console.error('Error checking app existence:', err);
@@ -397,9 +401,9 @@ export const Overview = () => {
     );
   }
 
-  // Stat cards - Clicks & Link Created (matches dashboard pattern)
+  // Stat cards - Clicks, Link Created, Installs (matches dashboard pattern)
   const StatCards = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
         <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
           <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,6 +424,17 @@ export const Overview = () => {
         <div>
           <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.linksCount}</p>
           <p className="text-sm text-gray-600 mt-0.5">Link Created</p>
+        </div>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12m0 0l4-4m-4 4l4-4" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCompact(stats.totalInstalls)}</p>
+          <p className="text-sm text-gray-600 mt-0.5">Installs</p>
         </div>
       </div>
     </div>
@@ -768,7 +783,9 @@ export const Overview = () => {
                     Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
                   </p>
                   <a
-                    href="#"
+                    href="https://docs.deeplink.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-gray-900 hover:text-black underline font-medium"
                   >
                     Go To Docs
@@ -1425,7 +1442,9 @@ export const Overview = () => {
                 Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
               </p>
               <a
-                href="#"
+                href="https://docs.deeplink.in/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm text-gray-900 hover:text-black underline font-medium"
               >
                 Go To Docs

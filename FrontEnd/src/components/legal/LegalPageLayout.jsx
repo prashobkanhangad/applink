@@ -23,7 +23,7 @@ export const LegalPageLayout = ({ title, lastUpdated, backHref = "/", backLabel 
                 alt="DeepLink"
                 className="h-14 w-auto object-contain"
               />
-              <span className="text-xl font-bold">DeepLink</span>
+
             </Link>
             <Link
               to={backHref}

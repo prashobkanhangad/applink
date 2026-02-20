@@ -228,6 +228,44 @@ export const getUserApps = async () => {
 };
 
 /**
+ * Get overview stats (links count, total clicks, total installs)
+ * @returns {Promise<Object>} { linksCount, totalClicks, totalInstalls }
+ */
+export const getOverviewStats = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/app/overview-stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to fetch overview stats: ${response.statusText}`);
+    }
+    const data = await response.json();
+    const stats = data.data || data;
+    return {
+      success: true,
+      linksCount: stats.linksCount ?? 0,
+      totalClicks: stats.totalClicks ?? 0,
+      totalInstalls: stats.totalInstalls ?? 0,
+      message: data.message,
+    };
+  } catch (error) {
+    console.error('Get overview stats API error:', error);
+    throw error;
+  }
+};
+
+/**
  * Get link details by ID
  * @param {string} linkId - Link ID
  * @returns {Promise<Object>} Link details
@@ -258,9 +296,13 @@ export const getLinkDetails = async (linkId) => {
     }
 
     const data = await response.json();
+    // API returns { data: { link: <doc> } }; normalize so link is the document
+
+
+    console.log('Link details:', data);
     return {
       success: true,
-      link: data.link || data.data || data,
+      link: data.data?.link ,
       message: data.message,
     };
   } catch (error) {
