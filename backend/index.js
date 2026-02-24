@@ -60,7 +60,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1', indexRoute)
 
-app.use('*', checkValidDeepLink)
+// app.use('*', checkValidDeepLink)
 
 
 
