@@ -478,9 +478,10 @@ export const checkValidDeepLink = async (req, res) => {
 
     try {
         const host = req.get("host");
+        console.log(host,"host in checkValidDeepLink");
         const fullPath = req.originalUrl;   // real path
         const path = req.originalUrl.split("?")[0];
-
+        console.log(path,"path in checkValidDeepLink");
         const appExists = await App.findOne({ subDomain: host });
 
         console.log(appExists,"appExists<");
