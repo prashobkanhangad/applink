@@ -2,10 +2,12 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Header, Footer } from './components/landing';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Signup } from './pages/Signup';
 import { Dashboard } from './pages/Dashboard';
+import { AdminDashboard } from './pages/AdminDashboard';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CookiePolicy } from './pages/CookiePolicy';
@@ -18,6 +20,7 @@ import { FirebaseDynamicLinksAlternatives2025 } from './pages/blog/FirebaseDynam
 import { WhatIsDeepLinking } from './pages/blog/WhatIsDeepLinking';
 import { DeferredDeepLinkingForProductManagers } from './pages/blog/DeferredDeepLinkingForProductManagers';
 import { HowToImplementDeepLinking } from './pages/blog/HowToImplementDeepLinking';
+import { Affiliate } from './pages/Affiliate';
 
 function App() {
   return (
@@ -49,10 +52,13 @@ function App() {
         <Route path="/blog/what-is-deep-linking" element={<WhatIsDeepLinking />} />
         <Route path="/blog/deferred-deep-linking-for-product-managers" element={<DeferredDeepLinkingForProductManagers />} />
         <Route path="/blog/how-to-implement-deep-linking-android-ios" element={<HowToImplementDeepLinking />} />
+        <Route path="/affiliate" element={<Affiliate />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         {/* <Route path="/dashboard/links" element={<Links />} /> */}
         {/* <Route path="/dashboard/settings" element={<Settings />} /> */}
         <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Routes>
     </BrowserRouter>
   );

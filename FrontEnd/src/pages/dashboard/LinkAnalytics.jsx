@@ -23,7 +23,6 @@ export const LinkAnalytics = () => {
     start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0],
   });
-  const [statsType, setStatsType] = useState('clicks');
   const [locationType, setLocationType] = useState('countries');
 
   useEffect(() => {
@@ -149,7 +148,9 @@ export const LinkAnalytics = () => {
 
   const linkUrl = getFullUrl() || '-';
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(linkUrl)}`;
-  const totalClicks = analytics?.lifetimeStats?.total || 0;
+  const totalClicks = analytics?.lifetimeStats?.totalClicks ?? analytics?.lifetimeStats?.total ?? 0;
+  const totalDownloads = analytics?.lifetimeStats?.totalInstalls ?? 0;
+  const conversionRate = analytics?.lifetimeStats?.conversionRate ?? (totalClicks > 0 ? Math.round((totalDownloads / totalClicks) * 1000) / 10 : 0);
 
   return (
     <DashboardLayout title="Link Analytics" subtitle={linkData?.linkName || 'Link Details'}>
@@ -306,43 +307,19 @@ export const LinkAnalytics = () => {
 
           {/* Lifetime Stats */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Lifetime Stats</h3>
-              <div className="flex items-center bg-gray-100 rounded-full p-0.5">
-                <button
-                  onClick={() => setStatsType('clicks')}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                    statsType === 'clicks'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Clicks
-                </button>
-                <button
-                  onClick={() => setStatsType('installs')}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                    statsType === 'installs'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Installs
-                </button>
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Lifetime Stats</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Total {statsType === 'clicks' ? 'Clicks' : 'Installs'}</p>
+                <p className="text-sm text-gray-500 mb-1">Total Clicks</p>
                 <p className="text-3xl font-bold text-gray-900">{totalClicks}</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Last 7 Days {statsType === 'clicks' ? 'Clicks' : 'Installs'}</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics?.lifetimeStats?.last7Days || 0}</p>
+                <p className="text-sm text-gray-500 mb-1">Total Downloads</p>
+                <p className="text-3xl font-bold text-gray-900">{totalDownloads}</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Last 30 Days {statsType === 'clicks' ? 'Clicks' : 'Installs'}</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics?.lifetimeStats?.last30Days || 0}</p>
+                <p className="text-sm text-gray-500 mb-1">Conversion Rate</p>
+                <p className="text-3xl font-bold text-gray-900">{conversionRate}%</p>
               </div>
             </div>
           </div>

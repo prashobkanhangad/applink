@@ -1,6 +1,7 @@
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { InstallEvent } from "../../models/installEvent.model.js";
 import useragent from "express-useragent";
+import { getGeoFromIp } from "../../services/geolocation.service.js";
 
 /**
  * Get client IP (handles proxies).
@@ -78,6 +79,11 @@ export const handleTrackInstall = async (req, res) => {
             console.log("[handleTrackInstall] linkId provided in request:", linkId);
         }
 
+        const hasBodyGeo = bodyCountry ?? bodyState ?? bodyCity;
+        const geo = hasBodyGeo
+            ? { country: bodyCountry ?? unknown, state: bodyState ?? unknown, city: bodyCity ?? unknown }
+            : await getGeoFromIp(bodyIpAddress ?? ip);
+
         await InstallEvent.create({
             linkId: linkId || undefined,
             packageName: packageName || undefined,
@@ -85,9 +91,9 @@ export const handleTrackInstall = async (req, res) => {
             browser,
             userAgent: bodyUserAgent ?? userAgentStr,
             ipAddress: bodyIpAddress ?? ip,
-            country: bodyCountry ?? unknown,
-            state: bodyState ?? unknown,
-            city: bodyCity ?? unknown,
+            country: geo.country,
+            state: geo.state,
+            city: geo.city,
             deviceId,
             OSVersion: osVersion,
         });
@@ -96,6 +102,45 @@ export const handleTrackInstall = async (req, res) => {
         return res.json(responsePayload);
     } catch (err) {
         console.error("[handleTrackInstall] error:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+/**
+ * When SDK or app records a link open (e.g. deep link opened in app).
+ * POST /api/v1/track/click
+ * Body: { linkId (required), platform?, packageName?, browser?, userAgent?, ipAddress? }
+ * Persists a ClickEvent for analytics.
+ */
+export const handleTrackClick = async (req, res) => {
+    try {
+        const { linkId: bodyLinkId, platform: bodyPlatform, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, ipAddress: bodyIpAddress } = req.body || {};
+        if (!bodyLinkId) {
+            return res.status(400).json({ error: "linkId is required" });
+        }
+
+        const ip = getClientIp(req);
+        const userAgentStr = req.headers["user-agent"] || unknown;
+        const ua = useragent.parse(userAgentStr);
+        const platform = bodyPlatform || detectPlatform(userAgentStr);
+        const browser = bodyBrowser ?? ua?.browser ?? ua?.source ?? unknown;
+
+        const geo = await getGeoFromIp(bodyIpAddress ?? ip);
+
+        await ClickEvent.create({
+            linkId: bodyLinkId,
+            platform,
+            browser,
+            userAgent: bodyUserAgent ?? userAgentStr,
+            ipAddress: bodyIpAddress ?? ip,
+            country: geo.country,
+            state: geo.state,
+            city: geo.city,
+        });
+
+        return res.status(200).json({ ok: true });
+    } catch (err) {
+        console.error("[handleTrackClick] error:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };

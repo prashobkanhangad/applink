@@ -9,6 +9,7 @@ import { getDomains, addDomain, verifyDomain } from '../../services/domainServic
  */
 export const Overview = () => {
   const [subdomain, setSubdomain] = useState('');
+  const [appName, setAppName] = useState('');
   const [fallbackUrl, setFallbackUrl] = useState('');
   const [androidRedirectUrl, setAndroidRedirectUrl] = useState('');
   const [hasAndroidApp, setHasAndroidApp] = useState(false);
@@ -30,7 +31,7 @@ export const Overview = () => {
   const [isAppExists, setIsAppExists] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
-  const [domainType, setDomainType] = useState('subdomain'); // 'subdomain' or 'custom'
+  const [domainType, setDomainType] = useState('custom'); // 'subdomain' or 'custom'
   const [customDomains, setCustomDomains] = useState([]);
   const [selectedCustomDomain, setSelectedCustomDomain] = useState(null);
   // New custom domain input states
@@ -149,6 +150,12 @@ export const Overview = () => {
           setError('Please complete step 2 (fallback URL) first.');
           return;
         }
+        // App name: if provided, must be 3-15 chars (backend constraint)
+        const nameToUse = appName.trim();
+        if (nameToUse && (nameToUse.length < 3 || nameToUse.length > 15)) {
+          setError('App name must be between 3 and 15 characters.');
+          return;
+        }
         setIsSubmitting(true);
         
         try {
@@ -159,7 +166,9 @@ export const Overview = () => {
             : `${subdomain.trim()}.chottu.link`;
 
           const appConfig = {
-            name: subdomain.trim().substring(0, 15).replace(/\./g, '-'), // Remove dots for name
+            name: (appName.trim().length >= 3 && appName.trim().length <= 15)
+              ? appName.trim().substring(0, 15)
+              : subdomain.trim().substring(0, 15).replace(/\./g, '-') || 'my-app',
             subDomain: finalDomain,
             fallbackUrl: fallbackUrl.trim(),
             android: null,
@@ -390,9 +399,9 @@ export const Overview = () => {
     return (
       <DashboardLayout title="Overview" subtitle="Home">
         <main className="flex-1 overflow-y-auto bg-transparent">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
               <p className="text-gray-600 mt-4">Loading...</p>
             </div>
           </div>
@@ -862,6 +871,30 @@ export const Overview = () => {
                     </span>
                     <div className="flex-1">
                       <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                        App name
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-3">
+                        A display name for your app (3–15 characters). 
+                      </p>
+                      <input
+                        type="text"
+                        value={appName}
+                        onChange={(e) => setAppName(e.target.value.replace(/[^a-zA-Z0-9-_ ]/g, '').substring(0, 15))}
+                        disabled={!isStepActive(1)}
+                        className="w-full max-w-xs px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        placeholder="e.g. My App"
+                        maxLength={15}
+                      />
+                      {appName.length > 0 && appName.length < 3 && (
+                        <p className="text-xs text-amber-600 mt-1">Min 3 characters</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 mb-3 mt-6">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-transparent" aria-hidden />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">
                         Choose your domain:
                       </h3>
                       <p className="text-xs text-gray-600 mb-3">
@@ -870,7 +903,7 @@ export const Overview = () => {
 
                       {/* Domain Type Toggle */}
                       <div className="flex gap-2 mb-3">
-                        <button
+                        {/* <button
                           onClick={() => {
                             setDomainType('subdomain');
                             setShowAddDomainForm(false);
@@ -883,7 +916,7 @@ export const Overview = () => {
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                           Subdomain (.chottu.link)
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => setDomainType('custom')}
                           disabled={!isStepActive(1)}
