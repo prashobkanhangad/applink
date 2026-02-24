@@ -85,7 +85,7 @@ export const Sitemap = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-foreground">
               <img src={logoSrc} alt="DeepLink" className="h-14 w-auto object-contain" />
-              <span className="text-xl font-bold">DeepLink</span>
+
             </Link>
             <Link
               to="/"

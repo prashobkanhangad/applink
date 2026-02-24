@@ -1,6 +1,7 @@
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { InstallEvent } from "../../models/installEvent.model.js";
 import useragent from "express-useragent";
+import { getGeoFromIp } from "../../services/geolocation.service.js";
 
 /**
  * Get client IP (handles proxies).
@@ -30,8 +31,8 @@ const unknown = "unknown";
  */
 export const handleTrackInstall = async (req, res) => {
     try {
-        const { platform, referrer, model, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, country: bodyCountry, state: bodyState, city: bodyCity, deviceId: bodyDeviceId, OSVersion: bodyOSVersion, ipAddress: bodyIpAddress } = req.body || {};
-        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined });
+        const { platform, referrer, model, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, country: bodyCountry, state: bodyState, city: bodyCity, deviceId: bodyDeviceId, OSVersion: bodyOSVersion, ipAddress: bodyIpAddress, linkId: bodyLinkId } = req.body || {};
+        console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined, linkId: bodyLinkId || undefined });
 
         const ip = getClientIp(req);
         const userAgentStr = req.headers["user-agent"] || unknown;
@@ -43,35 +44,45 @@ export const handleTrackInstall = async (req, res) => {
 
         console.log("[handleTrackInstall] resolved:", { ip, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
 
-        let linkId = null;
+        let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
 
-        if (platform === "android" && referrer) {
-            responsePayload = { method: "referrer", data: referrer };
-            console.log("[handleTrackInstall] android with referrer");
-        } else if (platform === "ios") {
-            const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-            const match = await ClickEvent.findOne({
-                ipAddress: ip,
-                createdAt: { $gt: oneHourAgo }
-            })
-                .sort({ createdAt: -1 })
-                .lean();
+        // If linkId is provided in the request, use it; otherwise try to determine it
+        if (!linkId) {
+            if (platform === "android" && referrer) {
+                responsePayload = { method: "referrer", data: referrer };
+                console.log("[handleTrackInstall] android with referrer");
+            } else if (platform === "ios") {
+                const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+                const match = await ClickEvent.findOne({
+                    ipAddress: ip,
+                    createdAt: { $gt: oneHourAgo }
+                })
+                    .sort({ createdAt: -1 })
+                    .lean();
 
-            if (match) {
-                linkId = match.linkId || null;
-                if (match.utm && Object.keys(match.utm).length > 0) {
-                    responsePayload = match.utm;
-                    console.log("[handleTrackInstall] ios matched click, linkId:", linkId, "utm keys:", Object.keys(match.utm));
+                if (match) {
+                    linkId = match.linkId || null;
+                    if (match.utm && Object.keys(match.utm).length > 0) {
+                        responsePayload = match.utm;
+                        console.log("[handleTrackInstall] ios matched click, linkId:", linkId, "utm keys:", Object.keys(match.utm));
+                    } else {
+                        console.log("[handleTrackInstall] ios matched click, no utm");
+                    }
                 } else {
-                    console.log("[handleTrackInstall] ios matched click, no utm");
+                    console.log("[handleTrackInstall] ios no click match (organic)");
                 }
             } else {
-                console.log("[handleTrackInstall] ios no click match (organic)");
+                console.log("[handleTrackInstall] organic");
             }
         } else {
-            console.log("[handleTrackInstall] organic");
+            console.log("[handleTrackInstall] linkId provided in request:", linkId);
         }
+
+        const hasBodyGeo = bodyCountry ?? bodyState ?? bodyCity;
+        const geo = hasBodyGeo
+            ? { country: bodyCountry ?? unknown, state: bodyState ?? unknown, city: bodyCity ?? unknown }
+            : await getGeoFromIp(bodyIpAddress ?? ip);
 
         await InstallEvent.create({
             linkId: linkId || undefined,
@@ -80,9 +91,9 @@ export const handleTrackInstall = async (req, res) => {
             browser,
             userAgent: bodyUserAgent ?? userAgentStr,
             ipAddress: bodyIpAddress ?? ip,
-            country: bodyCountry ?? unknown,
-            state: bodyState ?? unknown,
-            city: bodyCity ?? unknown,
+            country: geo.country,
+            state: geo.state,
+            city: geo.city,
             deviceId,
             OSVersion: osVersion,
         });
@@ -91,6 +102,45 @@ export const handleTrackInstall = async (req, res) => {
         return res.json(responsePayload);
     } catch (err) {
         console.error("[handleTrackInstall] error:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+/**
+ * When SDK or app records a link open (e.g. deep link opened in app).
+ * POST /api/v1/track/click
+ * Body: { linkId (required), platform?, packageName?, browser?, userAgent?, ipAddress? }
+ * Persists a ClickEvent for analytics.
+ */
+export const handleTrackClick = async (req, res) => {
+    try {
+        const { linkId: bodyLinkId, platform: bodyPlatform, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, ipAddress: bodyIpAddress } = req.body || {};
+        if (!bodyLinkId) {
+            return res.status(400).json({ error: "linkId is required" });
+        }
+
+        const ip = getClientIp(req);
+        const userAgentStr = req.headers["user-agent"] || unknown;
+        const ua = useragent.parse(userAgentStr);
+        const platform = bodyPlatform || detectPlatform(userAgentStr);
+        const browser = bodyBrowser ?? ua?.browser ?? ua?.source ?? unknown;
+
+        const geo = await getGeoFromIp(bodyIpAddress ?? ip);
+
+        await ClickEvent.create({
+            linkId: bodyLinkId,
+            platform,
+            browser,
+            userAgent: bodyUserAgent ?? userAgentStr,
+            ipAddress: bodyIpAddress ?? ip,
+            country: geo.country,
+            state: geo.state,
+            city: geo.city,
+        });
+
+        return res.status(200).json({ ok: true });
+    } catch (err) {
+        console.error("[handleTrackClick] error:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };

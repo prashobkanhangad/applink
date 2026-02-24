@@ -5,6 +5,7 @@ import { Link } from "../../models/links.model.js";
 import { createSubdomain } from "./app.service.js";
 import Joi from "joi";
 import { ClickEvent } from "../../models/clickEvent.model.js";
+import { InstallEvent } from "../../models/installEvent.model.js";
 
 
 export const createApp = async (req, res) => {
@@ -299,12 +300,40 @@ export const updateAppLink =async  (req, res) => {
 
 export const getAllLinks = async (req, res) => {
     try {
-        const links = await Link.find();
+        const { performingUser } = req;
+        const apps = await App.find({ createdBy: performingUser._id }).select('_id');
+        const appIds = apps.map(a => a._id);
+        const links = await Link.find({ appId: { $in: appIds } }).sort({ createdAt: -1 });
         await sendSuccess(req, res, "links fetched successfully", 200, links)
     } catch (error) {
         sendError(req,res,error)
     }
 }
+
+// Overview stats for dashboard (links count, total clicks, total installs)
+export const getOverviewStats = async (req, res) => {
+    try {
+        const { performingUser } = req;
+        const apps = await App.find({ createdBy: performingUser._id }).select('_id');
+        const appIds = apps.map(a => a._id);
+        const links = await Link.find({ appId: { $in: appIds } }).select('_id');
+        const linkIds = links.map(l => l._id);
+
+        const [linksCount, totalClicks, totalInstalls] = await Promise.all([
+            Promise.resolve(links.length),
+            linkIds.length ? ClickEvent.countDocuments({ linkId: { $in: linkIds } }) : 0,
+            linkIds.length ? InstallEvent.countDocuments({ linkId: { $in: linkIds } }) : 0,
+        ]);
+
+        await sendSuccess(req, res, "Overview stats fetched successfully", 200, {
+            linksCount,
+            totalClicks,
+            totalInstalls,
+        });
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
 
 export const getLinkInfo = async (req, res) => {
     try {
@@ -364,12 +393,12 @@ export const getLinkAnalytics = async (req, res) => {
             throwCustomError(1008);
         }
 
-        // Parse dates for filtering
+        // Parse dates from query (frontend sends startDate, endDate as YYYY-MM-DD)
         const start = startDate ? new Date(startDate) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const end = endDate ? new Date(endDate) : new Date();
-        end.setHours(23, 59, 59, 999); // End of day
+        end.setHours(23, 59, 59, 999); // End of day so the end date is inclusive
 
-        // Get click events for this link in the date range
+        // All analytics below are scoped to this date range
         // For now, generate sample data - replace with actual analytics model queries
         const generateDailyData = (startDate, endDate) => {
             const data = [];
@@ -389,10 +418,13 @@ export const getLinkAnalytics = async (req, res) => {
 
         const totalClicks = clickAnalytics.reduce((sum, d) => sum + d.count, 0);
         const totalInstalls = installAnalytics.reduce((sum, d) => sum + d.count, 0);
+        const conversionRate = totalClicks > 0 ? Math.round((totalInstalls / totalClicks) * 1000) / 10 : 0;
 
         const analyticsData = {
             lifetimeStats: {
-                total: totalClicks,
+                totalClicks,
+                totalInstalls,
+                conversionRate,
                 last7Days: clickAnalytics.slice(-7).reduce((sum, d) => sum + d.count, 0),
                 last30Days: clickAnalytics.slice(-30).reduce((sum, d) => sum + d.count, 0),
             },

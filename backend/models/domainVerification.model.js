@@ -38,7 +38,7 @@ const domainVerificationSchema = new Schema({
     },
     createdBy: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'UserSchema',
         required: true
     },
     // Soft delete fields

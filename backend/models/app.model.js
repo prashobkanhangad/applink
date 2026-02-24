@@ -31,7 +31,7 @@
     },
     createdBy:{
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'UserSchema'
     }
     }, { timestamps: true });
 

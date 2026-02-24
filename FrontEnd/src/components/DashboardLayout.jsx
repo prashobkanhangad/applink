@@ -188,7 +188,7 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
         <footer className="mt-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-              ©2026 Deeplink.in | Tavas Analytics Inc. v1.2.2
+              ©2026 Deeplink.in 
             </p>
             <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
               <a href="#" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">

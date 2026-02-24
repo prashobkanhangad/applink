@@ -3,6 +3,7 @@ import { App } from "../../models/app.model.js";
 import { PendingInstall } from "../../models/pendingInstall.model.js";
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import useragent from "express-useragent";
+import { getGeoFromIp } from "../../services/geolocation.service.js";
 
 /**
  * Handle redirect requests for deep links
@@ -201,6 +202,7 @@ export const resolveLink = async (req, res) => {
         }
         console.log("[resolveLink] link found:", link.linkName, "destination:", link.destinationUrl);
         return res.json({
+            linkId: link._id?.toString() || null,
             destinationUrl: link.destinationUrl,
             linkName: link.linkName,
             utm: link.utm || {},
@@ -228,11 +230,7 @@ const logClick = async (linkId, req, ua, platform) => {
         // Extract browser name
         const browser = ua?.browser || ua?.source || 'unknown';
 
-        // For now, use default geolocation values
-        // In production, you might want to use a geolocation service
-        const country = 'unknown';
-        const state = 'unknown';
-        const city = 'unknown';
+        const geo = await getGeoFromIp(ip);
 
         await ClickEvent.create({
             linkId: linkId,
@@ -240,9 +238,9 @@ const logClick = async (linkId, req, ua, platform) => {
             browser: browser,
             userAgent: req.headers['user-agent'] || 'unknown',
             ipAddress: ip,
-            country: country,
-            state: state,
-            city: city
+            country: geo.country,
+            state: geo.state,
+            city: geo.city
         });
     } catch (error) {
         console.error("Error in logClick:", error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
-import { createAppWithConfigurations, getUserApps, getLinks } from '../../services/appService';
+import { createAppWithConfigurations, getUserApps, getOverviewStats } from '../../services/appService';
 import { getCurrentUser } from '../../services/authService';
 import { getDomains, addDomain, verifyDomain } from '../../services/domainService';
 
@@ -9,6 +9,7 @@ import { getDomains, addDomain, verifyDomain } from '../../services/domainServic
  */
 export const Overview = () => {
   const [subdomain, setSubdomain] = useState('');
+  const [appName, setAppName] = useState('');
   const [fallbackUrl, setFallbackUrl] = useState('');
   const [androidRedirectUrl, setAndroidRedirectUrl] = useState('');
   const [hasAndroidApp, setHasAndroidApp] = useState(false);
@@ -30,7 +31,7 @@ export const Overview = () => {
   const [isAppExists, setIsAppExists] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
-  const [domainType, setDomainType] = useState('subdomain'); // 'subdomain' or 'custom'
+  const [domainType, setDomainType] = useState('custom'); // 'subdomain' or 'custom'
   const [customDomains, setCustomDomains] = useState([]);
   const [selectedCustomDomain, setSelectedCustomDomain] = useState(null);
   // New custom domain input states
@@ -43,7 +44,7 @@ export const Overview = () => {
   const [userApps, setUserApps] = useState([]);
   const [isLoadingApps, setIsLoadingApps] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null); // For viewing app details
-  const [stats, setStats] = useState({ linksCount: 0, totalClicks: 0 });
+  const [stats, setStats] = useState({ linksCount: 0, totalClicks: 0, totalInstalls: 0 });
 
   // Format number for display (e.g., 1100 -> "1.1K")
   const formatCompact = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
@@ -91,16 +92,20 @@ export const Overview = () => {
           console.error('[Overview] Error fetching custom domains:', domainErr);
         }
 
-        // Fetch links for stats
-        try {
-          const linksResult = await getLinks();
-          if (linksResult.success && linksResult.links) {
-            const links = Array.isArray(linksResult.links) ? linksResult.links : [];
-            const totalClicks = links.reduce((sum, link) => sum + (link.clickCount || link.clicks || 0), 0);
-            setStats({ linksCount: links.length, totalClicks });
+        // Fetch overview stats (links count, clicks, installs) when app exists
+        if (result.isAppExists) {
+          try {
+            const statsResult = await getOverviewStats();
+            if (statsResult.success) {
+              setStats({
+                linksCount: statsResult.linksCount ?? 0,
+                totalClicks: statsResult.totalClicks ?? 0,
+                totalInstalls: statsResult.totalInstalls ?? 0,
+              });
+            }
+          } catch (statsErr) {
+            console.error('[Overview] Error fetching overview stats:', statsErr);
           }
-        } catch (linksErr) {
-          console.error('[Overview] Error fetching links:', linksErr);
         }
       } catch (err) {
         console.error('Error checking app existence:', err);
@@ -145,6 +150,12 @@ export const Overview = () => {
           setError('Please complete step 2 (fallback URL) first.');
           return;
         }
+        // App name: if provided, must be 3-15 chars (backend constraint)
+        const nameToUse = appName.trim();
+        if (nameToUse && (nameToUse.length < 3 || nameToUse.length > 15)) {
+          setError('App name must be between 3 and 15 characters.');
+          return;
+        }
         setIsSubmitting(true);
         
         try {
@@ -155,7 +166,9 @@ export const Overview = () => {
             : `${subdomain.trim()}.chottu.link`;
 
           const appConfig = {
-            name: subdomain.trim().substring(0, 15).replace(/\./g, '-'), // Remove dots for name
+            name: (appName.trim().length >= 3 && appName.trim().length <= 15)
+              ? appName.trim().substring(0, 15)
+              : subdomain.trim().substring(0, 15).replace(/\./g, '-') || 'my-app',
             subDomain: finalDomain,
             fallbackUrl: fallbackUrl.trim(),
             android: null,
@@ -386,9 +399,9 @@ export const Overview = () => {
     return (
       <DashboardLayout title="Overview" subtitle="Home">
         <main className="flex-1 overflow-y-auto bg-transparent">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
               <p className="text-gray-600 mt-4">Loading...</p>
             </div>
           </div>
@@ -397,9 +410,9 @@ export const Overview = () => {
     );
   }
 
-  // Stat cards - Clicks & Link Created (matches dashboard pattern)
+  // Stat cards - Clicks, Link Created, Installs (matches dashboard pattern)
   const StatCards = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
         <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
           <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,6 +433,17 @@ export const Overview = () => {
         <div>
           <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.linksCount}</p>
           <p className="text-sm text-gray-600 mt-0.5">Link Created</p>
+        </div>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 flex items-center gap-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12m0 0l4-4m-4 4l4-4" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCompact(stats.totalInstalls)}</p>
+          <p className="text-sm text-gray-600 mt-0.5">Installs</p>
         </div>
       </div>
     </div>
@@ -768,7 +792,9 @@ export const Overview = () => {
                     Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
                   </p>
                   <a
-                    href="#"
+                    href="https://docs.deeplink.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-gray-900 hover:text-black underline font-medium"
                   >
                     Go To Docs
@@ -845,6 +871,30 @@ export const Overview = () => {
                     </span>
                     <div className="flex-1">
                       <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                        App name
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-3">
+                        A display name for your app (3–15 characters). 
+                      </p>
+                      <input
+                        type="text"
+                        value={appName}
+                        onChange={(e) => setAppName(e.target.value.replace(/[^a-zA-Z0-9-_ ]/g, '').substring(0, 15))}
+                        disabled={!isStepActive(1)}
+                        className="w-full max-w-xs px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        placeholder="e.g. My App"
+                        maxLength={15}
+                      />
+                      {appName.length > 0 && appName.length < 3 && (
+                        <p className="text-xs text-amber-600 mt-1">Min 3 characters</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 mb-3 mt-6">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-transparent" aria-hidden />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">
                         Choose your domain:
                       </h3>
                       <p className="text-xs text-gray-600 mb-3">
@@ -853,7 +903,7 @@ export const Overview = () => {
 
                       {/* Domain Type Toggle */}
                       <div className="flex gap-2 mb-3">
-                        <button
+                        {/* <button
                           onClick={() => {
                             setDomainType('subdomain');
                             setShowAddDomainForm(false);
@@ -866,7 +916,7 @@ export const Overview = () => {
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                           Subdomain (.chottu.link)
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => setDomainType('custom')}
                           disabled={!isStepActive(1)}
@@ -1425,7 +1475,9 @@ export const Overview = () => {
                 Easily create, customize, and manage links with our SDK. Follow simple steps to integrate Deeplink.insDK into your app.
               </p>
               <a
-                href="#"
+                href="https://docs.deeplink.in/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm text-gray-900 hover:text-black underline font-medium"
               >
                 Go To Docs
