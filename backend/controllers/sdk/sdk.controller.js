@@ -45,6 +45,7 @@ export const handleTrackInstall = async (req, res) => {
 export const deeplinkClick = async (req, res) => {
     try {
         console.log("deeplinkClick", req.body, req.ip);
+        console.log(req.headers);
         sendSuccess(req, res, "deeplink clicked successfully", 200);
     } catch (error) {
         console.log(error, "error");
