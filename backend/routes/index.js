@@ -6,6 +6,8 @@ import domainRoute from "./domain.js";
 import trackRoute from "./track.js";
 import linksRoute from "./links.js";
 import sdkRoute from "./sdk.js";
+import adminRoute from "./admin.js";
+import affiliateRoute from "./affiliate.js";
 
 const indexRoute = Router();
 
@@ -16,5 +18,7 @@ indexRoute.use("/domain", domainRoute);
 indexRoute.use("/track", trackRoute);
 indexRoute.use("/links", linksRoute);
 indexRoute.use("/sdk", sdkRoute);
+indexRoute.use("/admin", adminRoute);
+indexRoute.use("/affiliate", affiliateRoute);
 
 export default indexRoute;

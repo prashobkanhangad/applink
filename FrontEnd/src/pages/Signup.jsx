@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { authenticateWithGoogle, waitForGoogleIdentity } from '../services/authService';
+import { authenticateWithGoogle, waitForGoogleIdentity, getCurrentUser } from '../services/authService';
 import { PageMeta } from '../components/PageMeta';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -102,15 +102,22 @@ export const Signup = () => {
       
       if (result.success) {
         setSuccessMessage(result.message);
-        // Store auth data
         if (result.token) {
           localStorage.setItem('authToken', result.token);
           localStorage.setItem('user', JSON.stringify(result.user));
         }
-        // Navigate to dashboard after successful auth
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 500);
+        // Fetch current user to get userType (from /auth/me); then redirect admin to /admin, others to /dashboard
+        const goTo = async () => {
+          try {
+            const current = await getCurrentUser();
+            const userType = current?.userType || current?.user?.userType || current?.user?.role;
+            return userType === 'admin' ? '/admin' : '/dashboard';
+          } catch {
+            return '/dashboard';
+          }
+        };
+        const path = await goTo();
+        setTimeout(() => navigate(path), 500);
       }
     } catch (error) {
       console.error('Google authentication error:', error);

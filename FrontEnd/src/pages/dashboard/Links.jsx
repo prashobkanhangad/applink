@@ -17,7 +17,7 @@ export const Links = () => {
   
   const [apps, setApps] = useState([]);
   const [selectedAppId, setSelectedAppId] = useState('');
-  const [domain, setDomain] = useState('earlyjobs.chottu.link');
+  const [domain, setDomain] = useState('');
   const [path, setPath] = useState('/');
   const [currentStep, setCurrentStep] = useState(1);
   const [destinationUrl, setDestinationUrl] = useState('');

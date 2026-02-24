@@ -41,7 +41,7 @@ export const CTASection = () => {
           </div>
 
           {/* Trust Indicators */}
-          <div className="mt-12 pt-8 border-t border-border/50">
+          {/* <div className="mt-12 pt-8 border-t border-border/50">
             <p className="text-sm text-muted-foreground mb-4">Trusted by leading companies</p>
             <div className="flex flex-wrap items-center justify-center gap-8 opacity-50">
               {["Spotify", "Uber", "Airbnb", "Stripe", "Slack"].map((company, i) => (
@@ -50,7 +50,7 @@ export const CTASection = () => {
                 </span>
               ))}
             </div>
-          </div>
+          </div> */}
         </motion.div>
       </div>
     </section>
