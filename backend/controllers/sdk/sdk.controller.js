@@ -41,3 +41,13 @@ export const handleTrackInstall = async (req, res) => {
         sendError(req, res, error);
     }
 };
+
+export const deeplinkClick = async (req, res) => {
+    try {
+        console.log("deeplinkClick", req.body);
+        sendSuccess(req, res, "deeplink clicked successfully", 200);
+    } catch (error) {
+        console.log(error, "error");
+        sendError(req, res, error);
+    }
+};
