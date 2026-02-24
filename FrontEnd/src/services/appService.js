@@ -266,6 +266,58 @@ export const getOverviewStats = async () => {
 };
 
 /**
+ * Get full analytics overview (account stats + per-link performance + breakdowns)
+ * @param {string} [startDate] - Start date (YYYY-MM-DD)
+ * @param {string} [endDate] - End date (YYYY-MM-DD)
+ * @returns {Promise<Object>} { linksCount, totalClicks, totalInstalls, conversionRate, linkPerformance, locationAnalytics, platformAnalytics, deviceAnalytics }
+ */
+export const getAnalyticsOverview = async (startDate, endDate) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const query = params.toString();
+    const response = await fetch(`${API_BASE_URL}/app/analytics/overview${query ? `?${query}` : ''}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to fetch analytics overview: ${response.statusText}`);
+    }
+    const data = await response.json();
+    const payload = data.data || data;
+    return {
+      success: true,
+      linksCount: payload.linksCount ?? 0,
+      totalClicks: payload.totalClicks ?? 0,
+      totalInstalls: payload.totalInstalls ?? 0,
+      conversionRate: payload.conversionRate ?? 0,
+      linkPerformance: Array.isArray(payload.linkPerformance) ? payload.linkPerformance : [],
+      locationAnalytics: Array.isArray(payload.locationAnalytics) ? payload.locationAnalytics : [],
+      platformAnalytics: Array.isArray(payload.platformAnalytics) ? payload.platformAnalytics : [],
+      deviceAnalytics: Array.isArray(payload.deviceAnalytics) ? payload.deviceAnalytics : [],
+      installLocationAnalytics: Array.isArray(payload.installLocationAnalytics) ? payload.installLocationAnalytics : [],
+      installPlatformAnalytics: Array.isArray(payload.installPlatformAnalytics) ? payload.installPlatformAnalytics : [],
+      installDeviceAnalytics: Array.isArray(payload.installDeviceAnalytics) ? payload.installDeviceAnalytics : [],
+      message: data.message,
+    };
+  } catch (error) {
+    console.error('Get analytics overview API error:', error);
+    throw error;
+  }
+};
+
+/**
  * Get link details by ID
  * @param {string} linkId - Link ID
  * @returns {Promise<Object>} Link details
@@ -299,7 +351,7 @@ export const getLinkDetails = async (linkId) => {
     // API returns { data: { link: <doc> } }; normalize so link is the document
 
 
-    console.log('Link details:', data);
+
     return {
       success: true,
       link: data.data?.link ,
@@ -351,7 +403,7 @@ export const getLinkAnalytics = async (linkId, startDate, endDate) => {
     const data = await response.json();
     return {
       success: true,
-      analytics: data.analytics || data.data || data,
+      analytics: data.data?.analytics ,
       message: data.message,
     };
   } catch (error) {

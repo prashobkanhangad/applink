@@ -4,6 +4,7 @@ import { App } from "../../models/app.model.js";
 import { Link } from "../../models/links.model.js";
 import { createSubdomain } from "./app.service.js";
 import Joi from "joi";
+import mongoose from "mongoose";
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { InstallEvent } from "../../models/installEvent.model.js";
 
@@ -335,6 +336,113 @@ export const getOverviewStats = async (req, res) => {
     }
 };
 
+// Full analytics overview: account stats + per-link performance + date filter + country/device/platform
+export const getAnalyticsOverview = async (req, res) => {
+    try {
+        const { performingUser } = req;
+        const { startDate, endDate } = req.query;
+
+        const apps = await App.find({ createdBy: performingUser._id }).select('_id name subDomain');
+        const appIds = apps.map(a => a._id);
+        const appMap = Object.fromEntries(apps.map(a => [a._id.toString(), { name: a.name, subDomain: a.subDomain }]));
+        const links = await Link.find({ appId: { $in: appIds } }).select('_id linkName path appId').lean();
+        const linkIds = links.map(l => l._id);
+
+        // Date range (optional): if both provided, filter; otherwise all-time
+        let dateFilter = {};
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            dateFilter = { createdAt: { $gte: start, $lte: end } };
+        }
+        const matchClicks = linkIds.length ? { linkId: { $in: linkIds }, ...dateFilter } : {};
+
+        const [
+            totalClicksResult,
+            totalInstallsResult,
+            clickByLink,
+            installByLink,
+            locationAgg,
+            platformAgg,
+            deviceAgg,
+            installLocationAgg,
+            installPlatformAgg,
+            installDeviceAgg,
+        ] = await Promise.all([
+            linkIds.length ? ClickEvent.countDocuments({ linkId: { $in: linkIds }, ...dateFilter }) : 0,
+            linkIds.length ? InstallEvent.countDocuments({ linkId: { $in: linkIds }, ...dateFilter }) : 0,
+            linkIds.length ? ClickEvent.aggregate([{ $match: { linkId: { $in: linkIds }, ...dateFilter } }, { $group: { _id: '$linkId', count: { $sum: 1 } } }]) : [],
+            linkIds.length ? InstallEvent.aggregate([{ $match: { linkId: { $in: linkIds }, ...dateFilter } }, { $group: { _id: '$linkId', count: { $sum: 1 } } }]) : [],
+            Object.keys(matchClicks).length ? ClickEvent.aggregate([{ $match: matchClicks }, { $group: { _id: '$country', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]) : [],
+            Object.keys(matchClicks).length ? ClickEvent.aggregate([{ $match: matchClicks }, { $group: { _id: '$platform', count: { $sum: 1 } } }, { $sort: { count: -1 } }]) : [],
+            Object.keys(matchClicks).length ? ClickEvent.aggregate([
+                { $match: matchClicks },
+                { $group: { _id: { $cond: [{ $in: ['$platform', ['ios', 'android']] }, 'Mobile', 'Desktop'] }, count: { $sum: 1 } } },
+                { $sort: { count: -1 } },
+            ]) : [],
+            Object.keys(matchClicks).length ? InstallEvent.aggregate([{ $match: matchClicks }, { $group: { _id: '$country', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]) : [],
+            Object.keys(matchClicks).length ? InstallEvent.aggregate([{ $match: matchClicks }, { $group: { _id: '$platform', count: { $sum: 1 } } }, { $sort: { count: -1 } }]) : [],
+            Object.keys(matchClicks).length ? InstallEvent.aggregate([
+                { $match: matchClicks },
+                { $group: { _id: { $cond: [{ $in: ['$platform', ['ios', 'android']] }, 'Mobile', 'Desktop'] }, count: { $sum: 1 } } },
+                { $sort: { count: -1 } },
+            ]) : [],
+        ]);
+
+        const totalClicks = typeof totalClicksResult === 'number' ? totalClicksResult : 0;
+        const totalInstalls = typeof totalInstallsResult === 'number' ? totalInstallsResult : 0;
+        const linksCount = links.length;
+        const conversionRate = totalClicks > 0 ? Math.round((totalInstalls / totalClicks) * 1000) / 10 : 0;
+
+        const clicksMap = Object.fromEntries((clickByLink || []).map((d) => [d._id.toString(), d.count]));
+        const installsMap = Object.fromEntries((installByLink || []).map((d) => [d._id.toString(), d.count]));
+
+        const linkPerformance = links.map((link) => {
+            const lid = link._id.toString();
+            const clicks = clicksMap[lid] ?? 0;
+            const installs = installsMap[lid] ?? 0;
+            const conv = clicks > 0 ? Math.round((installs / clicks) * 1000) / 10 : 0;
+            const app = appMap[link.appId?.toString()];
+            const domain = app?.subDomain ? `${app.subDomain}${link.path.startsWith('/') ? '' : '/'}${link.path}` : link.path;
+            return {
+                linkId: lid,
+                linkName: link.linkName,
+                path: link.path,
+                domain: domain || link.path,
+                appName: app?.name,
+                clicks,
+                installs,
+                conversionRate: conv,
+            };
+        });
+        linkPerformance.sort((a, b) => b.clicks - a.clicks);
+
+        const locationAnalytics = (locationAgg || []).map((d) => ({ name: d._id || 'Unknown', count: d.count }));
+        const platformAnalytics = (platformAgg || []).map((d) => ({ name: (d._id && d._id.charAt(0).toUpperCase() + d._id.slice(1)) || 'Unknown', count: d.count }));
+        const deviceAnalytics = (deviceAgg || []).map((d) => ({ name: d._id, count: d.count }));
+        const installLocationAnalytics = (installLocationAgg || []).map((d) => ({ name: d._id || 'Unknown', count: d.count }));
+        const installPlatformAnalytics = (installPlatformAgg || []).map((d) => ({ name: (d._id && d._id.charAt(0).toUpperCase() + d._id.slice(1)) || 'Unknown', count: d.count }));
+        const installDeviceAnalytics = (installDeviceAgg || []).map((d) => ({ name: d._id, count: d.count }));
+
+        await sendSuccess(req, res, "Analytics overview fetched successfully", 200, {
+            linksCount,
+            totalClicks,
+            totalInstalls,
+            conversionRate,
+            linkPerformance,
+            locationAnalytics: locationAnalytics.length ? locationAnalytics : [{ name: 'No data', count: 0 }],
+            platformAnalytics: platformAnalytics.length ? platformAnalytics : [{ name: 'No data', count: 0 }],
+            deviceAnalytics: deviceAnalytics.length ? deviceAnalytics : [{ name: 'No data', count: 0 }],
+            installLocationAnalytics: installLocationAnalytics.length ? installLocationAnalytics : [{ name: 'No data', count: 0 }],
+            installPlatformAnalytics: installPlatformAnalytics.length ? installPlatformAnalytics : [{ name: 'No data', count: 0 }],
+            installDeviceAnalytics: installDeviceAnalytics.length ? installDeviceAnalytics : [{ name: 'No data', count: 0 }],
+        });
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
+
 export const getLinkInfo = async (req, res) => {
     try {
         const {id} = req.params;
@@ -382,81 +490,118 @@ export const getLinkAnalytics = async (req, res) => {
     try {
         const { id } = req.params;
         const { startDate, endDate } = req.query;
-        
+
         console.log("[getLinkAnalytics] Fetching analytics for link:", id);
         console.log("[getLinkAnalytics] Date range:", startDate, "-", endDate);
 
         const link = await Link.findById(id);
-
         if (!link) {
             console.log("[getLinkAnalytics] Link not found");
             throwCustomError(1008);
         }
 
+        const linkObjectId = new mongoose.Types.ObjectId(id);
+
         // Parse dates from query (frontend sends startDate, endDate as YYYY-MM-DD)
         const start = startDate ? new Date(startDate) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const end = endDate ? new Date(endDate) : new Date();
-        end.setHours(23, 59, 59, 999); // End of day so the end date is inclusive
+        end.setHours(23, 59, 59, 999);
 
-        // All analytics below are scoped to this date range
-        // For now, generate sample data - replace with actual analytics model queries
-        const generateDailyData = (startDate, endDate) => {
-            const data = [];
-            const current = new Date(startDate);
-            while (current <= endDate) {
-                data.push({
-                    date: current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    count: Math.floor(Math.random() * 50) + 5
-                });
-                current.setDate(current.getDate() + 1);
-            }
-            return data;
-        };
+        // ----- Clicks: count in date range (no daily breakdown) -----
+        const totalClicks = await ClickEvent.countDocuments({
+            linkId: linkObjectId,
+            createdAt: { $gte: start, $lte: end },
+        });
 
-        const clickAnalytics = generateDailyData(start, end);
-        const installAnalytics = generateDailyData(start, end).map(d => ({ ...d, count: Math.floor(d.count * 0.2) }));
+        // ----- Installs: count in date range (no daily breakdown) -----
+        const totalInstalls = await InstallEvent.countDocuments({
+            linkId: linkObjectId,
+            createdAt: { $gte: start, $lte: end },
+        });
 
-        const totalClicks = clickAnalytics.reduce((sum, d) => sum + d.count, 0);
-        const totalInstalls = installAnalytics.reduce((sum, d) => sum + d.count, 0);
         const conversionRate = totalClicks > 0 ? Math.round((totalInstalls / totalClicks) * 1000) / 10 : 0;
+
+        // Single summary for the selected range (for charts that expect an array)
+        const rangeLabel = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+        const clickAnalytics = [{ date: rangeLabel, count: totalClicks }];
+        const installAnalytics = [{ date: rangeLabel, count: totalInstalls }];
+
+        // ----- Location (by country) from clicks in range -----
+        const locationAgg = await ClickEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$country", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 },
+        ]);
+        const locationAnalytics = locationAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
+
+        // ----- Platform (android / ios / web) from clicks in range -----
+        const platformAgg = await ClickEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$platform", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+        ]);
+        const platformAnalytics = platformAgg.map((d) => ({ name: (d._id && d._id.charAt(0).toUpperCase() + d._id.slice(1)) || "Unknown", count: d.count }));
+
+        // ----- Device: Mobile (ios+android) vs Desktop (web) from clicks -----
+        const deviceAgg = await ClickEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            {
+                $group: {
+                    _id: { $cond: [{ $in: ["$platform", ["ios", "android"]] }, "Mobile", "Desktop"] },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { count: -1 } },
+        ]);
+        const deviceAnalytics = deviceAgg.map((d) => ({ name: d._id, count: d.count }));
+
+        // ----- Same breakdowns for installs (for toggle on frontend) -----
+        const installLocationAgg = await InstallEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$country", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 },
+        ]);
+        const installLocationAnalytics = installLocationAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
+        const installPlatformAgg = await InstallEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$platform", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+        ]);
+        const installPlatformAnalytics = installPlatformAgg.map((d) => ({ name: (d._id && d._id.charAt(0).toUpperCase() + d._id.slice(1)) || "Unknown", count: d.count }));
+        const installDeviceAgg = await InstallEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: { $cond: [{ $in: ["$platform", ["ios", "android"]] }, "Mobile", "Desktop"] }, count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+        ]);
+        const installDeviceAnalytics = installDeviceAgg.map((d) => ({ name: d._id, count: d.count }));
 
         const analyticsData = {
             lifetimeStats: {
                 totalClicks,
                 totalInstalls,
                 conversionRate,
-                last7Days: clickAnalytics.slice(-7).reduce((sum, d) => sum + d.count, 0),
-                last30Days: clickAnalytics.slice(-30).reduce((sum, d) => sum + d.count, 0),
+                last7Days: totalClicks,
+                last30Days: totalClicks,
             },
             clickAnalytics,
             installAnalytics,
-            locationAnalytics: [
-                { name: 'India', count: Math.floor(totalClicks * 0.45) },
-                { name: 'United States', count: Math.floor(totalClicks * 0.25) },
-                { name: 'United Kingdom', count: Math.floor(totalClicks * 0.12) },
-                { name: 'Germany', count: Math.floor(totalClicks * 0.08) },
-                { name: 'Others', count: Math.floor(totalClicks * 0.10) },
-            ],
-            platformAnalytics: [
-                { name: 'Android', count: Math.floor(totalClicks * 0.55) },
-                { name: 'iOS', count: Math.floor(totalClicks * 0.35) },
-                { name: 'Web', count: Math.floor(totalClicks * 0.10) },
-            ],
-            deviceAnalytics: [
-                { name: 'Mobile', count: Math.floor(totalClicks * 0.75) },
-                { name: 'Desktop', count: Math.floor(totalClicks * 0.20) },
-                { name: 'Tablet', count: Math.floor(totalClicks * 0.05) },
-            ],
+            locationAnalytics: locationAnalytics.length ? locationAnalytics : [{ name: "No data", count: 0 }],
+            platformAnalytics: platformAnalytics.length ? platformAnalytics : [{ name: "No data", count: 0 }],
+            deviceAnalytics: deviceAnalytics.length ? deviceAnalytics : [{ name: "No data", count: 0 }],
+            installLocationAnalytics: installLocationAnalytics.length ? installLocationAnalytics : [{ name: "No data", count: 0 }],
+            installPlatformAnalytics: installPlatformAnalytics.length ? installPlatformAnalytics : [{ name: "No data", count: 0 }],
+            installDeviceAnalytics: installDeviceAnalytics.length ? installDeviceAnalytics : [{ name: "No data", count: 0 }],
         };
 
-        console.log("[getLinkAnalytics] Analytics generated successfully");
-        await sendSuccess(req, res, "Analytics fetched successfully", 200, { analytics: analyticsData })
-
+        console.log("[getLinkAnalytics] Analytics fetched from DB for link", id, "date range", start, "-", end);
+        await sendSuccess(req, res, "Analytics fetched successfully", 200, { analytics: analyticsData });
     } catch (error) {
         console.error("[getLinkAnalytics] Error:", error);
-        sendError(req, res, error)
+        sendError(req, res, error);
     }
-}
+};
 
 // Legacy getAnalytics function for backward compatibility
 export const getAnalytics = async (req, res) => {
