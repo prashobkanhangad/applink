@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { flag as countryFlag } from 'country-emoji';
 import { DashboardLayout } from '../../components/DashboardLayout';
+import { Button } from '../../components/ui/button';
 import { getLinkAnalytics, getLinkDetails } from '../../services/appService';
 
 /**
@@ -24,6 +26,7 @@ export const LinkAnalytics = () => {
     end: new Date().toISOString().split('T')[0],
   });
   const [locationType, setLocationType] = useState('countries');
+  const [metricType, setMetricType] = useState('clicks'); // 'clicks' | 'installs'
 
   useEffect(() => {
     if (linkId && linkId !== 'create' && linkId !== 'edit') {
@@ -103,22 +106,18 @@ export const LinkAnalytics = () => {
   };
 
   // Country flag emoji helper
-  const getCountryFlag = (country) => {
-    const flags = {
-      'India': '🇮🇳', 'United States': '🇺🇸', 'United Kingdom': '🇬🇧',
-      'Germany': '🇩🇪', 'France': '🇫🇷', 'Canada': '🇨🇦', 'Australia': '🇦🇺',
-    };
-    return flags[country] || '🌍';
-  };
+  const getCountryFlag = (country) => countryFlag(country) ?? '🌍';
 
   if (isLoading) {
     return (
       <DashboardLayout title="Link Analytics" subtitle="Loading...">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-600">Loading link analytics...</p>
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+                <p className="text-muted-foreground mt-4">Loading link analytics...</p>
+              </div>
             </div>
           </div>
         </main>
@@ -131,14 +130,11 @@ export const LinkAnalytics = () => {
       <DashboardLayout title="Link Analytics" subtitle="Error">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <p className="text-red-600">{error}</p>
-              <button
-                onClick={() => navigate('/dashboard/links')}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+              <p className="text-destructive">{error}</p>
+              <Button variant="hero" className="mt-4" onClick={() => navigate('/dashboard/links')}>
                 Back to Links
-              </button>
+              </Button>
             </div>
           </div>
         </main>
@@ -151,6 +147,12 @@ export const LinkAnalytics = () => {
   const totalClicks = analytics?.lifetimeStats?.totalClicks ?? analytics?.lifetimeStats?.total ?? 0;
   const totalDownloads = analytics?.lifetimeStats?.totalInstalls ?? 0;
   const conversionRate = analytics?.lifetimeStats?.conversionRate ?? (totalClicks > 0 ? Math.round((totalDownloads / totalClicks) * 1000) / 10 : 0);
+  const totalForBars = totalClicks || 1; // avoid division by zero in location/platform bars
+  const totalForBarsInstalls = totalDownloads || 1;
+  const locationData = metricType === 'installs' ? (analytics?.installLocationAnalytics ?? []) : (analytics?.locationAnalytics ?? []);
+  const platformData = metricType === 'installs' ? (analytics?.installPlatformAnalytics ?? []) : (analytics?.platformAnalytics ?? []);
+  const deviceData = metricType === 'installs' ? (analytics?.installDeviceAnalytics ?? []) : (analytics?.deviceAnalytics ?? []);
+  const totalForBarsCurrent = metricType === 'installs' ? totalForBarsInstalls : totalForBars;
 
   return (
     <DashboardLayout title="Link Analytics" subtitle={linkData?.linkName || 'Link Details'}>
@@ -160,43 +162,32 @@ export const LinkAnalytics = () => {
           {/* Header with Breadcrumb and Date Range */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">Link Analytics</h1>
               <div className="flex items-center gap-2 text-sm">
-                <button 
-                  onClick={() => navigate('/dashboard/links')}
-                  className="text-blue-600 hover:text-blue-700 hover:underline"
-                >
+                <Button variant="ghost" size="sm" className="text-primary -ml-2" onClick={() => navigate('/dashboard/links')}>
                   Link List
-                </button>
-                <span className="text-gray-400">/</span>
-                <span className="text-gray-600">{linkData?.linkName || 'Link'}</span>
+                </Button>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-foreground font-medium">{linkData?.linkName || 'Link'}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Enter a date range</span>
-              <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
-                <span className="text-sm text-gray-700">{formatDisplayDate(dateRange.start)}</span>
-                <span className="text-gray-400">–</span>
-                <span className="text-sm text-gray-700">{formatDisplayDate(dateRange.end)}</span>
+              <span className="text-xs text-muted-foreground">Date range</span>
+              <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 shadow-sm">
                 <input
                   type="date"
+                  aria-label="Start date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                  className="sr-only"
-                  id="start-date"
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+                  className="text-sm text-foreground bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
                 />
+                <span className="text-muted-foreground">–</span>
                 <input
                   type="date"
+                  aria-label="End date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                  className="sr-only"
-                  id="end-date"
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
+                  className="text-sm text-foreground bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
                 />
-                <label htmlFor="start-date" className="cursor-pointer">
-                  <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </label>
               </div>
             </div>
           </div>
@@ -204,29 +195,29 @@ export const LinkAnalytics = () => {
           {/* Link Details and QR Code Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Link Information Card */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="lg:col-span-2 bg-card rounded-2xl border border-border shadow-sm p-6">
               <div className="flex items-start justify-between mb-3">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   {linkData?.linkName || 'Untitled Link'}
                 </h2>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                   Active
                 </span>
               </div>
               
               <div className="mb-2">
-                <span className="text-sm text-gray-500">URL: </span>
+                <span className="text-sm text-muted-foreground">URL: </span>
                 <a 
                   href={linkUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:text-blue-700 hover:underline break-all"
+                  className="text-sm text-primary hover:underline break-all"
                 >
                   {linkUrl}
                 </a>
               </div>
               
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -235,106 +226,113 @@ export const LinkAnalytics = () => {
               
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                <button
+                <Button
+                  variant={copied ? "default" : "outline"}
+                  size="sm"
                   onClick={handleCopy}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
-                    copied 
-                      ? 'text-green-700 bg-green-50 border-green-200' 
-                      : 'text-gray-600 bg-white border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={copied ? 'bg-primary/10 text-primary border-primary/20' : ''}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                   {copied ? 'Copied!' : 'Copy'}
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleShare}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
                   Share
-                </button>
-                <button
-                  onClick={handleClone}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
-                >
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleClone} className="border-primary/30 text-primary hover:bg-primary/10">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   Clone
-                </button>
-                <button
-                  onClick={handleEdit}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                >
+                </Button>
+                <Button variant="hero" size="sm" onClick={handleEdit}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Edit
-                </button>
+                </Button>
               </div>
             </div>
 
             {/* QR Code Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">QR Code</h3>
-                <button className="p-1 text-gray-400 hover:text-gray-600">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </button>
-              </div>
-              <p className="text-sm text-gray-500 mb-4">
-                Want to open this link on your phone? Just scan the QR code and copy it instantly!
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">QR Code</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Scan to open this link on your phone.
               </p>
               <div className="flex justify-center mb-4">
-                <div className="p-2 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div className="p-2 bg-background border border-border rounded-xl">
                   <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
                 </div>
               </div>
-              <button
-                onClick={downloadQRCode}
-                className="w-full px-4 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-              >
+              <Button variant="hero" className="w-full" onClick={downloadQRCode}>
                 Download QR Code
+              </Button>
+            </div>
+          </div>
+
+          {/* Lifetime Stats (for selected date range) */}
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mb-6">
+            <h3 className="text-lg font-semibold text-foreground mb-1">Stats for selected date range</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {formatDisplayDate(dateRange.start)} – {formatDisplayDate(dateRange.end)}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-secondary/20 rounded-xl p-5 text-center border border-border">
+                <p className="text-sm text-muted-foreground mb-1">Total Clicks</p>
+                <p className="text-3xl font-bold text-foreground">{totalClicks}</p>
+              </div>
+              <div className="bg-secondary/20 rounded-xl p-5 text-center border border-border">
+                <p className="text-sm text-muted-foreground mb-1">Total Downloads</p>
+                <p className="text-3xl font-bold text-foreground">{totalDownloads}</p>
+              </div>
+              <div className="bg-secondary/20 rounded-xl p-5 text-center border border-border">
+                <p className="text-sm text-muted-foreground mb-1">Conversion Rate</p>
+                <p className="text-3xl font-bold text-foreground">{conversionRate}%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Toggle: Clicks vs Installs for breakdown sections below */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-muted-foreground">Show breakdown by</span>
+            <div className="flex items-center bg-secondary rounded-full p-0.5 border border-border">
+              <button
+                type="button"
+                onClick={() => setMetricType('clicks')}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                  metricType === 'clicks' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Clicks
+              </button>
+              <button
+                type="button"
+                onClick={() => setMetricType('installs')}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                  metricType === 'installs' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Installs
               </button>
             </div>
           </div>
 
-          {/* Lifetime Stats */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Lifetime Stats</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Total Clicks</p>
-                <p className="text-3xl font-bold text-gray-900">{totalClicks}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Total Downloads</p>
-                <p className="text-3xl font-bold text-gray-900">{totalDownloads}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-5 text-center">
-                <p className="text-sm text-gray-500 mb-1">Conversion Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{conversionRate}%</p>
-              </div>
-            </div>
-          </div>
-
           {/* Location Analytics */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Location Analytics</h3>
-              <div className="flex items-center border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-foreground">Location Analytics</h3>
+              <div className="flex items-center border-b border-border">
                 <button
                   onClick={() => setLocationType('countries')}
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                     locationType === 'countries'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Countries
@@ -343,119 +341,106 @@ export const LinkAnalytics = () => {
                   onClick={() => setLocationType('cities')}
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                     locationType === 'cities'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Cities
                 </button>
               </div>
             </div>
-            {analytics?.locationAnalytics && analytics.locationAnalytics.length > 0 ? (
+            {locationData.length > 0 && !locationData.every(l => l.name === 'No data') ? (
               <div>
-                <div className="text-right text-xs text-gray-500 mb-2">Clicks</div>
+                <div className="text-right text-xs text-muted-foreground mb-2">{metricType === 'clicks' ? 'Clicks' : 'Installs'}</div>
                 <div className="space-y-2">
-                  {analytics.locationAnalytics.map((location, index) => (
+                  {locationData.map((location, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <div className="flex items-center gap-2 min-w-[120px]">
                         <span className="text-base">{getCountryFlag(location.name)}</span>
-                        <span className="text-sm text-gray-900">{location.name}</span>
+                        <span className="text-sm text-foreground">{location.name}</span>
                       </div>
                       <div className="flex-1">
-                        <div className="w-full bg-gray-100 rounded-full h-6 overflow-hidden">
+                        <div className="w-full bg-secondary/30 rounded-full h-6 overflow-hidden">
                           <div
-                            className="bg-blue-500 h-6 rounded-full flex items-center justify-end pr-2"
-                            style={{ width: `${Math.max((location.count / totalClicks) * 100, 10)}%` }}
+                            className="bg-primary h-6 rounded-full flex items-center justify-end pr-2"
+                            style={{ width: `${Math.max((location.count / totalForBarsCurrent) * 100, 10)}%` }}
                           >
-                            {(location.count / totalClicks) * 100 > 15 && (
-                              <span className="text-xs text-white font-medium">{location.count}</span>
+                            {(location.count / totalForBarsCurrent) * 100 > 15 && (
+                              <span className="text-xs text-primary-foreground font-medium">{location.count}</span>
                             )}
                           </div>
                         </div>
                       </div>
-                      <span className="text-sm text-gray-600 min-w-[40px] text-right">{location.count}</span>
+                      <span className="text-sm text-muted-foreground min-w-[40px] text-right">{location.count}</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-8">No location data available</p>
+              <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-12 text-center">
+                <p className="text-sm text-muted-foreground">No {metricType} location data available</p>
+              </div>
             )}
           </div>
 
           {/* Analytics by Platform - Horizontal Bar Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Analytics by Platform</h3>
-              <button className="p-1.5 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-full">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                </svg>
-              </button>
-            </div>
-            {analytics?.platformAnalytics && analytics.platformAnalytics.length > 0 ? (
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mb-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Analytics by Platform</h3>
+            {platformData.length > 0 && !platformData.every(p => p.name === 'No data') ? (
               <div className="space-y-3">
-                {analytics.platformAnalytics.map((platform, index) => (
+                {platformData.map((platform, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600 min-w-[80px]">{platform.name}</span>
+                    <span className="text-sm text-foreground min-w-[80px]">{platform.name}</span>
                     <div className="flex-1 flex items-center">
                       <div
-                        className="bg-blue-500 h-6 rounded flex items-center px-2"
-                        style={{ width: `${Math.max((platform.count / totalClicks) * 100, 5)}%` }}
+                        className="bg-primary h-6 rounded flex items-center px-2"
+                        style={{ width: `${Math.max((platform.count / totalForBarsCurrent) * 100, 5)}%` }}
                       >
-                        <span className="text-xs text-white font-medium">{platform.count}</span>
+                        <span className="text-xs text-primary-foreground font-medium">{platform.count}</span>
                       </div>
                     </div>
                   </div>
                 ))}
-                <div className="flex justify-between text-xs text-gray-400 mt-4 pt-2 border-t border-gray-100">
+                <div className="flex justify-between text-xs text-muted-foreground mt-4 pt-2 border-t border-border">
                   {[0, 0.5, 1, 1.5, 2, 2.5, 3].map((val) => (
                     <span key={val}>{val.toFixed(1)}</span>
                   ))}
                 </div>
-                <div className="text-center text-xs text-gray-500">Clicks</div>
+                <div className="text-center text-xs text-muted-foreground">{metricType === 'clicks' ? 'Clicks' : 'Installs'}</div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-8">No platform data available</p>
+              <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-12 text-center">
+                <p className="text-sm text-muted-foreground">No {metricType} platform data available</p>
+              </div>
             )}
           </div>
 
           {/* Click Analytics and Install Analytics - Side by Side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Click Analytics - Area Chart */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Click Analytics</h3>
-                <button className="p-1.5 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-full">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                  </svg>
-                </button>
-              </div>
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Click Analytics</h3>
               {analytics?.clickAnalytics && analytics.clickAnalytics.length > 0 ? (
                 <div className="relative h-48">
                   <svg className="w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
-                    {/* Grid lines */}
                     {[0, 1, 2, 3, 4].map((i) => (
-                      <line key={i} x1="40" y1={30 + i * 25} x2="380" y2={30 + i * 25} stroke="#f3f4f6" strokeWidth="1" />
+                      <line key={i} x1="40" y1={30 + i * 25} x2="380" y2={30 + i * 25} stroke="hsl(var(--border))" strokeWidth="1" />
                     ))}
-                    {/* Y-axis labels */}
                     {[2.0, 1.8, 1.6, 1.4, 1.2, 1.0].map((val, i) => (
-                      <text key={i} x="35" y={35 + i * 20} textAnchor="end" fontSize="10" fill="#9ca3af">{val}</text>
+                      <text key={i} x="35" y={35 + i * 20} textAnchor="end" fontSize="10" fill="hsl(var(--muted-foreground))">{val}</text>
                     ))}
-                    {/* Area fill */}
                     <defs>
                       <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.3"/>
-                        <stop offset="100%" stopColor="#a78bfa" stopOpacity="0"/>
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3"/>
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0"/>
                       </linearGradient>
                     </defs>
-                    {/* Generate path from data */}
                     {(() => {
                       const data = analytics.clickAnalytics;
-                      const maxVal = Math.max(...data.map(d => d.count)) || 1;
+                      const maxVal = Math.max(...data.map(d => d.count), 1);
+                      const n = data.length;
                       const points = data.map((d, i) => ({
-                        x: 40 + (i / (data.length - 1)) * 340,
+                        x: 40 + (n === 1 ? 170 : (i / (n - 1)) * 340),
                         y: 130 - ((d.count / maxVal) * 100)
                       }));
                       const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
@@ -463,68 +448,65 @@ export const LinkAnalytics = () => {
                       return (
                         <>
                           <path d={areaPath} fill="url(#areaGradient)" />
-                          <path d={linePath} fill="none" stroke="#8b5cf6" strokeWidth="2" />
+                          <path d={linePath} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" />
                           {points.map((p, i) => (
-                            <circle key={i} cx={p.x} cy={p.y} r="3" fill="#8b5cf6" />
+                            <circle key={i} cx={p.x} cy={p.y} r="3" fill="hsl(var(--primary))" />
                           ))}
                         </>
                       );
                     })()}
                   </svg>
-                  <div className="flex justify-between text-xs text-gray-500 mt-2 px-10">
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2 px-10">
                     <span>{analytics.clickAnalytics[0]?.date}</span>
                     <span>{analytics.clickAnalytics[analytics.clickAnalytics.length - 1]?.date}</span>
                   </div>
-                  <div className="text-center text-xs text-gray-500 mt-1">Dates</div>
+                  <div className="text-center text-xs text-muted-foreground mt-1">Date range</div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 text-center py-8">No click data available</p>
+                <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-12 text-center">
+                  <p className="text-sm text-muted-foreground">No click data available</p>
+                </div>
               )}
             </div>
 
-            {/* Install Analytics */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Install Analytics</h3>
-              {analytics?.installAnalytics && analytics.installAnalytics.some(d => d.count > 0) ? (
-                <div className="h-48">
-                  {/* Similar chart implementation */}
+            {/* Install / Download Analytics (summary for selected range) */}
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Download Analytics</h3>
+              {analytics?.installAnalytics && analytics.installAnalytics.length > 0 ? (
+                <div className="flex flex-col items-center justify-center h-48">
+                  <p className="text-3xl font-bold text-foreground mb-1">{totalDownloads}</p>
+                  <p className="text-sm text-muted-foreground mb-2">downloads in selected range</p>
+                  <p className="text-xs text-muted-foreground">{analytics.installAnalytics[0]?.date}</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-48">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                    <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex flex-col items-center justify-center h-48 rounded-xl border border-dashed border-border bg-secondary/20">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-gray-900 mb-1">Data Not Available</p>
-                  <p className="text-xs text-gray-500">Try changing the date range.</p>
+                  <p className="text-sm font-medium text-foreground mb-1">No downloads in this range</p>
+                  <p className="text-xs text-muted-foreground">Try changing the date range.</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Analytics by Devices - Donut Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Analytics by Devices</h3>
-              <button className="p-1.5 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-full">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                </svg>
-              </button>
-            </div>
-            {analytics?.deviceAnalytics && analytics.deviceAnalytics.length > 0 ? (
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Analytics by Devices</h3>
+            {deviceData.length > 0 && !deviceData.every(d => d.name === 'No data') ? (
               <div className="flex flex-col items-center">
                 <div className="relative w-48 h-48 mb-4">
                   <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-                    {analytics.deviceAnalytics.map((device, index) => {
-                      const total = analytics.deviceAnalytics.reduce((sum, d) => sum + d.count, 0);
-                      const percentage = (device.count / total) * 100;
+                    {deviceData.map((device, index) => {
+                      const total = deviceData.reduce((sum, d) => sum + d.count, 0);
+                      const percentage = total > 0 ? (device.count / total) * 100 : 0;
                       const circumference = 2 * Math.PI * 35;
-                      const offset = analytics.deviceAnalytics.slice(0, index).reduce((sum, d) => {
-                        return sum + ((d.count / total) * circumference);
+                      const offset = deviceData.slice(0, index).reduce((sum, d) => {
+                        return sum + (total > 0 ? (d.count / total) * circumference : 0);
                       }, 0);
-                      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+                      const colors = ['hsl(var(--primary))', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
                       
                       return (
                         <circle
@@ -542,30 +524,33 @@ export const LinkAnalytics = () => {
                     })}
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-gray-900">
-                      {analytics.deviceAnalytics.length > 0 
-                        ? ((analytics.deviceAnalytics[0].count / analytics.deviceAnalytics.reduce((sum, d) => sum + d.count, 0)) * 100).toFixed(1)
-                        : 0}%
+                    <span className="text-2xl font-bold text-foreground">
+                      {deviceData.length > 0 && (() => {
+                        const total = deviceData.reduce((sum, d) => sum + d.count, 0);
+                        return total > 0 ? ((deviceData[0].count / total) * 100).toFixed(1) : 0;
+                      })()}%
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-wrap justify-center gap-4">
-                  {analytics.deviceAnalytics.map((device, index) => {
-                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+                  {deviceData.map((device, index) => {
+                    const colors = ['hsl(var(--primary))', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
                     return (
                       <div key={index} className="flex items-center gap-2">
                         <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: colors[index % colors.length] }}
                         />
-                        <span className="text-sm text-gray-600">{device.name}</span>
+                        <span className="text-sm text-foreground">{device.name}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-8">No device data available</p>
+              <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-12 text-center">
+                <p className="text-sm text-muted-foreground">No {metricType} device data available</p>
+              </div>
             )}
           </div>
         </div>
