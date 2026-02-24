@@ -4,6 +4,8 @@ import { getGeoFromIp } from "../../services/geolocation.service.js";
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { App } from "../../models/app.model.js";
 import { Link } from "../../models/links.model.js";
+import useragent from "express-useragent";
+import { detectPlatform, detectBrowser } from "../app/app.service.js";
 
 const getClientIp = (req) =>
     req.ip ||
@@ -52,6 +54,10 @@ export const deeplinkClick = async (req, res) => {
         const ip = req.headers['cf-connecting-ip'];
         const geo = await getGeoFromIp(ip);
         
+        const userAgentStr = req.headers["user-agent"] || unknown;
+        const platform =  detectPlatform(userAgentStr);
+        const browser = detectBrowser(userAgentStr);
+
         const url = new URL(deep_link);
 
         const host = url.hostname;
@@ -72,9 +78,9 @@ export const deeplinkClick = async (req, res) => {
 
         await ClickEvent.create({
             linkId: link._id,
-            platform: "web",
-            browser: "test",
-            userAgent: "test",
+            platform: platform,
+            browser: browser,
+            userAgent: userAgentStr,
             ipAddress: ip,
             country: geo.country,
             state: geo.state,

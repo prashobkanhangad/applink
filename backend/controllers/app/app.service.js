@@ -71,10 +71,33 @@ export const getAssetLinks = async (host) => {
   ]
 }
 
+export const detectBrowser = (userAgent) => {
+  if (typeof userAgent !== "string" || !userAgent.trim()) {
+    return "unknown";
+  }
+
+  const ua = userAgent.toLowerCase();
+
+  if (ua.includes("edg/")) return "edge";
+  if (ua.includes("chrome") && !ua.includes("edg/")) return "chrome";
+  if (ua.includes("safari") && !ua.includes("chrome")) return "safari";
+  if (ua.includes("firefox")) return "firefox";
+  if (ua.includes("opr/") || ua.includes("opera")) return "opera";
+
+  return "unknown";
+};
+
 export const detectPlatform = (userAgent) => {
+  if (typeof userAgent !== "string" || !userAgent.trim()) {
+    return "unknown"; // safe fallback
+  }
+
   const ua = userAgent.toLowerCase();
 
   if (ua.includes("android")) return "android";
-  if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) return "ios";
-  return "web";
-}
+  if (/(iphone|ipad|ipod)/.test(ua)) return "ios";
+  if (ua.includes("windows") || ua.includes("macintosh") || ua.includes("linux"))
+    return "web";
+
+  return "unknown"; // final fallback
+};
