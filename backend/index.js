@@ -56,9 +56,12 @@ app.get('/', manageHome)
 
 app.get('/health', (req, res) => {
     res.send("still alive").status(200);
-})
+});
 
-app.use('/api/v1', indexRoute)
+app.use('/api/v1', indexRoute);
+
+// Catch-all for deep links (app subdomains): must be after API and health so they are not intercepted
+app.get('/*', checkValidDeepLink);
 
 // app.use('*', checkValidDeepLink)
 
