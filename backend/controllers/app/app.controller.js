@@ -2,7 +2,8 @@ import { throwCustomError } from "../../services/error.js";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
 import { App } from "../../models/app.model.js";
 import { Link } from "../../models/links.model.js";
-import { createSubdomain } from "./app.service.js";
+import { createSubdomain, detectPlatform, detectBrowser } from "./app.service.js";
+import { getGeoFromIp } from "../../services/geolocation.service.js";
 import Joi from "joi";
 import mongoose from "mongoose";
 import { ClickEvent } from "../../models/clickEvent.model.js";
@@ -679,19 +680,55 @@ export const checkValidDeepLink = async (req, res) => {
             throwCustomError(1017);
         }
 
+        const ip = req.ip || req.socket?.remoteAddress || "";
+        const userAgentStr = req.get("user-agent") || "";
+        const detectedPlatform = detectPlatform(userAgentStr);
+        const platform = ["web", "ios", "android"].includes(detectedPlatform) ? detectedPlatform : "web";
+        const geo = await getGeoFromIp(ip);
+
         await ClickEvent.create({
             linkId: linkExists._id,
-            platform: "web",
-            browser: "test",
-            userAgent: "test",
-            ipAddress: req.ip,
-            country: "test",
-            state: "test",
-            city: "test",
-        })
+            platform,
+            browser: detectBrowser(userAgentStr) || "unknown",
+            userAgent: userAgentStr || "unknown",
+            ipAddress: ip || "unknown",
+            country: geo?.country ?? "Unknown",
+            state: geo?.state ?? "Unknown",
+            city: geo?.city ?? "Unknown",
+        });
 
-        await sendSuccess(req, res, "deep link validated successfully", 201)
+        // Navigation: redirect based on platform and link behavior
+        let destination = app.fallbackUrl || linkExists.destinationUrl;
+
+        if (platform === "ios") {
+            if (linkExists.iosBehavior === "open_app" && app.configurations?.ios) {
+                const storeId = app.configurations.ios.storeId;
+                if (storeId) {
+                    destination = `https://apps.apple.com/app/id${storeId}`;
+                } else {
+                    destination = linkExists.destinationUrl;
+                }
+            } else {
+                destination = linkExists.destinationUrl;
+            }
+        } else if (platform === "android") {
+            if (linkExists.androidBehavior === "open_app" && app.configurations?.android?.packageName) {
+                try {
+                    const urlParts = new URL(linkExists.destinationUrl);
+                    destination = `intent://${urlParts.host}${urlParts.pathname}${urlParts.search || ""}#Intent;scheme=https;package=${app.configurations.android.packageName};end`;
+                } catch (_) {
+                    destination = `https://play.google.com/store/apps/details?id=${app.configurations.android.packageName}&referrer=source%3Ddeeplink`;
+                }
+            } else {
+                destination = linkExists.destinationUrl;
+            }
+        } else {
+            // web or unknown: use destination URL or fallback
+            destination = linkExists.destinationUrl || app.fallbackUrl;
+        }
+
+        return res.redirect(301, destination);
     } catch (error) {
-        sendError(req, res, error)
+        sendError(req, res, error);
     }
-}
+};
