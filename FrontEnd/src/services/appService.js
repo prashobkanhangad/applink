@@ -181,6 +181,71 @@ export const getLinks = async () => {
   }
 };
 
+/**
+ * Update an existing link
+ * @param {string} linkId - Link ID
+ * @param {Object} payload - Fields to update: path, destinationUrl, linkName, androidBehavior, iosBehavior
+ * @returns {Promise<Object>}
+ */
+export const updateLink = async (linkId, payload) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Authentication required. Please sign in.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/app/link/${linkId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to update link: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return { success: true, link: data.data || data, message: data.message || 'Link updated successfully.' };
+  } catch (error) {
+    console.error('Update link API error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a link by ID
+ * @param {string} linkId - Link ID
+ * @returns {Promise<Object>}
+ */
+export const deleteLink = async (linkId) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/app/link/${linkId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to delete link: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error('Delete link API error:', error);
+    throw error;
+  }
+};
 
 export const getAppInfo = async (domain) => {
   
@@ -468,6 +533,109 @@ export const createLink = async (linkData) => {
     };
   } catch (error) {
     console.error('Create link API error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get list of API keys for the current user (masked)
+ * @returns {Promise<{ success: boolean, keys: Array }>}
+ */
+export const getApiKeys = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/keys`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to fetch API keys');
+    }
+    const data = await response.json();
+    return {
+      success: true,
+      keys: data.data || [],
+      message: data.message,
+    };
+  } catch (error) {
+    console.error('Get API keys error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create a new API key. Returns full key once in response.
+ * @param {string} name - Key name
+ * @returns {Promise<{ success: boolean, key: Object }>}
+ */
+export const createApiKey = async (name) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/keys`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: name.trim() }),
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to create API key');
+    }
+    const data = await response.json();
+    return {
+      success: true,
+      key: data.data,
+      message: data.message || 'API key created successfully.',
+    };
+  } catch (error) {
+    console.error('Create API key error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Revoke (delete) an API key by ID
+ * @param {string} keyId - API key document ID
+ * @returns {Promise<{ success: boolean }>}
+ */
+export const revokeApiKey = async (keyId) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/keys/${keyId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to revoke API key');
+    }
+    return { success: true, message: 'API key revoked successfully.' };
+  } catch (error) {
+    console.error('Revoke API key error:', error);
     throw error;
   }
 };
