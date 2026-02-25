@@ -56,8 +56,15 @@ export const LinkAnalytics = () => {
   };
 
   const getFullUrl = () => {
-    if (!linkData?.domain || !linkData?.path) return '';
-    return `${linkData.domain}${linkData.path.startsWith('/') ? '' : '/'}${linkData.path}`;
+    if (!linkData?.path) return '';
+    const base = linkData.domain || (() => {
+      const sub = linkData.appId?.subDomain;
+      if (!sub) return '';
+      return sub.startsWith('http://') || sub.startsWith('https://') ? sub : `https://${sub}`;
+    })();
+    if (!base) return '';
+    const path = linkData.path.startsWith('/') ? linkData.path : `/${linkData.path}`;
+    return `${base.replace(/\/$/, '')}${path}`;
   };
 
   const handleCopy = () => {
@@ -149,7 +156,9 @@ export const LinkAnalytics = () => {
   const conversionRate = analytics?.lifetimeStats?.conversionRate ?? (totalClicks > 0 ? Math.round((totalDownloads / totalClicks) * 1000) / 10 : 0);
   const totalForBars = totalClicks || 1; // avoid division by zero in location/platform bars
   const totalForBarsInstalls = totalDownloads || 1;
-  const locationData = metricType === 'installs' ? (analytics?.installLocationAnalytics ?? []) : (analytics?.locationAnalytics ?? []);
+  const locationData = locationType === 'cities'
+    ? (metricType === 'installs' ? (analytics?.installCityAnalytics ?? []) : (analytics?.cityAnalytics ?? []))
+    : (metricType === 'installs' ? (analytics?.installLocationAnalytics ?? []) : (analytics?.locationAnalytics ?? []));
   const platformData = metricType === 'installs' ? (analytics?.installPlatformAnalytics ?? []) : (analytics?.platformAnalytics ?? []);
   const deviceData = metricType === 'installs' ? (analytics?.installDeviceAnalytics ?? []) : (analytics?.deviceAnalytics ?? []);
   const totalForBarsCurrent = metricType === 'installs' ? totalForBarsInstalls : totalForBars;
@@ -207,14 +216,18 @@ export const LinkAnalytics = () => {
               
               <div className="mb-2">
                 <span className="text-sm text-muted-foreground">URL: </span>
-                <a 
-                  href={linkUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline break-all"
-                >
-                  {linkUrl}
-                </a>
+                {linkUrl && (linkUrl.startsWith('http://') || linkUrl.startsWith('https://')) ? (
+                  <a 
+                    href={linkUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline break-all"
+                  >
+                    {linkUrl}
+                  </a>
+                ) : (
+                  <span className="text-sm text-foreground break-all">{linkUrl || '—'}</span>
+                )}
               </div>
               
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -356,7 +369,7 @@ export const LinkAnalytics = () => {
                   {locationData.map((location, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <div className="flex items-center gap-2 min-w-[120px]">
-                        <span className="text-base">{getCountryFlag(location.name)}</span>
+                        <span className="text-base">{locationType === 'cities' ? '📍' : getCountryFlag(location.name)}</span>
                         <span className="text-sm text-foreground">{location.name}</span>
                       </div>
                       <div className="flex-1">

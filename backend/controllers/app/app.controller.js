@@ -260,42 +260,65 @@ export const createAppLink =async  (req, res) => {
     }
 }
 
-export const updateAppLink =async  (req, res) => {
+export const updateAppLink = async (req, res) => {
     try {
-        const {id} = req.params;
-        const {domain , path ,destinationUrl, linkName, androidBehavior, iosBehavior } = req.body;
+        const { id } = req.params;
+        const { path, destinationUrl, linkName, androidBehavior, iosBehavior, utm } = req.body;
+        const { performingUser } = req;
 
-        const linkExists = await Link.findById(id);
-
-        if(!linkExists){
+        const linkExists = await Link.findById(id).populate('appId', 'createdBy');
+        if (!linkExists) {
+            throwCustomError(1008);
+        }
+        const app = linkExists.appId;
+        if (!app || app.createdBy.toString() !== performingUser._id.toString()) {
             throwCustomError(1008);
         }
 
+        const utmSchema = Joi.object({
+            previewTitle: Joi.string().optional().allow(''),
+            previewDescription: Joi.string().optional().allow(''),
+            previewImageUrl: Joi.string().uri().optional().allow(''),
+            campaignSource: Joi.string().optional().allow(''),
+            campaignMedium: Joi.string().optional().allow(''),
+            campaignName: Joi.string().optional().allow(''),
+            campaignTerm: Joi.string().optional().allow(''),
+            campaignContent: Joi.string().optional().allow(''),
+        });
         const schema = Joi.object({
-            domain: Joi.string().uri().optional(),
             path: Joi.string().optional(),
             destinationUrl: Joi.string().uri().optional(),
             linkName: Joi.string().min(3).max(30).optional(),
             androidBehavior: Joi.string().valid("open_app", "open_url").optional(),
-            iosBehavior: Joi.string().valid("open_app", "open_url").optional()
-        })
+            iosBehavior: Joi.string().valid("open_app", "open_url").optional(),
+            utm: utmSchema.optional(),
+        });
+        const { error } = schema.validate(req.body);
+        if (error) throwCustomError(1006);
 
-        const {error} = schema.validate(req.body)
-        error && throwCustomError(1006)
+        if (path !== undefined) linkExists.path = path;
+        if (destinationUrl !== undefined) linkExists.destinationUrl = destinationUrl;
+        if (linkName !== undefined) linkExists.linkName = linkName;
+        if (androidBehavior !== undefined) linkExists.androidBehavior = androidBehavior;
+        if (iosBehavior !== undefined) linkExists.iosBehavior = iosBehavior;
 
-
-        if(domain) linkExists.domain = domain;
-        if(path) linkExists.path = path;
-        if(destinationUrl) linkExists.destinationUrl = destinationUrl;
-        if(linkName) linkExists.linkName = linkName;
-        if(androidBehavior) linkExists.androidBehavior = androidBehavior;
-        if(iosBehavior) linkExists.iosBehavior = iosBehavior;
+        if (utm !== undefined && utm !== null) {
+            const u = linkExists.utm || {};
+            if (utm.previewTitle !== undefined) u.previewTitle = utm.previewTitle || null;
+            if (utm.previewDescription !== undefined) u.previewDescription = utm.previewDescription || null;
+            if (utm.previewImageUrl !== undefined) u.previewImageUrl = utm.previewImageUrl || null;
+            if (utm.campaignSource !== undefined) u.campaignSource = utm.campaignSource || null;
+            if (utm.campaignMedium !== undefined) u.campaignMedium = utm.campaignMedium || null;
+            if (utm.campaignName !== undefined) u.campaignName = utm.campaignName || null;
+            if (utm.campaignTerm !== undefined) u.campaignTerm = utm.campaignTerm || null;
+            if (utm.campaignContent !== undefined) u.campaignContent = utm.campaignContent || null;
+            linkExists.utm = u;
+        }
 
         await linkExists.save();
-        await sendSuccess(req, res, "link updated successfully", 200, linkExists)
-
+        await sendSuccess(req, res, "link updated successfully", 200, linkExists);
     } catch (error) {
-        sendError(req,res,error)
+        sendError(req, res, error);
     }
 }
 
@@ -303,14 +326,40 @@ export const updateAppLink =async  (req, res) => {
 export const getAllLinks = async (req, res) => {
     try {
         const { performingUser } = req;
-        const apps = await App.find({ createdBy: performingUser._id }).select('_id');
+        const apps = await App.find({ createdBy: performingUser._id }).select('_id subDomain');
         const appIds = apps.map(a => a._id);
-        const links = await Link.find({ appId: { $in: appIds } }).sort({ createdAt: -1 });
-        await sendSuccess(req, res, "links fetched successfully", 200, links)
+        const appDomainMap = {};
+        for (const app of apps) {
+            let d = app.subDomain || '';
+            if (d && !d.startsWith('http://') && !d.startsWith('https://')) d = `https://${d}`;
+            appDomainMap[app._id.toString()] = d || null;
+        }
+        const links = await Link.find({ appId: { $in: appIds } }).sort({ createdAt: -1 }).lean();
+        const linkIds = links.map(l => l._id);
+
+        const [clickCounts, installCounts] = await Promise.all([
+            linkIds.length ? ClickEvent.aggregate([{ $match: { linkId: { $in: linkIds } } }, { $group: { _id: '$linkId', count: { $sum: 1 } } }]) : [],
+            linkIds.length ? InstallEvent.aggregate([{ $match: { linkId: { $in: linkIds } } }, { $group: { _id: '$linkId', count: { $sum: 1 } } }]) : [],
+        ]);
+        const clicksMap = Object.fromEntries((clickCounts || []).map((d) => [d._id.toString(), d.count]));
+        const installsMap = Object.fromEntries((installCounts || []).map((d) => [d._id.toString(), d.count]));
+
+        const linksWithStats = links.map((link) => {
+            const id = link._id.toString();
+            const appIdStr = link.appId?.toString?.();
+            const domain = appIdStr ? (appDomainMap[appIdStr] ?? null) : null;
+            return {
+                ...link,
+                domain,
+                clicks: clicksMap[id] ?? 0,
+                installs: installsMap[id] ?? 0,
+            };
+        });
+        await sendSuccess(req, res, "links fetched successfully", 200, linksWithStats);
     } catch (error) {
-        sendError(req,res,error)
+        sendError(req, res, error);
     }
-}
+};
 
 // Overview stats for dashboard (links count, total clicks, total installs)
 export const getOverviewStats = async (req, res) => {
@@ -486,6 +535,26 @@ export const getLinkDetails = async (req, res) => {
     }
 }
 
+// Delete a link (only if it belongs to the user's app)
+export const deleteLink = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { performingUser } = req;
+        const link = await Link.findById(id).populate('appId', 'createdBy');
+        if (!link) {
+            throwCustomError(1008);
+        }
+        const app = link.appId;
+        if (!app || app.createdBy.toString() !== performingUser._id.toString()) {
+            throwCustomError(1008);
+        }
+        await Link.findByIdAndDelete(id);
+        await sendSuccess(req, res, "Link deleted successfully", 200, {});
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
+
 // Get analytics for a specific link
 export const getLinkAnalytics = async (req, res) => {
     try {
@@ -536,6 +605,15 @@ export const getLinkAnalytics = async (req, res) => {
         ]);
         const locationAnalytics = locationAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
 
+        // ----- Location (by city) from clicks in range -----
+        const cityAgg = await ClickEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$city", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 },
+        ]);
+        const cityAnalytics = cityAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
+
         // ----- Platform (android / ios / web) from clicks in range -----
         const platformAgg = await ClickEvent.aggregate([
             { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
@@ -565,6 +643,13 @@ export const getLinkAnalytics = async (req, res) => {
             { $limit: 10 },
         ]);
         const installLocationAnalytics = installLocationAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
+        const installCityAgg = await InstallEvent.aggregate([
+            { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
+            { $group: { _id: "$city", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 },
+        ]);
+        const installCityAnalytics = installCityAgg.map((d) => ({ name: d._id || "Unknown", count: d.count }));
         const installPlatformAgg = await InstallEvent.aggregate([
             { $match: { linkId: linkObjectId, createdAt: { $gte: start, $lte: end } } },
             { $group: { _id: "$platform", count: { $sum: 1 } } },
@@ -589,9 +674,11 @@ export const getLinkAnalytics = async (req, res) => {
             clickAnalytics,
             installAnalytics,
             locationAnalytics: locationAnalytics.length ? locationAnalytics : [{ name: "No data", count: 0 }],
+            cityAnalytics: cityAnalytics.length ? cityAnalytics : [{ name: "No data", count: 0 }],
             platformAnalytics: platformAnalytics.length ? platformAnalytics : [{ name: "No data", count: 0 }],
             deviceAnalytics: deviceAnalytics.length ? deviceAnalytics : [{ name: "No data", count: 0 }],
             installLocationAnalytics: installLocationAnalytics.length ? installLocationAnalytics : [{ name: "No data", count: 0 }],
+            installCityAnalytics: installCityAnalytics.length ? installCityAnalytics : [{ name: "No data", count: 0 }],
             installPlatformAnalytics: installPlatformAnalytics.length ? installPlatformAnalytics : [{ name: "No data", count: 0 }],
             installDeviceAnalytics: installDeviceAnalytics.length ? installDeviceAnalytics : [{ name: "No data", count: 0 }],
         };
