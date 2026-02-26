@@ -2,6 +2,7 @@ import { throwCustomError } from "../../services/error.js";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
 import { App } from "../../models/app.model.js";
 import { Link } from "../../models/links.model.js";
+import { getLastSdkActivityByAppPlatform } from "../../services/sdkActivity.service.js";
 import { createSubdomain, detectPlatform, detectBrowser } from "./app.service.js";
 import { getGeoFromIp } from "../../services/geolocation.service.js";
 import Joi from "joi";
@@ -9,6 +10,15 @@ import mongoose from "mongoose";
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { InstallEvent } from "../../models/installEvent.model.js";
 
+/** Normalize configurations so android.fingerPrints is a clean array. */
+function normalizeAndroidFingerPrints(configurations) {
+    if (!configurations?.android) return configurations;
+    const android = { ...configurations.android };
+    android.fingerPrints = Array.isArray(android.fingerPrints)
+        ? android.fingerPrints.filter(Boolean)
+        : [];
+    return { ...configurations, android };
+}
 
 export const createApp = async (req, res) => {
     try {
@@ -24,7 +34,7 @@ export const createApp = async (req, res) => {
             configurations: Joi.object({
                 android: Joi.object().keys({
                     packageName: Joi.string().when('platform', {is: 'android', then: Joi.required(), otherwise: Joi.optional()}),
-                    fingerPrint: Joi.string().when('platform', {is: 'android', then: Joi.required(), otherwise: Joi.optional()})
+                    fingerPrints: Joi.array().items(Joi.string().trim().min(1)).optional()
                 }).optional(),
                 ios: Joi.object().keys({
                     teamId: Joi.string().when('platform', {is: 'ios', then: Joi.required(), otherwise: Joi.optional()}),
@@ -38,7 +48,6 @@ export const createApp = async (req, res) => {
         console.log(error,"validation error");
         error && throwCustomError(1006)
         let bundleIdExists = null;
-        let fingerPrintExists = null;
         let packageNameExists = null;
         let appExists = await App.findOne({subDomain: subDomain});
         
@@ -56,13 +65,12 @@ export const createApp = async (req, res) => {
             throwCustomError(1011);
         }
 
-        if(configurations?.android?.fingerPrint){
-          fingerPrintExists = await App.findOne({"configurations.android.fingerPrint": configurations.android.fingerPrint});
-        }
-
-        if(fingerPrintExists){
-            //fingerprint already exists
-            throwCustomError(1012);
+        const androidFingerPrints = configurations?.android?.fingerPrints?.filter(Boolean) || [];
+        if (androidFingerPrints.length > 0) {
+            const fingerPrintExists = await App.findOne({
+                "configurations.android.fingerPrints": { $in: androidFingerPrints }
+            });
+            if (fingerPrintExists) throwCustomError(1012);
         }
 
          if(configurations?.android?.packageName){
@@ -83,7 +91,7 @@ export const createApp = async (req, res) => {
             name,
             subDomain,
             fallbackUrl,
-            configurations,
+            configurations: normalizeAndroidFingerPrints(configurations),
             createdBy: performingUser._id
         };
 
@@ -717,25 +725,156 @@ export const getAnalytics = async (req, res) => {
 
 export const getUserApps = async (req, res) => {
     try {
-        const {performingUser} = req;
+        const { performingUser } = req;
 
         const apps = await App.find({
             createdBy: performingUser._id
         })
-        .select('name subDomain fallbackUrl domainId')
-        .populate({
-            path: 'domainId',
-            select: 'domain subdomain status verifiedAt isDeleted',
-            match: { isDeleted: { $ne: true } } // Only populate non-deleted domains
-        })
-        .sort({ createdAt: -1 });
+            .select('name subDomain fallbackUrl domainId configurations')
+            .populate({
+                path: 'domainId',
+                select: 'domain subdomain status verifiedAt isDeleted',
+                match: { isDeleted: { $ne: true } }
+            })
+            .sort({ createdAt: -1 })
+            .lean();
 
-        await sendSuccess(req, res, "Apps fetched successfully", 200, apps)
+        const appIds = apps.map((a) => a._id);
+        const lastActivity = await getLastSdkActivityByAppPlatform(appIds);
 
+        apps.forEach((a) => {
+            const id = a._id.toString();
+            if (!a.configurations) a.configurations = {};
+            if (a.configurations.android) a.configurations.android.lastSdkActivityAt = lastActivity[id]?.android ?? null;
+            if (a.configurations.ios) a.configurations.ios.lastSdkActivityAt = lastActivity[id]?.ios ?? null;
+        });
+
+        await sendSuccess(req, res, "Apps fetched successfully", 200, apps);
     } catch (error) {
-        sendError(req,res,error)
+        sendError(req, res, error);
     }
-}       
+}
+
+/**
+ * Update an existing app (name, fallbackUrl, configurations). Subdomain cannot be changed.
+ * Body: { name?, fallbackUrl?, domainId?, configurations?: { android?: { packageName?, fingerPrints? }, ios?: { teamId?, bundleId?, storeId? } } }
+ */
+export const updateApp = async (req, res) => {
+    try {
+        const { appId } = req.params;
+        const { name, fallbackUrl, domainId, configurations } = req.body || {};
+        const { performingUser } = req;
+
+        const app = await App.findOne({ _id: appId, createdBy: performingUser._id });
+        if (!app) throwCustomError(1008);
+
+        const schema = Joi.object({
+            name: Joi.string().min(3).max(15).optional(),
+            fallbackUrl: Joi.string().uri().optional(),
+            domainId: Joi.string().optional().allow(null, ''),
+            configurations: Joi.object({
+                android: Joi.object().keys({
+                    packageName: Joi.string().optional().allow(null, ''),
+                    fingerPrints: Joi.array().items(Joi.string().trim().min(1)).optional().allow(null)
+                }).optional(),
+                ios: Joi.object().keys({
+                    teamId: Joi.string().optional().allow(null, ''),
+                    bundleId: Joi.string().optional().allow(null, ''),
+                    storeId: Joi.string().optional().allow(null, '')
+                }).optional()
+            }).optional()
+        });
+        const { error } = schema.validate(req.body);
+        if (error) throwCustomError(1006);
+
+        const update = {};
+
+        if (name !== undefined) update.name = name;
+        if (fallbackUrl !== undefined) update.fallbackUrl = fallbackUrl;
+        if (domainId !== undefined) update.domainId = domainId || null;
+
+        if (configurations !== undefined) {
+            const existingConfig = app.configurations || {};
+            const newConfig = { ...existingConfig };
+
+            if (configurations.android !== undefined) {
+                newConfig.android = newConfig.android || {};
+                if (configurations.android.packageName !== undefined) newConfig.android.packageName = configurations.android.packageName || null;
+                if (configurations.android.fingerPrints !== undefined) {
+                    newConfig.android.fingerPrints = Array.isArray(configurations.android.fingerPrints) ? configurations.android.fingerPrints.filter(Boolean) : [];
+                }
+            }
+            if (configurations.ios !== undefined) {
+                newConfig.ios = newConfig.ios || {};
+                if (configurations.ios.teamId !== undefined) newConfig.ios.teamId = configurations.ios.teamId || null;
+                if (configurations.ios.bundleId !== undefined) newConfig.ios.bundleId = configurations.ios.bundleId || null;
+                if (configurations.ios.storeId !== undefined) newConfig.ios.storeId = configurations.ios.storeId || null;
+            }
+            update.configurations = newConfig;
+        }
+
+        if (Object.keys(update).length === 0) {
+            await sendSuccess(req, res, "No changes provided", 200, app);
+            return;
+        }
+
+        // Uniqueness checks (exclude current app)
+        const otherApps = { _id: { $ne: appId } };
+        if (update.configurations?.ios?.bundleId) {
+            const bundleIdExists = await App.findOne({ "configurations.ios.bundleId": update.configurations.ios.bundleId, ...otherApps });
+            if (bundleIdExists) throwCustomError(1011);
+        }
+        const updateFingerPrints = update.configurations?.android?.fingerPrints?.filter(Boolean) || [];
+        if (updateFingerPrints.length > 0) {
+            const fingerPrintExists = await App.findOne({
+                _id: { $ne: appId },
+                "configurations.android.fingerPrints": { $in: updateFingerPrints }
+            });
+            if (fingerPrintExists) throwCustomError(1012);
+        }
+        if (update.configurations?.android?.packageName) {
+            const packageNameExists = await App.findOne({ "configurations.android.packageName": update.configurations.android.packageName, ...otherApps });
+            if (packageNameExists) throwCustomError(1013);
+        }
+
+        const updated = await App.findByIdAndUpdate(appId, { $set: update }, { new: true })
+            .select("name subDomain fallbackUrl domainId configurations")
+            .lean();
+
+        await sendSuccess(req, res, "App updated successfully", 200, updated);
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
+
+/**
+ * Reset SDK verification for an app (clear sdkVerifiedAt so status shows Pending again).
+ * Use when there's an SDK issue and you want to force re-verification on next install.
+ * Body: { platform?: 'android' | 'ios' | 'both' } (default: 'both')
+ */
+export const resetSdkVerification = async (req, res) => {
+    try {
+        const { appId } = req.params;
+        const { platform = 'both' } = req.body || {};
+        const { performingUser } = req;
+
+        const app = await App.findOne({ _id: appId, createdBy: performingUser._id });
+        if (!app) throwCustomError(1008);
+
+        const update = {};
+        if (platform === 'android' || platform === 'both') {
+            update['configurations.android.sdkVerifiedAt'] = null;
+        }
+        if (platform === 'ios' || platform === 'both') {
+            update['configurations.ios.sdkVerifiedAt'] = null;
+        }
+        await App.findByIdAndUpdate(appId, { $set: update });
+
+        await sendSuccess(req, res, 'SDK verification reset successfully. Re-verify by running your app and calling init().', 200);
+    } catch (error) {
+        sendError(req, res, error);
+    }
+};
 
 
 

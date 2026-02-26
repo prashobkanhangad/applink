@@ -1,5 +1,6 @@
 import { ClickEvent } from "../../models/clickEvent.model.js";
 import { InstallEvent } from "../../models/installEvent.model.js";
+import { App } from "../../models/app.model.js";
 import useragent from "express-useragent";
 import { getGeoFromIp } from "../../services/geolocation.service.js";
 
@@ -83,6 +84,22 @@ export const handleTrackInstall = async (req, res) => {
         const geo = hasBodyGeo
             ? { country: bodyCountry ?? unknown, state: bodyState ?? unknown, city: bodyCity ?? unknown }
             : await getGeoFromIp(bodyIpAddress ?? ip);
+
+        // Resolve app for sdkVerifiedAt; last activity is derived from events via linkId (no appId on event)
+        const userId = req.apiKeyUserId;
+        if (userId && packageName && (resolvedPlatform === "android" || resolvedPlatform === "ios")) {
+            const query =
+                resolvedPlatform === "android"
+                    ? { createdBy: userId, "configurations.android.packageName": packageName }
+                    : { createdBy: userId, "configurations.ios.bundleId": packageName };
+            const app = await App.findOne(query).select("_id configurations").lean();
+            if (app) {
+                const prefix = resolvedPlatform === "android" ? "configurations.android" : "configurations.ios";
+                if (!app.configurations?.[resolvedPlatform]?.sdkVerifiedAt) {
+                    await App.updateOne({ _id: app._id }, { $set: { [`${prefix}.sdkVerifiedAt`]: new Date() } });
+                }
+            }
+        }
 
         await InstallEvent.create({
             linkId: linkId || undefined,

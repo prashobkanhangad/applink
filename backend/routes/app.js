@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createApp, createAppLink, getAllLinks, updateAppLink, getUserApps, getLinkDetails, getLinkAnalytics, getOverviewStats, getAnalyticsOverview, deleteLink } from "../controllers/app/app.controller.js";
+import { createApp, createAppLink, getAllLinks, updateAppLink, getUserApps, getLinkDetails, getLinkAnalytics, getOverviewStats, getAnalyticsOverview, deleteLink, resetSdkVerification, updateApp } from "../controllers/app/app.controller.js";
 import { verifyJWT } from "../services/jwt.js";
 
 
@@ -24,10 +24,9 @@ appRoute.get("/link/:id", getLinkDetails);
 appRoute.get("/link/:id/analytics", getLinkAnalytics);
 appRoute.delete("/link/:id", deleteLink);
 
-appRoute.get("/apps",getUserApps);
-
-
-
+appRoute.get("/apps", getUserApps);
+appRoute.patch("/:appId", updateApp);
+appRoute.patch("/:appId/sdk-verification/reset", resetSdkVerification);
 
 
 export default appRoute;

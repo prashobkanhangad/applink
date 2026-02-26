@@ -55,7 +55,7 @@ export const getAssetLinks = async (host) => {
     return null;
   }
   const androidConfig = appExists?.configurations?.android;
-  const fingerPrint = [androidConfig?.fingerPrint];
+  const fingerPrints = (androidConfig?.fingerPrints || []).filter(Boolean);
   const packageName = androidConfig?.packageName;
   return [
     {
@@ -63,7 +63,7 @@ export const getAssetLinks = async (host) => {
       "target": {
         "namespace": "android_app",
         "package_name": packageName,
-        "sha256_cert_fingerprints": fingerPrint
+        "sha256_cert_fingerprints": fingerPrints
           
         
       }

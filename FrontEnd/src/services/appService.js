@@ -34,7 +34,7 @@ const getAuthToken = () => {
  * @param {Object} appData.configurations - Platform configurations
  * @param {Object} [appData.configurations.android] - Android configuration
  * @param {string} [appData.configurations.android.packageName] - Android package name
- * @param {string} [appData.configurations.android.fingerPrint] - SHA256 fingerprint
+ * @param {string[]} [appData.configurations.android.fingerPrints] - SHA256 certificate fingerprints (e.g. debug + release)
  * @param {Object} [appData.configurations.ios] - iOS configuration
  * @param {string} [appData.configurations.ios.teamId] - Apple Team ID
  * @param {string} [appData.configurations.ios.bundleId] - Apple Bundle ID
@@ -91,7 +91,7 @@ export const createApp = async (appData) => {
  * @param {string} [appConfig.domainId] - Custom domain ID (optional)
  * @param {Object} [appConfig.android] - Android configuration (optional)
  * @param {string} [appConfig.android.packageName] - Android package name
- * @param {string} [appConfig.android.fingerPrint] - SHA256 fingerprint
+ * @param {string[]} [appConfig.android.fingerPrints] - SHA256 certificate fingerprints (e.g. debug + release)
  * @param {Object} [appConfig.ios] - iOS configuration (optional)
  * @param {string} [appConfig.ios.teamId] - Apple Team ID
  * @param {string} [appConfig.ios.bundleId] - Apple Bundle ID
@@ -112,13 +112,14 @@ export const createAppWithConfigurations = async (appConfig) => {
   }
 
   // Add Android configuration if provided
-  if (appConfig.android && (appConfig.android.packageName || appConfig.android.fingerPrint)) {
+  const hasAndroidFingerPrints = appConfig.android?.fingerPrints?.length > 0;
+  if (appConfig.android && (appConfig.android.packageName || hasAndroidFingerPrints)) {
     payload.configurations.android = {};
     if (appConfig.android.packageName) {
       payload.configurations.android.packageName = appConfig.android.packageName;
     }
-    if (appConfig.android.fingerPrint) {
-      payload.configurations.android.fingerPrint = appConfig.android.fingerPrint;
+    if (hasAndroidFingerPrints) {
+      payload.configurations.android.fingerPrints = appConfig.android.fingerPrints.filter(Boolean);
     }
   }
 
@@ -288,6 +289,75 @@ export const getUserApps = async () => {
     };
   } catch (error) {
     console.error('Get user apps API error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing app (name, fallbackUrl, configurations). Subdomain cannot be changed.
+ * @param {string} appId - App ID
+ * @param {Object} payload - { name?, fallbackUrl?, domainId?, configurations?: { android?: { packageName?, fingerPrints? }, ios?: { teamId?, bundleId?, storeId? } } }
+ * @returns {Promise<Object>}
+ */
+export const updateApp = async (appId, payload) => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/app/${appId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to update app: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return { success: true, app: data.data || data, message: data.message };
+  } catch (error) {
+    console.error('Update app API error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Reset SDK verification for an app (clears sdkVerifiedAt so status shows Pending again).
+ * Use when there's an SDK issue and you want to re-verify on next app run.
+ * @param {string} appId - App ID
+ * @param {'android'|'ios'|'both'} [platform='both'] - Which platform to reset
+ * @returns {Promise<Object>}
+ */
+export const resetSdkVerification = async (appId, platform = 'both') => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      handleAuthFailure('Please sign in to continue.');
+      throw new Error('Authentication required. Please sign in.');
+    }
+    const response = await fetch(`${API_BASE_URL}/app/${appId}/sdk-verification/reset`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ platform }),
+    });
+    if (!response.ok) {
+      if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to reset SDK verification: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error('Reset SDK verification API error:', error);
     throw error;
   }
 };

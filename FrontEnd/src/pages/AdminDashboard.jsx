@@ -821,7 +821,7 @@ const AdminAppView = ({ appId: appIdProp }) => {
                       <h4 className="font-medium text-gray-800 mb-2">Android</h4>
                       <dl className="space-y-1">
                         <div><dt className="text-gray-500">Package name</dt><dd className="font-medium text-gray-900">{safeDisplay(data.configurations.android.packageName)}</dd></div>
-                        <div><dt className="text-gray-500">Fingerprint</dt><dd className="font-medium text-gray-900 break-all">{safeDisplay(data.configurations.android.fingerPrint)}</dd></div>
+                        <div><dt className="text-gray-500">Fingerprints</dt><dd className="font-medium text-gray-900 break-all">{(data.configurations.android.fingerPrints || []).length ? (data.configurations.android.fingerPrints || []).map((fp, i) => <span key={i} className="block">{safeDisplay(fp)}</span>) : safeDisplay(null)}</dd></div>
                       </dl>
                     </div>
                   )}
