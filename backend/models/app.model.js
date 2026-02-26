@@ -2,13 +2,15 @@
 
     const androidConfigSchema = new Schema({
     packageName: String,
-    fingerPrint: String,
+    fingerPrints: [String], // SHA-256 cert fingerprints (e.g. debug + release, or upload + Play App Signing)
+    sdkVerifiedAt: { type: Date, default: null },
     }, { _id: false });
 
     const iosConfigSchema = new Schema({
     teamId: String,
     bundleId: String,
-    storeId: String
+    storeId: String,
+    sdkVerifiedAt: { type: Date, default: null },
     }, { _id: false });
 
 

@@ -1,6 +1,11 @@
 import cron from 'node-cron';
 import { DomainVerification } from '../models/domainVerification.model.js';
+import { App } from '../models/app.model.js';
 import { verifyDomain } from './domainVerification.service.js';
+import { getLastSdkActivityByAppPlatform } from './sdkActivity.service.js';
+
+const SDK_STALE_DAYS = 10;
+const SDK_STALE_MS = SDK_STALE_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  * Domain Verification Cron Job
@@ -75,6 +80,50 @@ export const checkPendingDomains = async () => {
 };
 
 /**
+ * Clear SDK verification for apps with no SDK activity in the last 10 days (connection issue).
+ * Uses last activity from ClickEvent + InstallEvent (single source of truth), not stored on App.
+ */
+export const clearStaleSdkVerification = async () => {
+    console.log('[Cron] Starting stale SDK verification clear...');
+    const cutoff = new Date(Date.now() - SDK_STALE_MS);
+    try {
+        const appsWithVerified = await App.find({
+            $or: [
+                { 'configurations.android.sdkVerifiedAt': { $ne: null } },
+                { 'configurations.ios.sdkVerifiedAt': { $ne: null } },
+            ],
+        })
+            .select('_id configurations.android.sdkVerifiedAt configurations.ios.sdkVerifiedAt')
+            .lean();
+
+        const appIds = appsWithVerified.map((a) => a._id);
+        const lastActivity = await getLastSdkActivityByAppPlatform(appIds);
+
+        let cleared = 0;
+        for (const app of appsWithVerified) {
+            const id = app._id.toString();
+            const updates = {};
+            // Only clear when we have event-based activity that is stale (ignore null = no events with appId yet, e.g. legacy)
+            const androidStale = app.configurations?.android?.sdkVerifiedAt && lastActivity[id]?.android != null && new Date(lastActivity[id].android) < cutoff;
+            const iosStale = app.configurations?.ios?.sdkVerifiedAt && lastActivity[id]?.ios != null && new Date(lastActivity[id].ios) < cutoff;
+            if (androidStale) updates['configurations.android.sdkVerifiedAt'] = null;
+            if (iosStale) updates['configurations.ios.sdkVerifiedAt'] = null;
+            if (Object.keys(updates).length) {
+                await App.updateOne({ _id: app._id }, { $set: updates });
+                cleared += Object.keys(updates).length;
+            }
+        }
+        if (cleared > 0) {
+            console.log(`[Cron] Cleared SDK verification for ${cleared} stale app/platform(s). Cutoff: ${cutoff.toISOString()}`);
+        }
+        return { cleared };
+    } catch (error) {
+        console.error('[Cron] Error clearing stale SDK verification:', error);
+        throw error;
+    }
+};
+
+/**
  * Initialize all cron jobs
  */
 export const initCronJobs = () => {
@@ -87,6 +136,16 @@ export const initCronJobs = () => {
             await checkPendingDomains();
         } catch (error) {
             console.error('[Cron] Pending domain check failed:', error);
+        }
+    });
+
+    // Daily: clear SDK verification when no SDK activity for 10 days (connection issue)
+    cron.schedule('0 2 * * *', async () => {
+        console.log('[Cron] Running stale SDK verification clear...');
+        try {
+            await clearStaleSdkVerification();
+        } catch (error) {
+            console.error('[Cron] Stale SDK verification clear failed:', error);
         }
     });
 
@@ -103,6 +162,7 @@ export const initCronJobs = () => {
 
     console.log('[Cron] Cron jobs initialized:');
     console.log('  - Pending domain check: Every 5 minutes');
+    console.log(`  - Stale SDK verification clear: Daily at 02:00 (no activity for ${SDK_STALE_DAYS} days)`);
 
     // Run initial check after 30 seconds of startup
     setTimeout(async () => {

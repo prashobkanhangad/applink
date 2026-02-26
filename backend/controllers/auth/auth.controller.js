@@ -1,7 +1,8 @@
 import Joi from "joi";
+import jwt from "jsonwebtoken";
+import * as jwt_decode from "jwt-decode";
 import { sendError, sendSuccess } from "../../services/requestHandler.js";
 import { throwCustomError } from "../../services/error.js";
-import * as jwt_decode from "jwt-decode";
 import { User } from "../../models/user.model.js";
 import { PlanChange } from "../../models/planChange.model.js";
 import { App } from "../../models/app.model.js";
