@@ -931,28 +931,35 @@ export const checkValidDeepLink = async (req, res) => {
                 const storeId = app.configurations.ios.storeId;
                 if (storeId) {
                     destination = `https://apps.apple.com/app/id${storeId}`;
+                    console.log("[checkValidDeepLink] ios: redirect to App Store", { storeId, linkId: linkExists._id });
                 } else {
                     destination = linkExists.destinationUrl;
+                    console.log("[checkValidDeepLink] ios: no storeId, use destinationUrl", { destination: destination?.slice?.(0, 80) });
                 }
             } else {
                 destination = linkExists.destinationUrl;
+                console.log("[checkValidDeepLink] ios: open_url or no config, use destinationUrl", { destination: destination?.slice?.(0, 80) });
             }
         } else if (platform === "android") {
             if (linkExists.androidBehavior === "open_app" && app.configurations?.android?.packageName) {
                 try {
                     const urlParts = new URL(linkExists.destinationUrl);
                     destination = `intent://${urlParts.host}${urlParts.pathname}${urlParts.search || ""}#Intent;scheme=https;package=${app.configurations.android.packageName};end`;
+                    console.log("[checkValidDeepLink] android: intent URL (open app)", { host: urlParts.host, linkId: linkExists._id });
                 } catch (_) {
                     // Pass linkId in referrer so SDK/backend can attribute install on first open (Play Install Referrer)
                     const referrerStr = `linkId=${linkExists._id}&source=deeplink`;
                     destination = `https://play.google.com/store/apps/details?id=${app.configurations.android.packageName}&referrer=${encodeURIComponent(referrerStr)}`;
+                    console.log("[checkValidDeepLink] android: fallback to Play Store (invalid destinationUrl)", { linkId: linkExists._id, packageName: app.configurations.android.packageName });
                 }
             } else {
                 destination = linkExists.destinationUrl;
+                console.log("[checkValidDeepLink] android: open_url or no config, use destinationUrl", { destination: destination?.slice?.(0, 80) });
             }
         } else {
             // web or unknown: use destination URL or fallback
             destination = linkExists.destinationUrl || app.fallbackUrl;
+            console.log("[checkValidDeepLink] web/unknown: destination or fallback", { destination: destination?.slice?.(0, 80) });
         }
 
         return res.redirect(301, destination);
