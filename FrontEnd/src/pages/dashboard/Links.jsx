@@ -382,7 +382,7 @@ export const Links = () => {
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             <div className="mb-6">
-              <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground hover:text-foreground" onClick={handleCancelCreate}>
+              <Button variant="ghost" size="sm" className="-ml-2 text-gray-500 hover:text-gray-900" onClick={handleCancelCreate}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
@@ -393,7 +393,7 @@ export const Links = () => {
             {isEditMode && isEditLoading && (
               <div className="flex items-center justify-center py-12">
                 <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
-                <span className="ml-3 text-muted-foreground">Loading link...</span>
+                <span className="ml-3 text-gray-500">Loading link...</span>
               </div>
             )}
 
@@ -412,12 +412,12 @@ export const Links = () => {
             {!isEditLoading && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <div className={`bg-card rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 1 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-border'}`}>
+              <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 1 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-gray-200'}`}>
                 <div 
-                  className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 1 && currentStep > 1 ? 'cursor-pointer hover:bg-muted/30 rounded-t-2xl' : ''}`}
+                  className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 1 && currentStep > 1 ? 'cursor-pointer hover:bg-gray-100 rounded-t-2xl' : ''}`}
                   onClick={() => currentStep > 1 && setCurrentStep(1)}
                 >
-                  <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 1 ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'}`}>
+                  <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 1 ? 'bg-primary text-white' : 'bg-gray-900 text-white'}`}>
                     {currentStep > 1 ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -425,17 +425,17 @@ export const Links = () => {
                     ) : '1'}
                   </span>
                   <div className="flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                       Set up your Short Link Or Dynamic URL
                     </h3>
                     {currentStep > 1 && (
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-mono">
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1 font-mono">
                         {domain}{path.startsWith('/') ? path : `/${path}`}
                       </p>
                     )}
                   </div>
                   {currentStep > 1 && (
-                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   )}
@@ -444,12 +444,12 @@ export const Links = () => {
                 {/* Expanded Content - Only show when current step */}
                 {currentStep === 1 && (
                   <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 ml-11">
+                    <p className="text-xs sm:text-sm text-gray-500 mb-4 ml-11">
                       Customise your Short Link Or Dynamic URL to make it more professional and contextual.
                     </p>
                     <div className="ml-11">
                       <div className="mb-4">
-                        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                           Select App
                         </label>
                         <select
@@ -467,7 +467,7 @@ export const Links = () => {
                               setDomain(formattedDomain);
                             }
                           }}
-                          className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <option value="">Select an app</option>
                           {apps.map((app) => {
@@ -490,19 +490,19 @@ export const Links = () => {
                       </div>
 
                       <div className="mb-4">
-                        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                           Domain
                         </label>
                         <input
                           type="text"
                           value={domain}
                           onChange={(e) => setDomain(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-muted/30 text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-100 text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20"
                           readOnly
                         />
                       </div>
                       <div className="mb-4">
-                        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                           Path <span className="text-destructive">*</span>
                         </label>
                         <input
@@ -516,7 +516,7 @@ export const Links = () => {
                               setPath(v);
                             }
                           }}
-                          className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-muted-foreground"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-gray-500"
                           placeholder="/ e.g. home"
                         />
                       </div>
@@ -531,12 +531,12 @@ export const Links = () => {
               </div>
 
               {currentStep >= 2 && (
-                <div className={`bg-card rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 2 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-border'}`}>
+                <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 2 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-gray-200'}`}>
                   <div 
-                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 2 ? 'cursor-pointer hover:bg-muted/30 rounded-t-2xl' : ''}`}
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 2 ? 'cursor-pointer hover:bg-gray-100 rounded-t-2xl' : ''}`}
                     onClick={() => currentStep !== 2 && setCurrentStep(2)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 2 ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 2 ? 'bg-primary text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 2 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -544,17 +544,17 @@ export const Links = () => {
                       ) : '2'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Set up your dynamic link
                       </h3>
                       {currentStep > 2 && (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
                           {linkName || 'Unnamed'} → {destinationUrl}
                         </p>
                       )}
                     </div>
                     {currentStep > 2 && (
-                      <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     )}
@@ -563,34 +563,34 @@ export const Links = () => {
                   {/* Expanded Content - Only show when current step */}
                   {currentStep === 2 && (
                     <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-4 ml-11">
+                      <p className="text-xs sm:text-sm text-gray-500 mb-4 ml-11">
                         A dynamic link is a deep link into your app that works whether or not your app is installed. On desktop it will go to the deep link url.
                       </p>
                       <div className="ml-11">
                         <div className="mb-4">
-                          <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Destination URL
                           </label>
                           <input
                             type="url"
                             value={destinationUrl}
                             onChange={(e) => setDestinationUrl(e.target.value)}
-                            className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-500"
                             placeholder="E.g.: https://yourapp.com/welcome-page"
                           />
                         </div>
                         <div className="mb-4">
-                          <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Link Name
                           </label>
                           <input
                             type="text"
                             value={linkName}
                             onChange={(e) => setLinkName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-500"
                             placeholder="e.g. Seasonal Promo"
                           />
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             Pick a name that helps you recognize the link easily
                           </p>
                         </div>
@@ -606,12 +606,12 @@ export const Links = () => {
               )}
 
               {currentStep >= 3 && (
-                <div className={`bg-card rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 3 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-border'}`}>
+                <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 3 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-gray-200'}`}>
                   <div 
-                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 3 ? 'cursor-pointer hover:bg-muted/30 rounded-t-2xl' : ''}`}
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 3 ? 'cursor-pointer hover:bg-gray-100 rounded-t-2xl' : ''}`}
                     onClick={() => currentStep !== 3 && setCurrentStep(3)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 3 ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 3 ? 'bg-primary text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 3 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -619,17 +619,17 @@ export const Links = () => {
                       ) : '3'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Define link behaviour for Apple
                       </h3>
                       {currentStep > 3 && (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
                           {appleBehavior.includes('App') ? '📱 Open in App' : '🌐 Open in Browser'}
                         </p>
                       )}
                     </div>
                     {currentStep > 3 && (
-                      <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     )}
@@ -640,32 +640,32 @@ export const Links = () => {
                     <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                       <div className="ml-11">
                         <div className="space-y-3">
-                          <label className="flex items-start gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-muted/30 transition-colors">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <input
                               type="radio"
                               name="appleBehavior"
                               value="Open the Dynamic URL in a browser"
                               checked={appleBehavior === 'Open the Dynamic URL in a browser'}
                               onChange={(e) => setAppleBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary border-border focus:ring-primary"
+                              className="mt-1 w-4 h-4 text-primary border-gray-200 focus:ring-primary"
                             />
                             <div className="flex-1">
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-gray-900">
                                 Open the Dynamic URL in a browser
                               </span>
                             </div>
                           </label>
-                          <label className="flex items-start gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-muted/30 transition-colors">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <input
                               type="radio"
                               name="appleBehavior"
                               value="Open the Dynamic URL in your Apple App"
                               checked={appleBehavior === 'Open the Dynamic URL in your Apple App'}
                               onChange={(e) => setAppleBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary border-border focus:ring-primary"
+                              className="mt-1 w-4 h-4 text-primary border-gray-200 focus:ring-primary"
                             />
                             <div className="flex-1">
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-gray-900">
                                 Open the Dynamic URL in your Apple App
                               </span>
                             </div>
@@ -681,12 +681,12 @@ export const Links = () => {
               )}
 
               {currentStep >= 4 && (
-                <div className={`bg-card rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 4 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-border'}`}>
+                <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 4 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-gray-200'}`}>
                   <div 
-                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 4 ? 'cursor-pointer hover:bg-muted/30 rounded-t-2xl' : ''}`}
+                    className={`flex items-center gap-3 p-4 sm:p-6 ${currentStep !== 4 ? 'cursor-pointer hover:bg-gray-100 rounded-t-2xl' : ''}`}
                     onClick={() => currentStep !== 4 && setCurrentStep(4)}
                   >
-                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 4 ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'}`}>
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${currentStep > 4 ? 'bg-primary text-white' : 'bg-gray-900 text-white'}`}>
                       {currentStep > 4 ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -694,17 +694,17 @@ export const Links = () => {
                       ) : '4'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Define link behaviour for Android
                       </h3>
                       {currentStep > 4 && (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
                           {androidBehavior.includes('App') ? '📱 Open in App' : '🌐 Open in Browser'}
                         </p>
                       )}
                     </div>
                     {currentStep > 4 && (
-                      <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     )}
@@ -715,32 +715,32 @@ export const Links = () => {
                     <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                       <div className="ml-11">
                         <div className="space-y-3">
-                          <label className="flex items-start gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-muted/30 transition-colors">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <input
                               type="radio"
                               name="androidBehavior"
                               value="Open the Dynamic URL in a browser"
                               checked={androidBehavior === 'Open the Dynamic URL in a browser'}
                               onChange={(e) => setAndroidBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary border-border focus:ring-primary"
+                              className="mt-1 w-4 h-4 text-primary border-gray-200 focus:ring-primary"
                             />
                             <div className="flex-1">
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-gray-900">
                                 Open the Dynamic URL in a browser
                               </span>
                             </div>
                           </label>
-                          <label className="flex items-start gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-muted/30 transition-colors">
+                          <label className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <input
                               type="radio"
                               name="androidBehavior"
                               value="Open the Dynamic URL in your Android App"
                               checked={androidBehavior === 'Open the Dynamic URL in your Android App'}
                               onChange={(e) => setAndroidBehavior(e.target.value)}
-                              className="mt-1 w-4 h-4 text-primary border-border focus:ring-primary"
+                              className="mt-1 w-4 h-4 text-primary border-gray-200 focus:ring-primary"
                             />
                             <div className="flex-1">
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-gray-900">
                                 Open the Dynamic URL in your Android App
                               </span>
                             </div>
@@ -756,13 +756,13 @@ export const Links = () => {
               )}
 
               {currentStep >= 5 && (
-                <div className={`bg-card rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 5 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-border'}`}>
+                <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-300 ${currentStep === 5 ? 'border-primary/40 ring-2 ring-primary/10' : 'border-gray-200'}`}>
                   <div className="flex items-center gap-3 p-4 sm:p-6">
-                    <span className="flex-shrink-0 w-8 h-8 bg-foreground text-background rounded-full flex items-center justify-center text-sm font-semibold">
+                    <span className="flex-shrink-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       5
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         Campaign tracking, social tags and advanced options (optional)
                       </h3>
                     </div>
@@ -776,55 +776,55 @@ export const Links = () => {
                               type="checkbox"
                               checked={enableSocialMetaTags}
                               onChange={(e) => setEnableSocialMetaTags(e.target.checked)}
-                              className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                              className="w-4 h-4 text-primary border-gray-200 rounded focus:ring-primary"
                             />
-                            <span className="text-sm font-medium text-foreground">
+                            <span className="text-sm font-medium text-gray-900">
                               Add social meta tags for better sharing
                             </span>
                           </label>
                           {enableSocialMetaTags && (
                             <div className="ml-6 space-y-4">
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Preview title (st)</label>
-                                <input type="text" value={previewTitle} onChange={(e) => setPreviewTitle(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="E.g.: Seasonal Promo" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Preview title (st)</label>
+                                <input type="text" value={previewTitle} onChange={(e) => setPreviewTitle(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="E.g.: Seasonal Promo" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Preview image URL (si)</label>
-                                <input type="url" value={previewImageUrl} onChange={(e) => setPreviewImageUrl(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="E.g.: https://mydomain.com/images/promo.jpg" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Preview image URL (si)</label>
+                                <input type="url" value={previewImageUrl} onChange={(e) => setPreviewImageUrl(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="E.g.: https://mydomain.com/images/promo.jpg" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Preview description (sd)</label>
-                                <textarea value={previewDescription} onChange={(e) => setPreviewDescription(e.target.value)} rows={3} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. Some description..." />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Preview description (sd)</label>
+                                <textarea value={previewDescription} onChange={(e) => setPreviewDescription(e.target.value)} rows={3} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. Some description..." />
                               </div>
                             </div>
                           )}
                         </div>
                         <div>
                           <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                            <input type="checkbox" checked={enableUTMTracking} onChange={(e) => setEnableUTMTracking(e.target.checked)} className="w-4 h-4 text-primary border-border rounded focus:ring-primary" />
-                            <span className="text-sm font-medium text-foreground">Track a campaign with UTM parameters</span>
+                            <input type="checkbox" checked={enableUTMTracking} onChange={(e) => setEnableUTMTracking(e.target.checked)} className="w-4 h-4 text-primary border-gray-200 rounded focus:ring-primary" />
+                            <span className="text-sm font-medium text-gray-900">Track a campaign with UTM parameters</span>
                           </label>
                           {enableUTMTracking && (
                             <div className="ml-6 space-y-4">
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Campaign Source (utm_source)</label>
-                                <input type="text" value={utmSource} onChange={(e) => setUtmSource(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. Deeplink.in" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Campaign Source (utm_source)</label>
+                                <input type="text" value={utmSource} onChange={(e) => setUtmSource(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. Deeplink.in" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Campaign medium (utm_medium)</label>
-                                <input type="text" value={utmMedium} onChange={(e) => setUtmMedium(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. cpc" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Campaign medium (utm_medium)</label>
+                                <input type="text" value={utmMedium} onChange={(e) => setUtmMedium(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. cpc" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Campaign name (utm_campaign)</label>
-                                <input type="text" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. spring sale" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Campaign name (utm_campaign)</label>
+                                <input type="text" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. spring sale" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Term name (utm_term)</label>
-                                <input type="text" value={utmTerm} onChange={(e) => setUtmTerm(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. email+spring+offer" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Term name (utm_term)</label>
+                                <input type="text" value={utmTerm} onChange={(e) => setUtmTerm(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. email+spring+offer" />
                               </div>
                               <div>
-                                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">UTM Content (utm_content)</label>
-                                <input type="text" value={utmContent} onChange={(e) => setUtmContent(e.target.value)} className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary placeholder:text-muted-foreground" placeholder="e.g. image_top_banner" />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">UTM Content (utm_content)</label>
+                                <input type="text" value={utmContent} onChange={(e) => setUtmContent(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-primary placeholder:text-gray-500" placeholder="e.g. image_top_banner" />
                               </div>
                             </div>
                           )}
@@ -835,43 +835,43 @@ export const Links = () => {
                 </div>
               )}
 
-              <div className="bg-card rounded-2xl border border-border shadow-sm p-4 sm:p-6">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
                       {currentStep >= 2 ? <CheckIcon className="w-5 h-5 text-primary" /> : <WarningIcon className="w-5 h-5 text-destructive" />}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Set up your dynamic link</h4>
-                      {currentStep >= 2 && destinationUrl && <p className="text-xs text-muted-foreground truncate">{destinationUrl}</p>}
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Set up your dynamic link</h4>
+                      {currentStep >= 2 && destinationUrl && <p className="text-xs text-gray-500 truncate">{destinationUrl}</p>}
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
-                      {currentStep >= 3 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-muted-foreground" />}
+                      {currentStep >= 3 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-gray-500" />}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Define link behaviour for Apple</h4>
-                      {currentStep >= 3 && <p className="text-xs text-muted-foreground">{appleBehavior}</p>}
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Define link behaviour for Apple</h4>
+                      {currentStep >= 3 && <p className="text-xs text-gray-500">{appleBehavior}</p>}
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
-                      {currentStep >= 4 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-muted-foreground" />}
+                      {currentStep >= 4 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-gray-500" />}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Define link behaviour for Android</h4>
-                      {currentStep >= 4 && <p className="text-xs text-muted-foreground">{androidBehavior}</p>}
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Define link behaviour for Android</h4>
+                      {currentStep >= 4 && <p className="text-xs text-gray-500">{androidBehavior}</p>}
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
-                      {currentStep >= 5 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-muted-foreground" />}
+                      {currentStep >= 5 ? <CheckIcon className="w-5 h-5 text-primary" /> : <EditIcon className="w-5 h-5 text-gray-500" />}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Campaign tracking, social tags and advanced options (optional)</h4>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Campaign tracking, social tags and advanced options (optional)</h4>
                       {currentStep >= 5 && (enableSocialMetaTags || enableUTMTracking) && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500">
                           {enableSocialMetaTags && enableUTMTracking ? 'Social tags & UTM tracking enabled' : enableSocialMetaTags ? 'Social tags enabled' : 'UTM tracking enabled'}
                         </p>
                       )}
@@ -892,76 +892,76 @@ export const Links = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-card rounded-2xl border border-border shadow-sm p-4 sm:p-6">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground">QR Code</h3>
-                  <QuestionMarkIcon className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">QR Code</h3>
+                  <QuestionMarkIcon className="w-4 h-4 text-gray-500" />
                 </div>
                 {domain && path && path.trim() !== '' ? (
                   <div className="flex flex-col items-center">
-                    <div className="bg-background p-3 rounded-xl border border-border mb-3">
+                    <div className="bg-white p-3 rounded-xl border border-gray-200 mb-3">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(domain + (path.startsWith('/') ? path : `/${path}`))}`}
                         alt="QR Code"
                         className="w-[180px] h-[180px]"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground text-center mb-3 break-all px-2 font-mono">
+                    <p className="text-xs text-gray-500 text-center mb-3 break-all px-2 font-mono">
                       {domain}{path.startsWith('/') ? path : `/${path}`}
                     </p>
                     <a
                       href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&format=png&data=${encodeURIComponent(domain + (path.startsWith('/') ? path : `/${path}`))}`}
                       download={`qr-${path.replace(/^\//, '') || 'link'}.png`}
-                      className="inline-flex items-center justify-center gap-2 h-9 rounded-md px-3 text-sm font-medium border border-input bg-background hover:bg-accent"
+                      className="inline-flex items-center justify-center gap-2 h-9 rounded-md px-3 text-sm font-medium border border-input bg-white hover:bg-accent"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                       Download QR
                     </a>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] bg-muted/20">
-                    <QRCodeIcon className="w-12 h-12 text-muted-foreground mb-2" />
-                    <p className="text-xs sm:text-sm text-muted-foreground text-center">Enter a path to generate QR code</p>
+                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] bg-gray-100">
+                    <QRCodeIcon className="w-12 h-12 text-gray-500 mb-2" />
+                    <p className="text-xs sm:text-sm text-gray-500 text-center">Enter a path to generate QR code</p>
                   </div>
                 )}
               </div>
-              <div className="bg-card rounded-2xl border border-border shadow-sm p-4 sm:p-6">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground">Link Preview</h3>
-                  <QuestionMarkIcon className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Link Preview</h3>
+                  <QuestionMarkIcon className="w-4 h-4 text-gray-500" />
                 </div>
                 {enableSocialMetaTags && (previewTitle || previewImageUrl || previewDescription) ? (
-                  <div className="border border-border rounded-xl overflow-hidden mb-4 bg-card shadow-sm">
+                  <div className="border border-gray-200 rounded-xl overflow-hidden mb-4 bg-white shadow-sm">
                     {previewImageUrl ? (
-                      <div className="aspect-video bg-muted/30 relative overflow-hidden">
+                      <div className="aspect-video bg-gray-100 relative overflow-hidden">
                         <img src={previewImageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect fill="%23f3f4f6"/></svg>'; }} />
                       </div>
                     ) : (
-                      <div className="aspect-video bg-muted/30 flex flex-col items-center justify-center">
-                        <ImageIcon className="w-10 h-10 text-muted-foreground mb-2" />
-                        <p className="text-xs text-muted-foreground">Add image URL</p>
+                      <div className="aspect-video bg-gray-100 flex flex-col items-center justify-center">
+                        <ImageIcon className="w-10 h-10 text-gray-500 mb-2" />
+                        <p className="text-xs text-gray-500">Add image URL</p>
                       </div>
                     )}
                     <div className="p-3">
-                      <p className="text-xs text-muted-foreground mb-1 truncate">{domain.replace(/^https?:\/\//, '')}</p>
-                      <h4 className="text-sm font-semibold text-foreground mb-1 line-clamp-2">{previewTitle || linkName || 'Your Link Title'}</h4>
-                      {previewDescription && <p className="text-xs text-muted-foreground line-clamp-2">{previewDescription}</p>}
+                      <p className="text-xs text-gray-500 mb-1 truncate">{domain.replace(/^https?:\/\//, '')}</p>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">{previewTitle || linkName || 'Your Link Title'}</h4>
+                      {previewDescription && <p className="text-xs text-gray-500 line-clamp-2">{previewDescription}</p>}
                     </div>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] mb-4 bg-muted/20">
-                    <ImageIcon className="w-12 h-12 text-muted-foreground mb-2" />
-                    <p className="text-xs sm:text-sm text-muted-foreground text-center">Enable social meta tags to see preview</p>
+                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] mb-4 bg-gray-100">
+                    <ImageIcon className="w-12 h-12 text-gray-500 mb-2" />
+                    <p className="text-xs sm:text-sm text-gray-500 text-center">Enable social meta tags to see preview</p>
                   </div>
                 )}
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs text-muted-foreground">Preview Title</label>
-                    <p className="text-sm text-foreground mt-1">{enableSocialMetaTags && previewTitle ? previewTitle : '-'}</p>
+                    <label className="text-xs text-gray-500">Preview Title</label>
+                    <p className="text-sm text-gray-900 mt-1">{enableSocialMetaTags && previewTitle ? previewTitle : '-'}</p>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Preview Description</label>
-                    <p className="text-sm text-foreground mt-1 line-clamp-2">{enableSocialMetaTags && previewDescription ? previewDescription : '-'}</p>
+                    <label className="text-xs text-gray-500">Preview Description</label>
+                    <p className="text-sm text-gray-900 mt-1 line-clamp-2">{enableSocialMetaTags && previewDescription ? previewDescription : '-'}</p>
                   </div>
                 </div>
               </div>
@@ -980,10 +980,10 @@ export const Links = () => {
       {/* Delete confirmation modal */}
       {linkToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={handleDeleteCancel}>
-          <div className="bg-card rounded-2xl border border-border shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Delete link?</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Are you sure you want to delete <span className="font-medium text-foreground">"{linkToDelete.linkName || 'this link'}"</span>? This cannot be undone.
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete link?</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Are you sure you want to delete <span className="font-medium text-gray-900">"{linkToDelete.linkName || 'this link'}"</span>? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" size="sm" onClick={handleDeleteCancel}>
@@ -1005,8 +1005,8 @@ export const Links = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground">Your Links</h2>
-              <p className="text-sm text-muted-foreground mt-1">Manage and track all your deep links</p>
+              <h2 className="text-xl font-semibold text-gray-900">Your Links</h2>
+              <p className="text-sm text-gray-500 mt-1">Manage and track all your deep links</p>
             </div>
             <Button onClick={handleCreateClick} variant="hero" size="default" className="gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1026,22 +1026,22 @@ export const Links = () => {
           )}
 
           {isLoading ? (
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-12">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12">
               <div className="text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mb-4" />
-                <p className="text-muted-foreground">Loading links...</p>
+                <p className="text-gray-500">Loading links...</p>
               </div>
             </div>
           ) : links.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-12">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12">
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">No Links Yet</h3>
-                <p className="text-sm text-muted-foreground mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Links Yet</h3>
+                <p className="text-sm text-gray-500 mb-6">
                   Create your first deep link to get started with tracking and analytics.
                 </p>
                 <Button onClick={handleCreateClick} variant="hero">
@@ -1050,40 +1050,40 @@ export const Links = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-border">
-                  <thead className="bg-muted/30">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Link Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Short Link</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Destination URL</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Clicks</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Installs</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short Link</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination URL</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Installs</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-card divide-y divide-border">
+                  <tbody className="bg-white divide-y divide-border">
                     {links.map((link, index) => (
                       <tr
                         key={link._id || link.id || index}
-                        className="hover:bg-muted/20 cursor-pointer transition-colors"
+                        className="hover:bg-gray-100 cursor-pointer transition-colors"
                         onClick={() => navigate(`/dashboard/links/${link._id || link.id}`)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-foreground">{link.linkName || '-'}</div>
+                          <div className="text-sm font-medium text-gray-900">{link.linkName || '-'}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-foreground font-mono">
+                            <span className="text-sm text-gray-900 font-mono">
                               {link.domain && link.path ? `${link.domain}${link.path}` : '-'}
                             </span>
                             {link.domain && link.path && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground shrink-0"
+                                className="h-9 w-9 p-0 text-gray-500 hover:text-gray-900 shrink-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const url = `${link.domain}${link.path}`;
@@ -1103,22 +1103,22 @@ export const Links = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-muted-foreground truncate max-w-xs">{link.destinationUrl || '-'}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{link.destinationUrl || '-'}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-foreground">{link.clicks ?? 0}</div>
+                          <div className="text-sm text-gray-900">{link.clicks ?? 0}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-foreground">{link.installs ?? 0}</div>
+                          <div className="text-sm text-gray-900">{link.installs ?? 0}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm text-gray-500">
                             {link.createdAt ? new Date(link.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
-                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground" title="Edit" onClick={(e) => handleEditClick(link, e)}>
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-gray-500 hover:text-gray-900" title="Edit" onClick={(e) => handleEditClick(link, e)}>
                               <Pencil className="w-5 h-5" />
                             </Button>
                             <Button

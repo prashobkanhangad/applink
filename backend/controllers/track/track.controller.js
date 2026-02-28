@@ -48,7 +48,16 @@ export const handleTrackInstall = async (req, res) => {
         let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
 
-        // If linkId is provided in the request, use it; otherwise try to determine it
+        // If linkId not in body, try to get it from Android referrer (e.g. referrer=linkId%3Dxxx%26source%3Ddeeplink from Play Store redirect)
+        if (!linkId && referrer && typeof referrer === "string") {
+            const linkIdMatch = referrer.match(/linkId=([^&]+)/);
+            if (linkIdMatch && linkIdMatch[1]) {
+                linkId = linkIdMatch[1].trim();
+                console.log("[handleTrackInstall] linkId parsed from referrer:", linkId);
+            }
+        }
+
+        // If linkId is still not set, try other attribution (referrer data, iOS IP match)
         if (!linkId) {
             if (platform === "android" && referrer) {
                 responsePayload = { method: "referrer", data: referrer };

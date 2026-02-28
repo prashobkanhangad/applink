@@ -88,7 +88,7 @@ export const HeroSection = () => {
             {[
               { value: "99.9%", label: "Uptime SLA" },
               { value: "50ms", label: "Avg Response" },
-              { value: "10B+", label: "Links Created" },
+              { value: "5 min", label: "SDK Setup" },
               { value: "150+", label: "Countries" },
             ].map((stat, i) => (
               <div key={i} className="text-center">
@@ -124,20 +124,20 @@ export const HeroSection = () => {
 
               <div className="grid md:grid-cols-3 gap-4">
                 {[
-                  { icon: Zap, title: "Links Today", value: "24,891", change: "+12.5%" },
-                  { icon: Globe, title: "Countries", value: "89", change: "+4" },
-                  { icon: Sparkles, title: "Conversions", value: "8,421", change: "+23.1%" },
+                  { icon: Zap, title: "One SDK", value: "Unified mobile", change: "Android & iOS ready" },
+                  { icon: Globe, title: "Custom Domains", value: "Brand-safe links", change: "Use your own URL" },
+                  { icon: Sparkles, title: "Smart Routing", value: "Right app, every time", change: "Deep links that just work" },
                 ].map((card, i) => (
                   <div
                     key={i}
                     className="bg-card rounded-xl p-4 border border-border shadow-sm"
                   >
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                       <card.icon className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-muted-foreground">{card.title}</span>
+                      <span className="text-xs text-muted-foreground">{card.title}</span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground mb-1">{card.value}</div>
-                    <div className="text-sm text-green-600 dark:text-green-400 font-medium">{card.change}</div>
+                    <div className="text-lg font-semibold text-foreground mb-0.5">{card.value}</div>
+                    <div className="text-xs text-green-600 dark:text-green-400 font-medium">{card.change}</div>
                   </div>
                 ))}
               </div>

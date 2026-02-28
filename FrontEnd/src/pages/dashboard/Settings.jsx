@@ -169,7 +169,7 @@ export const Settings = () => {
         );
       default:
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
             Pending Verification
           </span>
         );
@@ -181,11 +181,11 @@ export const Settings = () => {
       <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Custom Domain Section */}
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8 mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 mb-6">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">Custom Domain</h2>
-                <p className="text-sm text-muted-foreground">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Custom Domain</h2>
+                <p className="text-sm text-gray-500">
                   Add your own custom domain to use with your links instead of the default chottu.link domain.
                 </p>
               </div>
@@ -197,8 +197,8 @@ export const Settings = () => {
             {/* Success Message */}
             {successMessage && (
               <div className="mb-4 p-4 bg-primary/10 border border-primary/20 rounded-xl flex items-start justify-between">
-                <p className="text-sm text-foreground">{successMessage}</p>
-                <button onClick={() => setSuccessMessage(null)} className="text-muted-foreground hover:text-foreground ml-4 p-1 rounded" aria-label="Dismiss">
+                <p className="text-sm text-gray-900">{successMessage}</p>
+                <button onClick={() => setSuccessMessage(null)} className="text-gray-500 hover:text-gray-900 ml-4 p-1 rounded" aria-label="Dismiss">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -227,30 +227,30 @@ export const Settings = () => {
             {/* Domain Input Section */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Domain Name</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Domain Name</label>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={customDomain}
                     onChange={(e) => { setCustomDomain(e.target.value); setError(null); setSuccessMessage(null); }}
                     placeholder="example.com"
-                    className="flex-1 px-4 py-2.5 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="flex-1 px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Enter your domain name without http:// or https:// (e.g., example.com)</p>
+                <p className="text-xs text-gray-500 mt-2">Enter your domain name without http:// or https:// (e.g., example.com)</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Subdomain</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Subdomain</label>
                 <div className="flex flex-wrap gap-3 items-center">
                   <input
                     type="text"
                     value={subdomain}
                     onChange={(e) => { setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')); setError(null); setSuccessMessage(null); }}
                     placeholder="link"
-                    className="w-32 px-4 py-2.5 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-32 px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
-                  <span className="text-sm text-muted-foreground">.{customDomain || 'yourdomain.com'}</span>
+                  <span className="text-sm text-gray-500">.{customDomain || 'yourdomain.com'}</span>
                   <Button
                     onClick={handleAddDomain}
                     disabled={isAddingDomain || !customDomain.trim() || !subdomain.trim()}
@@ -261,33 +261,33 @@ export const Settings = () => {
                     {isAddingDomain ? 'Adding...' : 'Add Domain'}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Choose a subdomain for your links (e.g., link, go, app). Your final URL will be: {subdomain || 'link'}.{customDomain || 'yourdomain.com'}</p>
+                <p className="text-xs text-gray-500 mt-2">Choose a subdomain for your links (e.g., link, go, app). Your final URL will be: {subdomain || 'link'}.{customDomain || 'yourdomain.com'}</p>
               </div>
 
               {/* Loading State */}
               {isLoading && (
                 <div className="mt-6 text-center py-8">
                   <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto" />
-                  <p className="text-sm text-muted-foreground mt-3">Loading domains...</p>
+                  <p className="text-sm text-gray-500 mt-3">Loading domains...</p>
                 </div>
               )}
 
               {/* Added Domains List */}
               {!isLoading && domains.length > 0 && (
                 <div className="mt-6 space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground">Added Domains</h3>
+                  <h3 className="text-sm font-semibold text-gray-900">Added Domains</h3>
                   {domains.map((domainItem) => (
-                    <div key={domainItem._id || domainItem.id} className="p-4 sm:p-5 bg-secondary/50 border border-border rounded-xl">
+                    <div key={domainItem._id || domainItem.id} className="p-4 sm:p-5 bg-gray-100 border border-gray-200 rounded-xl">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-3 mb-2">
-                            <p className="text-sm font-medium text-foreground">
+                            <p className="text-sm font-medium text-gray-900">
                               {domainItem.subdomain ? `${domainItem.subdomain}.${domainItem.domain}` : domainItem.domain}
                             </p>
                             {getStatusBadge(domainItem.status)}
                           </div>
                           {domainItem.status === 'verified' && domainItem.verifiedAt && (
-                            <p className="text-xs text-muted-foreground">Verified on {new Date(domainItem.verifiedAt).toLocaleDateString()}</p>
+                            <p className="text-xs text-gray-500">Verified on {new Date(domainItem.verifiedAt).toLocaleDateString()}</p>
                           )}
                         </div>
                         <Button
@@ -303,10 +303,10 @@ export const Settings = () => {
                       {/* DNS Configuration Instructions */}
                       {domainItem.status !== 'verified' && (
                         <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                          <h4 className="text-xs font-semibold text-foreground mb-2">DNS Configuration Required</h4>
-                          <p className="text-xs text-muted-foreground mb-3">Add the following CNAME record to verify ownership of your domain:</p>
-                          <div className="bg-card rounded-lg border border-border p-3 mb-3">
-                            <div className="text-xs font-mono space-y-2 text-foreground">
+                          <h4 className="text-xs font-semibold text-gray-900 mb-2">DNS Configuration Required</h4>
+                          <p className="text-xs text-gray-500 mb-3">Add the following CNAME record to verify ownership of your domain:</p>
+                          <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3">
+                            <div className="text-xs font-mono space-y-2 text-gray-900">
                               <div className="flex items-center gap-2 mb-1"><span className="text-primary font-semibold">Type:</span> <span>CNAME</span></div>
                               <div className="flex items-center gap-2 mb-1"><span className="text-primary font-semibold">Name:</span> <span>{domainItem.subdomain || 'link'}</span></div>
                               <div className="flex items-start gap-2"><span className="text-primary font-semibold">Value:</span> <span className="break-all">{domainItem.cnameTarget || 'target.lorrymithra.in'}</span></div>
@@ -327,7 +327,7 @@ export const Settings = () => {
                               </Button>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-3">After adding the CNAME record, click &quot;Verify Domain&quot; to check. DNS changes may take up to 48 hours to propagate.</p>
+                          <p className="text-xs text-gray-500 mt-3">After adding the CNAME record, click &quot;Verify Domain&quot; to check. DNS changes may take up to 48 hours to propagate.</p>
                         </div>
                       )}
 
@@ -337,8 +337,8 @@ export const Settings = () => {
                           <div className="flex items-start gap-3">
                             <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                             <div>
-                              <p className="text-sm font-medium text-foreground mb-1">Domain Verified Successfully</p>
-                              <p className="text-xs text-muted-foreground">Your domain is now active and ready to use. All links created will use this custom domain.</p>
+                              <p className="text-sm font-medium text-gray-900 mb-1">Domain Verified Successfully</p>
+                              <p className="text-xs text-gray-500">Your domain is now active and ready to use. All links created will use this custom domain.</p>
                             </div>
                           </div>
                         </div>
@@ -351,17 +351,17 @@ export const Settings = () => {
           </div>
 
           {/* Information Card */}
-          <div className="bg-card rounded-2xl border border-border p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
                 <Info className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-foreground mb-1">About Custom Domains</h3>
-                <p className="text-xs text-muted-foreground mb-2">Custom domains allow you to use your own domain name for your short links, making them more professional and branded.</p>
-                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">About Custom Domains</h3>
+                <p className="text-xs text-gray-500 mb-2">Custom domains allow you to use your own domain name for your short links, making them more professional and branded.</p>
+                <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
                   <li>Your domain must be verified via CNAME record before use</li>
-                  <li>Point your subdomain to <strong className="text-foreground">target.lorrymithra.in</strong></li>
+                  <li>Point your subdomain to <strong className="text-gray-900">target.lorrymithra.in</strong></li>
                   <li>SSL certificate will be automatically provisioned</li>
                   <li>You can add multiple custom domains</li>
                 </ul>

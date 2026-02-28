@@ -66,13 +66,6 @@ app.get('/*', checkValidDeepLink);
 // app.use('*', checkValidDeepLink)
 
 
-
-
-
-
-
-
-
 process.on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     // sendAlert(reason)
