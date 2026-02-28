@@ -48,12 +48,8 @@ app.use(bodyParser.urlencoded({
 
 app.get('/check-domain', checkDomain);
 
+app.use('/api/v1', indexRoute);
 
-app.get('/*', checkValidDeepLink);
-
-
-// for dynamically setting asset links for the app
-app.get('/.well-known/assetlinks.json', manageAssetLinks)
 
 // for redirecting to the app on the home page
 app.get('/', manageHome)
@@ -62,7 +58,13 @@ app.get('/health', (req, res) => {
     res.send("still alive").status(200);
 });
 
-app.use('/api/v1', indexRoute);
+
+app.get('/*', checkValidDeepLink);
+
+
+// for dynamically setting asset links for the app
+app.get('/.well-known/assetlinks.json', manageAssetLinks)
+
 
 // Catch-all for deep links (app subdomains): must be after API and health so they are not intercepted
 
