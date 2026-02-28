@@ -51,7 +51,7 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
   };
 
   return (
-    <div className="min-h-screen flex bg-background relative overflow-hidden link-pattern">
+    <div className="min-h-screen flex bg-gray-50 relative overflow-hidden link-pattern">
       {/* Background Pattern - same as home page */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />

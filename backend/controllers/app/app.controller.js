@@ -943,7 +943,9 @@ export const checkValidDeepLink = async (req, res) => {
                     const urlParts = new URL(linkExists.destinationUrl);
                     destination = `intent://${urlParts.host}${urlParts.pathname}${urlParts.search || ""}#Intent;scheme=https;package=${app.configurations.android.packageName};end`;
                 } catch (_) {
-                    destination = `https://play.google.com/store/apps/details?id=${app.configurations.android.packageName}&referrer=source%3Ddeeplink`;
+                    // Pass linkId in referrer so SDK/backend can attribute install on first open (Play Install Referrer)
+                    const referrerStr = `linkId=${linkExists._id}&source=deeplink`;
+                    destination = `https://play.google.com/store/apps/details?id=${app.configurations.android.packageName}&referrer=${encodeURIComponent(referrerStr)}`;
                 }
             } else {
                 destination = linkExists.destinationUrl;

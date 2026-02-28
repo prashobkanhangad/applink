@@ -12,7 +12,8 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
+    const isDashboard = typeof window !== "undefined" && window.location.pathname.startsWith("/dashboard");
+    if (theme === "dark" && !isDashboard) {
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");

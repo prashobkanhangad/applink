@@ -77,10 +77,10 @@ export const Analytics = () => {
       <DashboardLayout title="Analytics" subtitle="View your link performance">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
-                <p className="text-muted-foreground mt-4">Loading analytics...</p>
+                <p className="text-gray-500 mt-4">Loading analytics...</p>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@ export const Analytics = () => {
       <DashboardLayout title="Analytics" subtitle="Error">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <p className="text-destructive">{error}</p>
               <Button variant="hero" className="mt-4" onClick={loadAnalytics}>
                 Retry
@@ -136,24 +136,24 @@ export const Analytics = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Date filter */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h2 className="text-lg font-semibold text-foreground">Account analytics</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Account analytics</h2>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Date range</span>
-              <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 shadow-sm">
+              <span className="text-xs text-gray-500">Date range</span>
+              <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
                 <input
                   type="date"
                   aria-label="Start date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="text-sm text-foreground bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
+                  className="text-sm text-gray-900 bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
                 />
-                <span className="text-muted-foreground">–</span>
+                <span className="text-gray-500">–</span>
                 <input
                   type="date"
                   aria-label="End date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="text-sm text-foreground bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
+                  className="text-sm text-gray-900 bg-transparent border-0 p-0 focus:outline-none focus:ring-0 [color-scheme:inherit] max-w-[8rem]"
                 />
               </div>
             </div>
@@ -162,53 +162,53 @@ export const Analytics = () => {
 
           {/* Stat cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Total Clicks</span>
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-gray-500">Total Clicks</span>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
                 </svg>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{totalClicks.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalClicks.toLocaleString()}</p>
             </div>
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Total Installs</span>
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-gray-500">Total Installs</span>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{totalInstalls.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalInstalls.toLocaleString()}</p>
             </div>
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Conversion Rate</span>
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-gray-500">Conversion Rate</span>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{conversionRate}%</p>
+              <p className="text-2xl font-semibold text-gray-900">{conversionRate}%</p>
             </div>
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Total Links</span>
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-gray-500">Total Links</span>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{linksCount.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-gray-900">{linksCount.toLocaleString()}</p>
             </div>
           </div>
 
           {/* Clicks / Installs toggle for breakdown charts */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm text-muted-foreground"></span>
-            <div className="flex items-center bg-secondary rounded-full p-0.5 border border-border">
+            <span className="text-sm text-gray-500"></span>
+            <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
               <button
                 type="button"
                 onClick={() => setMetricType('clicks')}
                 className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                  metricType === 'clicks' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  metricType === 'clicks' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 Clicks
@@ -217,7 +217,7 @@ export const Analytics = () => {
                 type="button"
                 onClick={() => setMetricType('installs')}
                 className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                  metricType === 'installs' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  metricType === 'installs' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 Installs
@@ -228,68 +228,68 @@ export const Analytics = () => {
           {/* Country, Platform, Device – 3 sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             {/* By country */}
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">By country</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">By country</h3>
               {hasLocation ? (
                 <div className="space-y-2">
                   {locationData.map((loc, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <div className="flex items-center gap-2 min-w-[100px]">
                         <span className="text-base">{getCountryFlag(loc.name)}</span>
-                        <span className="text-sm text-foreground truncate">{loc.name}</span>
+                        <span className="text-sm text-gray-900 truncate">{loc.name}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="w-full bg-secondary/30 rounded-full h-5 overflow-hidden">
+                        <div className="w-full bg-gray-100/30 rounded-full h-5 overflow-hidden">
                           <div
                             className="bg-primary h-5 rounded-full flex items-center justify-end pr-1.5"
                             style={{ width: `${Math.max((loc.count / totalForBarsCurrent) * 100, 8)}%` }}
                           >
                             {(loc.count / totalForBarsCurrent) * 100 > 18 && (
-                              <span className="text-xs text-primary-foreground font-medium">{loc.count}</span>
+                              <span className="text-xs text-white font-medium">{loc.count}</span>
                             )}
                           </div>
                         </div>
                       </div>
-                      <span className="text-sm text-muted-foreground min-w-[32px] text-right">{loc.count}</span>
+                      <span className="text-sm text-gray-500 min-w-[32px] text-right">{loc.count}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-10 text-center">
-                  <p className="text-sm text-muted-foreground">No {metricType} location data in this range</p>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-100/20 py-10 text-center">
+                  <p className="text-sm text-gray-500">No {metricType} location data in this range</p>
                 </div>
               )}
             </div>
 
             {/* By platform */}
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">By platform</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">By platform</h3>
               {hasPlatform ? (
                 <div className="space-y-3">
                   {platformData.map((platform, index) => (
                     <div key={index} className="flex items-center gap-3">
-                      <span className="text-sm text-foreground min-w-[72px]">{platform.name}</span>
+                      <span className="text-sm text-gray-900 min-w-[72px]">{platform.name}</span>
                       <div className="flex-1 flex items-center">
                         <div
                           className="bg-primary h-6 rounded flex items-center px-2"
                           style={{ width: `${Math.max((platform.count / totalForBarsCurrent) * 100, 6)}%` }}
                         >
-                          <span className="text-xs text-primary-foreground font-medium">{platform.count}</span>
+                          <span className="text-xs text-white font-medium">{platform.count}</span>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-10 text-center">
-                  <p className="text-sm text-muted-foreground">No {metricType} platform data in this range</p>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-100/20 py-10 text-center">
+                  <p className="text-sm text-gray-500">No {metricType} platform data in this range</p>
                 </div>
               )}
             </div>
 
             {/* By device (donut) */}
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">By device</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">By device</h3>
               {hasDevice ? (
                 <div className="flex flex-col items-center">
                   <div className="relative w-40 h-40 mb-3">
@@ -316,7 +316,7 @@ export const Analytics = () => {
                       })}
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xl font-bold text-foreground">
+                      <span className="text-xl font-bold text-gray-900">
                         {deviceData.length > 0 && (() => {
                           const total = deviceData.reduce((sum, d) => sum + d.count, 0);
                           return total > 0 ? ((deviceData[0].count / total) * 100).toFixed(0) : 0;
@@ -330,28 +330,28 @@ export const Analytics = () => {
                       return (
                         <div key={index} className="flex items-center gap-1.5">
                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colors[index % colors.length] }} />
-                          <span className="text-sm text-foreground">{device.name}</span>
+                          <span className="text-sm text-gray-900">{device.name}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-10 text-center">
-                  <p className="text-sm text-muted-foreground">No {metricType} device data in this range</p>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-100/20 py-10 text-center">
+                  <p className="text-sm text-gray-500">No {metricType} device data in this range</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Link performance table */}
-          <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-            <h3 className="text-lg font-semibold text-foreground px-6 py-4 border-b border-border">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <h3 className="text-lg font-semibold text-gray-900 px-6 py-4 border-b border-gray-200">
               Link performance
             </h3>
             {linkPerformance.length === 0 ? (
               <div className="text-center py-12 px-6">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   No links yet. Create links to see performance metrics here.
                 </p>
                 <Button variant="hero" className="mt-4" onClick={() => navigate('/dashboard/links')}>
@@ -362,25 +362,25 @@ export const Analytics = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      <th className="text-left font-medium text-foreground px-6 py-3">Link</th>
-                      <th className="text-left font-medium text-foreground px-6 py-3">URL / Path</th>
-                      <th className="text-right font-medium text-foreground px-6 py-3">Clicks</th>
-                      <th className="text-right font-medium text-foreground px-6 py-3">Installs</th>
-                      <th className="text-right font-medium text-foreground px-6 py-3">Conversion</th>
-                      <th className="text-right font-medium text-foreground px-6 py-3">Actions</th>
+                    <tr className="border-b border-gray-200 bg-gray-100">
+                      <th className="text-left font-medium text-gray-900 px-6 py-3">Link</th>
+                      <th className="text-left font-medium text-gray-900 px-6 py-3">URL / Path</th>
+                      <th className="text-right font-medium text-gray-900 px-6 py-3">Clicks</th>
+                      <th className="text-right font-medium text-gray-900 px-6 py-3">Installs</th>
+                      <th className="text-right font-medium text-gray-900 px-6 py-3">Conversion</th>
+                      <th className="text-right font-medium text-gray-900 px-6 py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {linkPerformance.map((row) => (
-                      <tr key={row.linkId} className="border-b border-border last:border-0 hover:bg-muted/20">
-                        <td className="px-6 py-3 text-foreground font-medium">{row.linkName}</td>
-                        <td className="px-6 py-3 text-muted-foreground truncate max-w-[200px]" title={row.domain}>
+                      <tr key={row.linkId} className="border-b border-gray-200 last:border-0 hover:bg-gray-100">
+                        <td className="px-6 py-3 text-gray-900 font-medium">{row.linkName}</td>
+                        <td className="px-6 py-3 text-gray-500 truncate max-w-[200px]" title={row.domain}>
                           {row.domain || row.path}
                         </td>
-                        <td className="px-6 py-3 text-foreground text-right">{row.clicks.toLocaleString()}</td>
-                        <td className="px-6 py-3 text-foreground text-right">{row.installs.toLocaleString()}</td>
-                        <td className="px-6 py-3 text-foreground text-right">{row.conversionRate}%</td>
+                        <td className="px-6 py-3 text-gray-900 text-right">{row.clicks.toLocaleString()}</td>
+                        <td className="px-6 py-3 text-gray-900 text-right">{row.installs.toLocaleString()}</td>
+                        <td className="px-6 py-3 text-gray-900 text-right">{row.conversionRate}%</td>
                         <td className="px-6 py-3 text-right">
                           <Button
                             variant="ghost"

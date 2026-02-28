@@ -1073,7 +1073,7 @@ export const Overview = () => {
                       checked={editForm.hasAndroidApp}
                       disabled={editForm.hadAndroidConfig}
                       onChange={(e) => !editForm.hadAndroidConfig && setEditForm((f) => ({ ...f, hasAndroidApp: e.target.checked }))}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-70 disabled:cursor-not-allowed"
                     />
                     <span className="text-sm font-medium text-gray-700">I have an Android app</span>
                     {/* {editForm.hadAndroidConfig && <span className="text-xs text-gray-500">(already added)</span>} */}
@@ -1084,7 +1084,7 @@ export const Overview = () => {
                       checked={editForm.hasIosApp}
                       disabled={editForm.hadIosConfig}
                       onChange={(e) => !editForm.hadIosConfig && setEditForm((f) => ({ ...f, hasIosApp: e.target.checked }))}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-70 disabled:cursor-not-allowed"
                     />
                     <span className="text-sm font-medium text-gray-700">I have an iOS app</span>
                     {/* {editForm.hadIosConfig && <span className="text-xs text-gray-500">(already added)</span>} */}

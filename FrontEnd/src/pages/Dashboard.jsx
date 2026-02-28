@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
 import { Overview } from './dashboard/Overview';
@@ -11,6 +11,7 @@ import { Profile } from './dashboard/Profile';
 import { Settings } from './dashboard/Settings';
 import { LinkAnalytics } from './dashboard/LinkAnalytics';
 
+const THEME_KEY = 'deeplink-theme';
 const META = {
   title: 'Dashboard',
   description: 'Manage your DeepLink apps, links, analytics, and team. Deep linking and attribution dashboard.',
@@ -18,10 +19,20 @@ const META = {
 
 /**
  * Dashboard Router Component
- * Routes to different dashboard pages based on URL
+ * Routes to different dashboard pages based on URL.
+ * Dashboard is light-only: remove .dark from document while mounted; restore on unmount.
  */
 export const Dashboard = () => {
   const location = useLocation();
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('dark');
+    return () => {
+      if (localStorage.getItem(THEME_KEY) === 'dark') root.classList.add('dark');
+    };
+  }, []);
+
   const pathSegments = location.pathname.split('/').filter(Boolean);
   
   // Check if this is a link analytics page (e.g., /dashboard/links/123)

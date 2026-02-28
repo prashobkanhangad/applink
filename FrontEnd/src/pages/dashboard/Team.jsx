@@ -16,7 +16,7 @@ export const TEAM_PERMISSIONS = [
 ];
 
 const inputClass =
-  'w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent';
+  'w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent';
 
 /**
  * Team Page
@@ -51,10 +51,10 @@ export const Team = () => {
       <DashboardLayout title="Team" subtitle="Manage your team members">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
-                <p className="text-muted-foreground mt-4">Loading...</p>
+                <p className="text-gray-500 mt-4">Loading...</p>
               </div>
             </div>
           </div>
@@ -102,18 +102,18 @@ export const Team = () => {
       {toast && (
         <div
           role="alert"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg bg-foreground text-background text-sm font-medium shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg bg-gray-900 text-white text-sm font-medium shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
           {toast}
         </div>
       )}
       <main className="flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Team members</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h2 className="text-xl font-semibold text-gray-900">Team members</h2>
+                <p className="text-sm text-gray-500 mt-1">
                   Add users and set their permissions for this workspace.
                 </p>
               </div>
@@ -129,10 +129,10 @@ export const Team = () => {
             </div>
 
             {teamMembers.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-secondary/20 py-12 text-center">
-                <Shield className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground mb-1">No team members yet</p>
-                <p className="text-sm text-muted-foreground mb-4">
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-100 py-12 text-center">
+                <Shield className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                <p className="text-gray-500 mb-1">No team members yet</p>
+                <p className="text-sm text-gray-500 mb-4">
                   Add people to collaborate and choose what they can do.
                 </p>
                 <Button variant="hero-outline" size="default" onClick={showPlanToast}>
@@ -140,29 +140,29 @@ export const Team = () => {
                 </Button>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-border">
+              <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-border bg-secondary/30">
-                      <th className="px-4 py-3 text-sm font-medium text-foreground">Name / Email</th>
-                      <th className="px-4 py-3 text-sm font-medium text-foreground">Permissions</th>
-                      <th className="px-4 py-3 text-sm font-medium text-foreground">Status</th>
-                      <th className="px-4 py-3 text-sm font-medium text-foreground w-24">Actions</th>
+                    <tr className="border-b border-gray-200 bg-gray-100">
+                      <th className="px-4 py-3 text-sm font-medium text-gray-900">Name / Email</th>
+                      <th className="px-4 py-3 text-sm font-medium text-gray-900">Permissions</th>
+                      <th className="px-4 py-3 text-sm font-medium text-gray-900">Status</th>
+                      <th className="px-4 py-3 text-sm font-medium text-gray-900 w-24">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {teamMembers.map((member) => (
-                      <tr key={member.id} className="border-b border-border last:border-0 hover:bg-secondary/10">
+                      <tr key={member.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-100/10">
                         <td className="px-4 py-3">
-                          <div className="font-medium text-foreground">{member.name || member.email}</div>
+                          <div className="font-medium text-gray-900">{member.name || member.email}</div>
                           {member.name && (
-                            <div className="text-sm text-muted-foreground">{member.email}</div>
+                            <div className="text-sm text-gray-500">{member.email}</div>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1.5">
                             {member.permissions.length === 0 ? (
-                              <span className="text-sm text-muted-foreground">—</span>
+                              <span className="text-sm text-gray-500">—</span>
                             ) : (
                               member.permissions.map((permId) => {
                                 const perm = TEAM_PERMISSIONS.find((p) => p.id === permId);
@@ -223,18 +223,18 @@ export const Team = () => {
           <motion.div
             role="dialog"
             aria-labelledby="add-modal-title"
-            className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl"
+            className="relative w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-xl"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 id="add-modal-title" className="text-lg font-semibold text-foreground">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 id="add-modal-title" className="text-lg font-semibold text-gray-900">
                 Add team member
               </h3>
               <button
                 type="button"
-                className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 onClick={() => {
                   setShowAddModal(false);
                   setAddForm({ email: '', name: '', permissions: [] });
@@ -246,7 +246,7 @@ export const Team = () => {
             </div>
             <form onSubmit={handleAddSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
-                <label htmlFor="add-email" className="block text-sm font-medium text-foreground mb-1.5">
+                <label htmlFor="add-email" className="block text-sm font-medium text-gray-900 mb-1.5">
                   Email <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -260,7 +260,7 @@ export const Team = () => {
                 />
               </div>
               <div>
-                <label htmlFor="add-name" className="block text-sm font-medium text-foreground mb-1.5">
+                <label htmlFor="add-name" className="block text-sm font-medium text-gray-900 mb-1.5">
                   Name (optional)
                 </label>
                 <input
@@ -273,21 +273,21 @@ export const Team = () => {
                 />
               </div>
               <div>
-                <span className="block text-sm font-medium text-foreground mb-2">Permissions</span>
-                <p className="text-xs text-muted-foreground mb-2">
+                <span className="block text-sm font-medium text-gray-900 mb-2">Permissions</span>
+                <p className="text-xs text-gray-500 mb-2">
                   Choose what this user can do in the workspace.
                 </p>
-                <div className="space-y-2 rounded-lg border border-border bg-secondary/20 p-3">
+                <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-100 p-3">
                   {TEAM_PERMISSIONS.map((perm) => (
                     <label
                       key={perm.id}
-                      className="flex items-center gap-2 cursor-pointer text-sm text-foreground"
+                      className="flex items-center gap-2 cursor-pointer text-sm text-gray-900"
                     >
                       <input
                         type="checkbox"
                         checked={addForm.permissions.includes(perm.id)}
                         onChange={() => togglePermission(perm.id)}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary"
                       />
                       {perm.label}
                     </label>

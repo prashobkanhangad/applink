@@ -133,10 +133,10 @@ export const Profile = () => {
       <DashboardLayout title="Profile" subtitle="Account">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
-                <p className="text-muted-foreground mt-4">Loading profile...</p>
+                <p className="text-gray-500 mt-4">Loading profile...</p>
               </div>
             </div>
           </div>
@@ -150,7 +150,7 @@ export const Profile = () => {
       <DashboardLayout title="Profile" subtitle="Account">
         <main className="flex-1 overflow-y-auto bg-transparent">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-8 text-center">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
               {error ? (
                 <>
                   <p className="text-destructive mb-4">{error}</p>
@@ -159,7 +159,7 @@ export const Profile = () => {
                   </Button>
                 </>
               ) : (
-                <p className="text-muted-foreground">No user data available</p>
+                <p className="text-gray-500">No user data available</p>
               )}
             </div>
           </div>
@@ -175,7 +175,7 @@ export const Profile = () => {
           {/* Success Message */}
           {successMessage && (
             <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
-              <p className="text-sm text-foreground">{successMessage}</p>
+              <p className="text-sm text-gray-900">{successMessage}</p>
             </div>
           )}
 
@@ -187,7 +187,7 @@ export const Profile = () => {
           )}
 
           {/* Profile Header Card */}
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8 mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               {/* Avatar */}
               <div className="relative">
@@ -195,18 +195,18 @@ export const Profile = () => {
                   <img
                     src={user.picture || user.image_url}
                     alt={user.username || user.name || 'Profile'}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-border"
+                    className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center border-4 border-border">
-                    <span className="text-3xl font-semibold text-primary-foreground">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center border-4 border-gray-200">
+                    <span className="text-3xl font-semibold text-white">
                       {(user.username || user.name || user.email || 'U').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
                 {isEditing && (
                   <button
-                    className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
                     title="Change photo"
                     type="button"
                   >
@@ -217,15 +217,15 @@ export const Profile = () => {
 
               {/* User Info */}
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {user.name || user.username || 'User'}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
+                <p className="text-sm text-gray-500 mb-1">{user.email}</p>
                 {user.username && (
-                  <p className="text-xs text-muted-foreground">@{user.username}</p>
+                  <p className="text-xs text-gray-500">@{user.username}</p>
                 )}
                 {user.createdAt && (
-                  <p className="text-xs text-muted-foreground mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Member since {new Date(user.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -245,9 +245,9 @@ export const Profile = () => {
           </div>
 
           {/* Profile Details Card */}
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h3 className="text-lg font-semibold text-foreground">Account Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Account Information</h3>
               {isEditing && (
                 <div className="flex gap-2">
                   <Button onClick={handleCancel} variant="hero-outline" size="default">
@@ -263,18 +263,18 @@ export const Profile = () => {
             <div className="space-y-6">
               {/* Username Field */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Username</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Username</label>
                 {isEditing ? (
                   <input
                     type="text"
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Enter username"
                   />
                 ) : (
-                  <div className="px-4 py-2.5 bg-secondary/50 rounded-lg text-foreground border border-border">
+                  <div className="px-4 py-2.5 bg-gray-100 rounded-lg text-gray-900 border border-gray-200">
                     {user.username || 'Not set'}
                   </div>
                 )}
@@ -282,18 +282,18 @@ export const Profile = () => {
 
               {/* Name Field */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Full Name</label>
                 {isEditing ? (
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Enter full name"
                   />
                 ) : (
-                  <div className="px-4 py-2.5 bg-secondary/50 rounded-lg text-foreground border border-border">
+                  <div className="px-4 py-2.5 bg-gray-100 rounded-lg text-gray-900 border border-gray-200">
                     {user.name || 'Not set'}
                   </div>
                 )}
@@ -301,22 +301,22 @@ export const Profile = () => {
 
               {/* Email Field */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Email Address</label>
                 {isEditing ? (
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Enter email address"
                   />
                 ) : (
-                  <div className="px-4 py-2.5 bg-secondary/50 rounded-lg text-foreground border border-border">
+                  <div className="px-4 py-2.5 bg-gray-100 rounded-lg text-gray-900 border border-gray-200">
                     {user.email}
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Email is used for account verification and important notifications.
                 </p>
               </div>
@@ -324,8 +324,8 @@ export const Profile = () => {
               {/* Account Created Date */}
               {user.createdAt && (
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Account Created</label>
-                  <div className="px-4 py-2.5 bg-secondary/50 rounded-lg text-foreground border border-border">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Account Created</label>
+                  <div className="px-4 py-2.5 bg-gray-100 rounded-lg text-gray-900 border border-gray-200">
                     {new Date(user.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
