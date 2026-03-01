@@ -1,46 +1,80 @@
-import log4js from 'log4js';
+import winston from 'winston';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-log4js.configure({
-    appenders: {
-        infoFile: {
-            type: 'file',
-            filename: 'logs/info.log',
-            maxLogSize: 10485760, // 10MB
-            backups: 3,
-            layout: {
-                type: 'pattern',
-                pattern: '%d{yyyy-MM-dd HH:mm:ss} %-5p %m'
-            }
-        },
-        errorFile: {
-            type: 'file',
-            filename: 'logs/error.log',
-            maxLogSize: 10485760, // 10MB
-            backups: 3,
-            layout: {
-                type: 'pattern',
-                pattern: '%d{yyyy-MM-dd HH:mm:ss} %-5p %m'
-            }
-        },
-        console: {
-            type: 'console',
-            layout: {
-                type: 'pattern',
-                pattern: '%d{yyyy-MM-dd HH:mm:ss} %-5p %m'
-            }
-        }
-    },
-    categories: {
-        default: {
-            appenders: ['console', 'infoFile'],
-            level: 'info'
-        },
-        error: {
-            appenders: ['console', 'errorFile'],
-            level: 'error'
-        }
-    }
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const logsDir = path.join(__dirname, '..', 'logs');
+
+// Ensure logs directory exists (winston does not create it)
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
+
+const { combine, timestamp, printf, errors } = winston.format;
+
+const logFormat = printf(({ level, message, timestamp, stack }) => {
+  return stack
+    ? `${timestamp} [${level}] ${stack}`
+    : `${timestamp} [${level}] ${message}`;
 });
 
-export const logger = log4js.getLogger();
-export const errorLogger = log4js.getLogger('error');
+const successOnlyFilter = winston.format((info) =>
+  info.level === "success" ? info : false
+);
+
+const infoPath = path.join(logsDir, "info.log");
+const errorPath = path.join(logsDir, "error.log");
+const successPath = path.join(logsDir, "success.log");
+
+const customLevels = {
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    success: 3,
+    http: 4,
+    verbose: 5,
+    debug: 6,
+    silly: 7,
+  },
+  colors: {
+    error: "red",
+    warn: "yellow",
+    info: "blue",
+    success: "green",
+  },
+};
+
+const logger = winston.createLogger({
+  levels: customLevels.levels,
+  level: "silly",
+  format: combine(
+    timestamp(),
+    errors({ stack: true }),
+    logFormat
+  ),
+  transports: [
+    new winston.transports.File({
+      filename: infoPath,
+      level: "info",
+    }),
+    new winston.transports.File({
+      filename: errorPath,
+      level: "error",
+    }),
+    new winston.transports.File({
+      filename: successPath,
+      level: "success",
+      format: combine(successOnlyFilter(), timestamp(), logFormat),
+    }),
+    new winston.transports.Console(),
+  ],
+});
+
+winston.addColors(customLevels.colors);
+
+// Verify file transport on startup (confirms path and write access)
+logger.info(`Logger initialized — writing to ${infoPath}`);
+
+export default logger;  
