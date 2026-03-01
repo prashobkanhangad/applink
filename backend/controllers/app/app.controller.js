@@ -942,16 +942,12 @@ export const checkValidDeepLink = async (req, res) => {
             }
         } else if (platform === "android") {
             if (linkExists.androidBehavior === "open_app" && app.configurations?.android?.packageName) {
-                // try {
-                //     const urlParts = new URL(linkExists.destinationUrl);
-                //     destination = `intent://${urlParts.host}${urlParts.pathname}${urlParts.search || ""}#Intent;scheme=https;package=${app.configurations.android.packageName};end`;
-                //     console.log("[checkValidDeepLink] android: intent URL (open app)", { host: urlParts.host, linkId: linkExists._id });
-                // } catch (_) {
+         
                     // Pass linkId in referrer so SDK/backend can attribute install on first open (Play Install Referrer)
                     const referrerStr = `linkId=${linkExists._id}&source=deeplink`;
                     destination = `https://play.google.com/store/apps/details?id=${app.configurations.android.packageName}&referrer=${encodeURIComponent(referrerStr)}`;
                     console.log("[checkValidDeepLink] android: fallback to Play Store (invalid destinationUrl)", { linkId: linkExists._id, packageName: app.configurations.android.packageName });
-                // }
+
             } else {
                 destination = linkExists.destinationUrl;
                 console.log("[checkValidDeepLink] android: open_url or no config, use destinationUrl", { destination: destination?.slice?.(0, 80) });
