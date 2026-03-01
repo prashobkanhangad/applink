@@ -12,6 +12,7 @@ export const manageHome = async (req, res) => {
         const appInfo = await App.findOne({subDomain: host});
         console.log(platform,"platform");
         console.log(appInfo,"appInfo");
+        console.log(req.headers,"headers");
     
         if(!appInfo){
             throwCustomError(1009);
