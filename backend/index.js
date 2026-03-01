@@ -6,7 +6,6 @@ import cors from 'cors'
 import { throwCustomError } from './services/error.js';
 import { sendError } from './services/requestHandler.js';
 import { sendAlert } from './services/telegram.js';
-import { logger } from './services/logger.js';
 import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
@@ -16,6 +15,7 @@ import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
 import indexRoute from './routes/index.js';
 import { checkValidDeepLink } from './controllers/app/app.controller.js';
+import { sendSuccess } from './services/requestHandler.js';
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT;
@@ -63,7 +63,7 @@ app.get('/.well-known/assetlinks.json', manageAssetLinks)
 app.get('/', manageHome)
 
 app.get('/health', (req, res) => {
-    res.send("still alive").status(200);
+    sendSuccess(req, res, "still alive", 200);
 })
 
 app.use('/api/v1', indexRoute)
