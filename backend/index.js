@@ -46,29 +46,36 @@ app.use(bodyParser.urlencoded({
 }));
 
 
+app.use('*', (req, res, next) => {
+    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  
+    console.log("Full URL:", fullUrl);
+  
+    next();
+  });
+
 app.get('/check-domain', checkDomain);
 
-app.use('/api/v1', indexRoute);
-
+// for dynamically setting asset links for the app
+app.get('/.well-known/assetlinks.json', manageAssetLinks)
 
 // for redirecting to the app on the home page
 app.get('/', manageHome)
 
 app.get('/health', (req, res) => {
     res.send("still alive").status(200);
-});
+})
+
+app.use('/api/v1', indexRoute)
+
+app.use('*', checkValidDeepLink)
 
 
-app.get('/*', checkValidDeepLink);
 
 
-// for dynamically setting asset links for the app
-app.get('/.well-known/assetlinks.json', manageAssetLinks)
 
 
-// Catch-all for deep links (app subdomains): must be after API and health so they are not intercepted
 
-// app.use('*', checkValidDeepLink)
 
 
 process.on('unhandledRejection', async (reason, promise) => {
