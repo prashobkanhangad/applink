@@ -962,6 +962,13 @@ export const checkValidDeepLink = async (req, res) => {
             console.log("[checkValidDeepLink] web/unknown: destination or fallback", { destination: destination?.slice?.(0, 80) });
         }
 
+        // Prevent the browser from caching this redirect
+        res.set({
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Surrogate-Control': 'no-store'
+        });
         return res.redirect(301, destination);
     } catch (error) {
         sendError(req, res, error);
