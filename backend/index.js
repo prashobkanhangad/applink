@@ -28,11 +28,7 @@ app.set("trust proxy", true);
 app.use(morgan('dev'));
 
 app.use(helmet());
-// console.log("cors origin", process.env.CORS_ORIGIN)
-// app.use(cors({
-//     origin: process.env.CORS_ORIGIN,
-//     credentials: true,
-// }));
+app.use(cors({ origin: true, credentials: true }));
 
 
 app.use(
