@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
 import { AdminLayout } from '../components/AdminLayout';
-import { getAdminStats, getAdminUsers, getAdminApps, getAdminApp, getAdminUser, updateUserRole, getAdminPlans, getAdminPlan, createAdminPlan, updateAdminPlan, deleteAdminPlan, getAdminLinks, getAdminLink, deleteAdminLink, getAdminAffiliates } from '../services/adminService';
+import { useChatSocket } from '../contexts/ChatSocketContext';
+import { playNotificationSound } from '../utils/notificationSound';
+import { getAdminStats, getAdminUsers, getAdminApps, getAdminApp, getAdminUser, updateUserRole, getAdminPlans, getAdminPlan, createAdminPlan, updateAdminPlan, deleteAdminPlan, getAdminLinks, getAdminLink, deleteAdminLink, getAdminAffiliates, getAdminChatConversations, getAdminChatMessages, sendAdminChatReply } from '../services/adminService';
 
 const META = {
   title: 'Admin Dashboard',
@@ -1208,6 +1210,249 @@ const AdminSettings = () => (
 );
 
 /**
+ * Admin Support: list conversations, view thread, reply as support.
+ */
+const normalizeMessage = (m) => ({
+  id: m.id || m._id?.toString(),
+  from: m.from || (m.fromSupport ? 'support' : 'user'),
+  text: m.text,
+  time: m.time || m.createdAt,
+  deliveredAt: m.deliveredAt ?? null,
+  readAt: m.readAt ?? null,
+});
+
+const AdminSupport = () => {
+  const { socket } = useChatSocket();
+  const messagesEndRef = useRef(null);
+  const [conversations, setConversations] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [replyText, setReplyText] = useState('');
+  const [loadingConvs, setLoadingConvs] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
+
+  const selectedConv = conversations.find((c) => c.userId === selectedUserId);
+
+  // Auto-scroll to last message when messages or loading state changes
+  useEffect(() => {
+    if (loadingMessages) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loadingMessages]);
+
+  useEffect(() => {
+    setError(null);
+    getAdminChatConversations()
+      .then((data) => setConversations(data.conversations || []))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoadingConvs(false));
+  }, []);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setMessages([]);
+      return;
+    }
+    setLoadingMessages(true);
+    setError(null);
+    getAdminChatMessages(selectedUserId)
+      .then((data) => setMessages((data.messages || []).map(normalizeMessage)))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoadingMessages(false));
+  }, [selectedUserId]);
+
+  // Real-time: new message from user (emitted to admins with userId)
+  useEffect(() => {
+    if (!socket) return;
+    const onNewMessage = (payload) => {
+      const userId = payload.userId;
+      const msg = payload.message;
+      if (!userId || !msg) return;
+      playNotificationSound();
+      if (userId !== selectedUserId) return;
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, normalizeMessage(msg)];
+      });
+    };
+    socket.on('new_message', onNewMessage);
+    return () => socket.off('new_message', onNewMessage);
+  }, [socket, selectedUserId]);
+
+  // Real-time: message status (delivered/read) so admin sees ticks for user messages
+  useEffect(() => {
+    if (!socket) return;
+    const onStatus = (payload) => {
+      const { messageId, deliveredAt, readAt } = payload || {};
+      if (!messageId) return;
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId ? { ...m, deliveredAt: deliveredAt ?? m.deliveredAt, readAt: readAt ?? m.readAt } : m
+        )
+      );
+    };
+    socket.on('message_status', onStatus);
+    return () => socket.off('message_status', onStatus);
+  }, [socket]);
+
+  const handleSendReply = (e) => {
+    e.preventDefault();
+    const text = replyText.trim();
+    if (!text || !selectedUserId || sending) return;
+    setSending(true);
+    setError(null);
+    sendAdminChatReply(selectedUserId, text)
+      .then((data) => {
+        const msg = data.message || data;
+        setMessages((prev) => [...prev, normalizeMessage({ ...msg, from: 'support' })]);
+        setReplyText('');
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setSending(false));
+  };
+
+  const formatTime = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-12rem)] min-h-[400px]">
+          {/* Conversation list */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden lg:col-span-1">
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {loadingConvs ? (
+                <div className="p-4 flex justify-center">
+                  <div className="animate-spin h-6 w-6 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                </div>
+              ) : conversations.length === 0 ? (
+                <p className="p-4 text-sm text-gray-500">No conversations yet.</p>
+              ) : (
+                conversations.map((c) => (
+                  <button
+                    key={c.userId}
+                    type="button"
+                    onClick={() => setSelectedUserId(c.userId)}
+                    className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${selectedUserId === c.userId ? 'bg-gray-100 border-l-4 border-l-gray-900' : ''}`}
+                  >
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {c.username || c.email || c.userId}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{c.lastMessage}</p>
+                    <p className="text-xs text-gray-400 mt-1">{formatTime(c.lastAt)}</p>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Thread + reply */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden lg:col-span-2">
+            {!selectedUserId ? (
+              <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
+                Select a conversation to view and reply.
+              </div>
+            ) : (
+              <>
+                <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {selectedConv?.username || selectedConv?.email || selectedUserId}
+                  </span>
+                </div>
+                {error && (
+                  <div className="mx-4 mt-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</div>
+                )}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {loadingMessages ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin h-6 w-6 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                    </div>
+                  ) : (
+                    <>
+                      {messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${msg.from === 'support' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${
+                              msg.from === 'support'
+                                ? 'bg-gray-900 text-white'
+                                : 'bg-gray-100 text-gray-900'
+                            }`}
+                          >
+                            <p>{msg.text}</p>
+                            <div className="flex items-center gap-1.5 mt-1 justify-end">
+                              <span className={`text-[10px] ${msg.from === 'support' ? 'text-gray-300' : 'text-gray-500'}`}>
+                                {formatTime(msg.time)}
+                              </span>
+                              {msg.from === 'support' && (
+                                <span className="flex items-center" title={msg.readAt ? 'Read by user' : msg.deliveredAt ? 'Delivered to user' : 'Sent'}>
+                                  {msg.readAt ? (
+                                    <AdminDoubleTickIcon className="w-3.5 h-3.5 text-blue-400" />
+                                  ) : msg.deliveredAt ? (
+                                    <AdminDoubleTickIcon className="w-3.5 h-3.5 text-gray-400" />
+                                  ) : (
+                                    <AdminSingleTickIcon className="w-3.5 h-3.5 text-gray-400" />
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </>
+                  )}
+                </div>
+                <form onSubmit={handleSendReply} className="p-4 border-t border-gray-200">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Type your reply..."
+                      className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    />
+                    <button
+                      type="submit"
+                      disabled={sending || !replyText.trim()}
+                      className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-black disabled:opacity-50"
+                    >
+                      {sending ? 'Sending…' : 'Send'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+const AdminSingleTickIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 16 15" fill="currentColor">
+    <path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.88a.32.32 0 0 1-.484.032l-.358-.325a.32.32 0 0 0-.484.032l-.378.48a.418.418 0 0 0 .036.54l1.32 1.266c.143.14.361.125.465-.033l2.046-2.77a.365.365 0 0 0-.063-.51z" />
+  </svg>
+);
+const AdminDoubleTickIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 16 15" fill="currentColor">
+    <path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.88a.32.32 0 0 1-.484.032l-.358-.325a.32.32 0 0 0-.484.032l-.378.48a.418.418 0 0 0 .036.54l1.32 1.266c.143.14.361.125.465-.033l2.046-2.77a.365.365 0 0 0-.063-.51zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.88a.32.32 0 0 1-.484.032L1.892 7.77a.366.366 0 0 0-.516.005l-.423.433a.364.364 0 0 0 .006.514l3.255 3.185c.143.14.361.125.465-.033l2.046-2.77a.365.365 0 0 0-.063-.51z" />
+  </svg>
+);
+
+/**
  * Admin dashboard router: /admin, /admin/users, /admin/apps, /admin/settings
  */
 export const AdminDashboard = () => {
@@ -1275,6 +1520,12 @@ export const AdminDashboard = () => {
         return (
           <AdminLayout title="Settings" subtitle="Admin settings">
             <AdminSettings />
+          </AdminLayout>
+        );
+      case 'support':
+        return (
+          <AdminLayout title="Support" subtitle="Reply to user chats">
+            <AdminSupport />
           </AdminLayout>
         );
       case 'overview':

@@ -1,4 +1,6 @@
+import http from 'http';
 import express, { Router } from 'express';
+import { Server as SocketServer } from 'socket.io';
 import * as dotenv from 'dotenv'
 import bodyParser from "body-parser";
 import helmet from "helmet";
@@ -16,8 +18,10 @@ import { initCronJobs } from './services/cron.service.js';
 import indexRoute from './routes/index.js';
 import { checkValidDeepLink } from './controllers/app/app.controller.js';
 import { sendSuccess } from './services/requestHandler.js';
+import { setupSocketHandlers } from './socketHandlers.js';
 dotenv.config()
 const app = express()
+const server = http.createServer(app)
 const PORT = process.env.PORT;
 app.set("trust proxy", true);
 
@@ -70,6 +74,14 @@ app.use('/api/v1', indexRoute)
 
 app.use('*', checkValidDeepLink)
 
+// Socket.io for real-time chat (instant delivery, delivered/read ticks)
+const io = new SocketServer(server, {
+  cors: { origin: process.env.CORS_ORIGIN || '*', credentials: true },
+  path: '/socket.io',
+});
+app.set('io', io);
+setupSocketHandlers(io);
+
 
 
 
@@ -104,7 +116,7 @@ mongoose.connect(process.env.DB_URL).then(() => {
     // Initialize cron jobs for domain verification
     initCronJobs();
     
-    const server = app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`server started on port: ${PORT}`)
         server.on('error', (err) => {
             if (err.code === 'EADDRINUSE') {

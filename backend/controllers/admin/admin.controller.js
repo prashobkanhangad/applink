@@ -3,7 +3,9 @@ import { App } from '../../models/app.model.js';
 import { Link } from '../../models/links.model.js';
 import { PricingPlans } from '../../models/pricingPlans.model.js';
 import { AffiliateSignup } from '../../models/affiliateSignup.model.js';
+import { SupportMessage } from '../../models/supportMessage.model.js';
 import { sendSuccess, sendError } from '../../services/requestHandler.js';
+import { emitToUser } from '../../services/socketService.js';
 
 /**
  * GET /admin/stats
@@ -462,6 +464,129 @@ export const getAffiliates = async (req, res) => {
     });
   } catch (error) {
     console.error('[getAffiliates]', error);
+    sendError(req, res, error);
+  }
+};
+
+/**
+ * GET /admin/chat/conversations
+ * List users who have at least one support message (conversation list). Each has userId, email, username, lastMessage, lastAt, messageCount.
+ */
+export const getChatConversations = async (req, res) => {
+  try {
+    const agg = await SupportMessage.aggregate([
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: '$userId',
+          lastMessage: { $first: '$text' },
+          lastAt: { $first: '$createdAt' },
+          messageCount: { $sum: 1 },
+        },
+      },
+      { $sort: { lastAt: -1 } },
+      { $limit: 200 },
+    ]);
+    const userIds = agg.map((a) => a._id);
+    const users = await User.find({ _id: { $in: userIds } })
+      .select('_id email username')
+      .lean();
+    const userMap = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+    const conversations = agg.map((a) => ({
+      userId: a._id.toString(),
+      email: userMap[a._id.toString()]?.email ?? null,
+      username: userMap[a._id.toString()]?.username ?? null,
+      lastMessage: a.lastMessage,
+      lastAt: a.lastAt,
+      messageCount: a.messageCount,
+    }));
+    await sendSuccess(req, res, 'Conversations fetched', 200, { conversations });
+  } catch (error) {
+    console.error('[getChatConversations]', error);
+    sendError(req, res, error);
+  }
+};
+
+/**
+ * GET /admin/chat/conversations/:userId/messages
+ * Get all messages for a user (for admin to view thread).
+ * When admin opens the thread, user messages are marked delivered+read and user gets message_status (WhatsApp-style ticks).
+ */
+export const getChatMessagesForUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 200);
+    const messages = await SupportMessage.find({ userId })
+      .sort({ createdAt: 1 })
+      .limit(limit)
+      .lean();
+    const io = req.app.get('io');
+    const now = new Date();
+    for (const m of messages) {
+      if (!m.fromSupport && (!m.deliveredAt || !m.readAt)) {
+        const deliveredAt = m.deliveredAt || now;
+        const readAt = now;
+        await SupportMessage.findByIdAndUpdate(m._id, { deliveredAt, readAt });
+        if (io) {
+          emitToUser(io, userId, 'message_status', {
+            messageId: m._id.toString(),
+            status: 'read',
+            deliveredAt,
+            readAt,
+          });
+        }
+      }
+    }
+    const list = messages.map((m) => {
+      const isUserMsg = !m.fromSupport;
+      const deliveredAt = isUserMsg && (!m.deliveredAt || !m.readAt) ? now : (m.deliveredAt ?? null);
+      const readAt = isUserMsg && (!m.deliveredAt || !m.readAt) ? now : (m.readAt ?? null);
+      return {
+        id: m._id.toString(),
+        from: m.fromSupport ? 'support' : 'user',
+        text: m.text,
+        time: m.createdAt,
+        deliveredAt,
+        readAt,
+      };
+    });
+    await sendSuccess(req, res, 'Messages fetched', 200, { messages: list });
+  } catch (error) {
+    console.error('[getChatMessagesForUser]', error);
+    sendError(req, res, error);
+  }
+};
+
+/**
+ * POST /admin/chat/conversations/:userId/messages
+ * Body: { text: string }
+ * Send a reply as support to the user.
+ */
+export const sendChatReply = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
+    if (!text) {
+      return res.status(400).json({ status: 'error', message: 'Message text is required' });
+    }
+    const doc = await SupportMessage.create({
+      userId,
+      text,
+      fromSupport: true,
+    });
+    const msg = {
+      id: doc._id.toString(),
+      from: 'support',
+      text: doc.text,
+      time: doc.createdAt,
+      deliveredAt: doc.deliveredAt ?? null,
+      readAt: doc.readAt ?? null,
+    };
+    const io = req.app.get('io');
+    if (io) emitToUser(io, userId, 'new_message', { message: msg });
+    await sendSuccess(req, res, 'Reply sent', 201, { message: msg });
+  } catch (error) {
+    console.error('[sendChatReply]', error);
     sendError(req, res, error);
   }
 };

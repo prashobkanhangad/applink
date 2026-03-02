@@ -7,7 +7,7 @@ const planChangeSchema = new Schema(
     toPlanId: { type: Schema.Types.ObjectId, ref: "PricingPlanSchema", required: true },
     source: {
       type: String,
-      enum: ["user", "admin", "billing"],
+      enum: ["user", "admin", "billing", "signup"],
       default: "user",
     },
   },

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { signOut } from '../services/authService';
+import { ChatSocketProvider } from '@/contexts/ChatSocketContext';
 
 /**
  * Admin dashboard layout with sidebar navigation.
@@ -25,6 +26,7 @@ export const AdminLayout = ({ children, title = 'Admin', subtitle = 'Overview' }
     { id: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
     { id: 'apps', label: 'Apps', icon: AppsIcon, path: '/admin/apps' },
     { id: 'links', label: 'Links', icon: LinksIcon, path: '/admin/links' },
+    { id: 'support', label: 'Support', icon: ChatIcon, path: '/admin/support' },
     { id: 'affiliates', label: 'Affiliates', icon: AffiliatesIcon, path: '/admin/affiliates' },
     { id: 'pricing', label: 'Pricing', icon: PricingIcon, path: '/admin/pricing' },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
@@ -45,6 +47,7 @@ export const AdminLayout = ({ children, title = 'Admin', subtitle = 'Overview' }
   };
 
   return (
+    <ChatSocketProvider>
     <div className="min-h-screen flex bg-background relative overflow-hidden link-pattern">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />
@@ -55,7 +58,7 @@ export const AdminLayout = ({ children, title = 'Admin', subtitle = 'Overview' }
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={toggleSidebar} />
       )}
 
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 lg:w-16'} fixed lg:relative inset-y-0 left-0 bg-black border-r border-gray-800 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out z-50 lg:z-auto`}>
+      <aside className={`${isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:translate-x-0 lg:w-16'} fixed lg:relative inset-y-0 left-0 bg-black border-r border-gray-800 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out z-50 lg:z-auto overflow-hidden`}>
         <div className={`h-16 ${isSidebarOpen ? 'px-6' : 'px-4'} flex items-center justify-between border-b border-gray-800`}>
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
@@ -115,7 +118,7 @@ export const AdminLayout = ({ children, title = 'Admin', subtitle = 'Overview' }
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto relative z-10">
-        <header className="h-20 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-shrink-0">
+        <header className="sticky top-0 z-30 h-20 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={toggleSidebar}
@@ -141,6 +144,7 @@ export const AdminLayout = ({ children, title = 'Admin', subtitle = 'Overview' }
         </footer>
       </div>
     </div>
+    </ChatSocketProvider>
   );
 };
 
@@ -178,6 +182,11 @@ const SettingsIcon = ({ className }) => (
 const PricingIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+const ChatIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
   </svg>
 );
 const DashboardIcon = ({ className }) => (

@@ -174,3 +174,30 @@ export const getAdminAffiliates = async ({ page = 1, limit = 20, search = '' } =
   const data = await adminFetch(`/admin/affiliates?${params}`);
   return data.data || data;
 };
+
+/**
+ * GET /admin/chat/conversations — list support chat conversations (users who have messaged).
+ */
+export const getAdminChatConversations = async () => {
+  const data = await adminFetch('/admin/chat/conversations');
+  return data.data || data;
+};
+
+/**
+ * GET /admin/chat/conversations/:userId/messages — get messages for a user.
+ */
+export const getAdminChatMessages = async (userId) => {
+  const data = await adminFetch(`/admin/chat/conversations/${userId}/messages`);
+  return data.data || data;
+};
+
+/**
+ * POST /admin/chat/conversations/:userId/messages — send reply as support. Body: { text }.
+ */
+export const sendAdminChatReply = async (userId, text) => {
+  const data = await adminFetch(`/admin/chat/conversations/${userId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ text: text.trim() }),
+  });
+  return data.data || data;
+};

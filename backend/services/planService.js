@@ -1,8 +1,17 @@
 import { PricingPlans } from "../models/pricingPlans.model.js";
 
 /**
+ * Returns the FREE plan (first active with price === 0). Used for new user signup.
+ * @returns {Promise<import("mongoose").Document|null>}
+ */
+export async function getFreePlan() {
+  const free = await PricingPlans.findOne({ isActive: true, price: 0 }).lean();
+  return free ?? getDefaultPlan();
+}
+
+/**
  * Returns the default plan (first active, sorted by price ascending).
- * Used when user has no planId or for new user signup.
+ * Used when user has no planId (e.g. legacy users); new users get FREE via getFreePlan().
  * @returns {Promise<import("mongoose").Document|null>}
  */
 export async function getDefaultPlan() {
