@@ -13,3 +13,4 @@ backend/node_modules
 demo
 deeplink_sdk
 deeplink-docs
+backend/logs/
