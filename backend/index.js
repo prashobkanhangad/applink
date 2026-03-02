@@ -76,7 +76,6 @@ app.use('*', checkValidDeepLink)
 
 // Socket.io for real-time chat (instant delivery, delivered/read ticks)
 const io = new SocketServer(server, {
-  cors: { origin: process.env.CORS_ORIGIN || '*', credentials: true },
   path: '/socket.io',
 });
 app.set('io', io);
