@@ -1,2 +1,0 @@
-2026-03-02T01:49:18.914Z [error] Error occurred: undefined - undefined - {"statusCode":400,"error":{"code":"BAD_REQUEST_ERROR","description":"receipt: the length must be no more than 40.","metadata":{},"reason":"input_validation_failed","source":"business","step":"payment_initiation"}}
-2026-03-02T01:49:21.143Z [error] Error occurred: undefined - undefined - {"statusCode":400,"error":{"code":"BAD_REQUEST_ERROR","description":"receipt: the length must be no more than 40.","metadata":{},"reason":"input_validation_failed","source":"business","step":"payment_initiation"}}
