@@ -9,6 +9,8 @@ import sdkRoute from "./sdk.js";
 import adminRoute from "./admin.js";
 import affiliateRoute from "./affiliate.js";
 import keysRoute from "./keys.js";
+import paymentRoute from "./payment.js";
+import chatRoute from "./chat.js";
 
 const indexRoute = Router();
 
@@ -22,5 +24,7 @@ indexRoute.use("/sdk", sdkRoute);
 indexRoute.use("/admin", adminRoute);
 indexRoute.use("/affiliate", affiliateRoute);
 indexRoute.use("/keys", keysRoute);
+indexRoute.use("/payment", paymentRoute);
+indexRoute.use("/chat", chatRoute);
 
 export default indexRoute;

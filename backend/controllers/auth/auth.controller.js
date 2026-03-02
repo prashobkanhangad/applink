@@ -8,7 +8,7 @@ import { PlanChange } from "../../models/planChange.model.js";
 import { App } from "../../models/app.model.js";
 import { PricingPlans } from "../../models/pricingPlans.model.js";
 import { getPlanDisplayName } from "../../constants/plans.js";
-import { getDefaultPlan, getPlanByLegacySlug } from "../../services/planService.js";
+import { getDefaultPlan, getFreePlan, getPlanByLegacySlug } from "../../services/planService.js";
 
 
 export const loginUser = async (req, res) => {
@@ -40,15 +40,23 @@ export const loginUser = async (req, res) => {
             console.log(userExists,"userExists");
 
             if (!userExists) {
-                const defaultPlan = await getDefaultPlan();
+                const freePlan = await getFreePlan();
                 userExists = await User.create({
                     email: user?.email,
                     authProvider: "google",
                     username: user?.name,
                     image_url: user?.picture,
                     origin: "google",
-                    planId: defaultPlan?._id ?? undefined,
+                    planId: freePlan?._id ?? undefined,
                 });
+                if (freePlan?._id) {
+                    await PlanChange.create({
+                        userId: userExists._id,
+                        fromPlanId: freePlan._id,
+                        toPlanId: freePlan._id,
+                        source: "signup",
+                    });
+                }
                 userExists.new = true;
             }
 
@@ -95,6 +103,12 @@ export const me = async (req, res) => {
             plan = await getDefaultPlan();
             if (plan) {
                 await User.findByIdAndUpdate(performingUser._id, { planId: plan._id });
+                await PlanChange.create({
+                    userId: performingUser._id,
+                    fromPlanId: plan._id,
+                    toPlanId: plan._id,
+                    source: "admin",
+                });
             }
         }
         const currentPlan = plan?.title ?? getPlanDisplayName(performingUser?.planSlug ?? "free");

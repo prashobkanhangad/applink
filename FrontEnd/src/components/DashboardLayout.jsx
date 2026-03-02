@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { signOut } from '../services/authService';
+import { ChatSocketProvider } from '@/contexts/ChatSocketContext';
+import { ChatBox } from './ChatBox';
+import { ChatNotification } from './ChatNotification';
 
 /**
  * Dashboard Layout Component
@@ -11,6 +14,7 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   const getActiveNav = () => {
     if (location.pathname === '/dashboard') return 'main';
@@ -51,6 +55,7 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
   };
 
   return (
+    <ChatSocketProvider>
     <div className="min-h-screen flex bg-gray-50 relative overflow-hidden link-pattern">
       {/* Background Pattern - same as home page */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -165,20 +170,31 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
               <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">{subtitle}</p>
             </div>
           </div>
-          {title === 'Overview' && (
-            <div className="hidden sm:flex items-center gap-2">
-              <label className="text-xs sm:text-sm text-gray-700 whitespace-nowrap">Time Period*</label>
-              <select
-                className="h-8 sm:h-9 px-2 sm:px-4 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all font-medium"
-                aria-label="Time period"
-              >
-                <option>ALL TIME</option>
-                <option>Last 7 Days</option>
-                <option>Last 30 Days</option>
-                <option>Last 90 Days</option>
-              </select>
-            </div>
-          )}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {title === 'Overview' && (
+              <div className="hidden sm:flex items-center gap-2">
+                <label className="text-xs sm:text-sm text-gray-700 whitespace-nowrap">Time Period*</label>
+                <select
+                  className="h-8 sm:h-9 px-2 sm:px-4 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all font-medium"
+                  aria-label="Time period"
+                >
+                  <option>ALL TIME</option>
+                  <option>Last 7 Days</option>
+                  <option>Last 30 Days</option>
+                  <option>Last 90 Days</option>
+                </select>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsChatOpen((open) => !open)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors shrink-0"
+              title="Chat with support"
+            >
+              <ChatIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <span className="hidden sm:inline">Chat with</span>
+            </button>
+          </div>
         </header>
 
         {/* Content Area */}
@@ -204,7 +220,13 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
           </div>
         </footer>
       </div>
+
+      {/* In-app notification when support sends and chat is closed */}
+      <ChatNotification isChatOpen={isChatOpen} onOpenChat={() => setIsChatOpen(true)} />
+      {/* Chatbox */}
+      <ChatBox isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
+    </ChatSocketProvider>
   );
 };
 

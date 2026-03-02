@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { verifyJWT } from '../services/jwt.js';
 import { requireAdmin } from '../services/requireAdmin.js';
-import { getStats, getUsers, getApps, updateUserRole, getUserById, getAppById, getPlans, getPlanById, createPlan, updatePlan, deletePlan, getLinks, getLinkById, deleteLink, getAffiliates } from '../controllers/admin/admin.controller.js';
+import { getStats, getUsers, getApps, updateUserRole, getUserById, getAppById, getPlans, getPlanById, createPlan, updatePlan, deletePlan, getLinks, getLinkById, deleteLink, getAffiliates, getChatConversations, getChatMessagesForUser, sendChatReply } from '../controllers/admin/admin.controller.js';
 
 const adminRoute = Router();
 
@@ -23,5 +23,8 @@ adminRoute.get('/links', getLinks);
 adminRoute.get('/links/:id', getLinkById);
 adminRoute.delete('/links/:id', deleteLink);
 adminRoute.get('/affiliates', getAffiliates);
+adminRoute.get('/chat/conversations', getChatConversations);
+adminRoute.get('/chat/conversations/:userId/messages', getChatMessagesForUser);
+adminRoute.post('/chat/conversations/:userId/messages', sendChatReply);
 
 export default adminRoute;

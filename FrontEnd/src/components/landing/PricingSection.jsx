@@ -1,75 +1,67 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getPlans } from "@/services/appService";
 
-const plans = [
-  {
-    name: "Forever Free",
-    subtitle: "Forever Free Pack (upto 25K MAU)",
-    price: "$0",
-    period: "",
-    description: "Under 25K Monthly Active Users",
-    features: [
-      { text: "Free upto 25K MAU", included: true },
-      { text: "1 Android and iOS app", included: true },
-      { text: "Unlimited Deeplinks via SDK", included: true },
-      { text: "Hosted on chottu.link subdomain", included: true },
-      { text: "Limited support", included: false },
-      { text: "No custom domain", included: false },
-    ],
+/** Map DB plan (title, price, benefits, notIncludedBenefits, isPopular, monthlyClickLimit) to UI shape */
+function mapPlanFromDb(plan) {
+  const isEnterprise = String(plan.title || "").toUpperCase() === "ENTERPRISE";
+  const priceNum = Number(plan.price);
+  const displayPrice = priceNum === 0 ? "$0" : `$${priceNum}`;
+  const discountedNum = plan.discountedPrice != null ? Number(plan.discountedPrice) : null;
+  const priceDisplay = isEnterprise
+    ? "Custom pricing"
+    : discountedNum != null && discountedNum > 0
+      ? `$${discountedNum}`
+      : displayPrice;
+  const features = [
+    ...(Array.isArray(plan.benefits) ? plan.benefits.map((text) => ({ text: String(text), included: true })) : []),
+    ...(Array.isArray(plan.notIncludedBenefits) ? plan.notIncludedBenefits.map((text) => ({ text: String(text), included: false })) : []),
+  ];
+  const description = isEnterprise
+    ? "Over 500K monthly clicks"
+    : plan.monthlyClickLimit != null && plan.monthlyClickLimit > 0
+      ? `Up to ${Number(plan.monthlyClickLimit).toLocaleString()} clicks/mo`
+      : "";
+  return {
+    name: plan.title || "Plan",
+    subtitle: "",
+    price: priceDisplay,
+    period: isEnterprise || priceNum === 0 ? "" : "/mo",
+    description,
+    features: features.length ? features : [{ text: "Contact us", included: true }],
     cta: "Get Started",
-    popular: false,
-  },
-  {
-    name: "Indie",
-    subtitle: "Premium subscription with additional features",
-    price: "$19",
-    period: "/mo",
-    description: "Under 75K Monthly Active Users",
-    features: [
-      { text: "Upto 75K MAU Supported", included: true },
-      { text: "Email support", included: true },
-      { text: "Link analytics", included: true },
-      { text: "App Install analytics", included: true },
-      { text: "No custom domain", included: false },
-    ],
-    cta: "Get Started",
-    popular: false,
-  },
-  {
-    name: "Growth",
-    subtitle: "Premium subscription with all features unlocked",
-    price: "$39",
-    period: "/mo",
-    description: "Under 150K Monthly Active Users",
-    features: [
-      { text: "Upto 150K MAU Supported", included: true },
-      { text: "All Indie features", included: true },
-      { text: "Custom domain support", included: true },
-      { text: "Invite team members", included: true },
-    ],
-    cta: "Get Started",
-    popular: true,
-  },
-  {
-    name: "Scale",
-    subtitle: "Premium subscription with all features unlocked",
-    price: "$99",
-    period: "/mo",
-    description: "Under 500K Monthly Active Users",
-    features: [
-      { text: "Upto 500K MAU Supported", included: true },
-      { text: "All Growth features", included: true },
-      { text: "Webhook support (coming soon)", included: true },
-      { text: "Priority support", included: true },
-    ],
-    cta: "Get Started",
-    popular: false,
-  },
-];
+    popular: Boolean(plan.isPopular),
+  };
+}
 
 export const PricingSection = () => {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getPlans()
+      .then((data) => {
+        if (!cancelled && Array.isArray(data)) {
+          const sortPrice = (p) =>
+            String(p.title || "").toUpperCase() === "ENTERPRISE" ? Infinity : Number(p.price) ?? 0;
+          const sorted = [...data].sort((a, b) => sortPrice(a) - sortPrice(b));
+          setPlans(sorted.map(mapPlanFromDb));
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || "Failed to load plans");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <section id="pricing" className="py-24 lg:py-32 relative">
       <div className="container mx-auto px-6">
@@ -91,10 +83,21 @@ export const PricingSection = () => {
         </motion.div>
 
         {/* Pricing Cards */}
+        {loading && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-2xl p-6 lg:p-8 bg-card border border-border animate-pulse h-80" />
+            ))}
+          </div>
+        )}
+        {error && (
+          <p className="text-center text-muted-foreground py-8">{error}</p>
+        )}
+        {!loading && !error && plans.length > 0 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {plans.map((plan, i) => (
             <motion.div
-              key={i}
+              key={plan.name ?? i}
               className={`relative rounded-2xl p-6 lg:p-8 flex flex-col ${
                 plan.popular
                   ? "bg-gradient-to-b from-primary/10 to-card border-2 border-primary/50 shadow-xl shadow-primary/10"
@@ -172,6 +175,7 @@ export const PricingSection = () => {
             </motion.div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

@@ -709,3 +709,101 @@ export const revokeApiKey = async (keyId) => {
     throw error;
   }
 };
+
+/**
+ * Get active pricing plans (public, no auth). Used by landing PricingSection.
+ * @returns {Promise<Array>} List of plan documents from DB
+ */
+export const getPlans = async () => {
+  const response = await fetch(`${API_BASE_URL}/plans`);
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || 'Failed to fetch plans');
+  return json.data ?? json ?? [];
+};
+
+/**
+ * Create Razorpay order for a plan. Requires auth.
+ * Plan prices are in USD; backend converts to INR when country is IN.
+ * @param {string} planId - Pricing plan _id
+ * @param {string} billingPeriod - 'monthly' | 'yearly'
+ * @param {string} [country] - ISO 2-letter (e.g. 'IN' for India => charge in INR)
+ * @returns {Promise<{ orderId, keyId, amount, currency }>}
+ */
+export const createPaymentOrder = async (planId, billingPeriod = 'monthly', country = undefined) => {
+  const token = getAuthToken();
+  if (!token) throw new Error('Please sign in to continue.');
+  const body = { planId, billingPeriod };
+  if (country) body.country = country;
+  const response = await fetch(`${API_BASE_URL}/payment/create-order`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+    throw new Error(json.message || json.error || 'Failed to create order');
+  }
+  return json.data ?? json;
+};
+
+/**
+ * Verify Razorpay payment and update user plan. Requires auth.
+ * @param {{ razorpay_order_id, razorpay_payment_id, razorpay_signature }} payload
+ * @returns {Promise<{ planId, currentPlan }>}
+ */
+export const verifyPayment = async (payload) => {
+  const token = getAuthToken();
+  if (!token) throw new Error('Please sign in to continue.');
+  const response = await fetch(`${API_BASE_URL}/payment/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+    throw new Error(json.message || json.error || 'Payment verification failed');
+  }
+  return json.data ?? json;
+};
+
+/**
+ * Get support chat messages for the current user. Requires auth.
+ * @returns {Promise<{ messages: Array<{ id, from, text, time }> }>}
+ */
+export const getChatMessages = async () => {
+  const token = getAuthToken();
+  if (!token) throw new Error('Please sign in to continue.');
+  const response = await fetch(`${API_BASE_URL}/chat/messages`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+    throw new Error(json.message || json.error || 'Failed to load messages');
+  }
+  return json.data ?? json;
+};
+
+/**
+ * Send a support chat message. Requires auth.
+ * @param {string} text
+ * @returns {Promise<{ message: { id, from, text, time } }>}
+ */
+export const sendChatMessage = async (text) => {
+  const token = getAuthToken();
+  if (!token) throw new Error('Please sign in to continue.');
+  const response = await fetch(`${API_BASE_URL}/chat/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ text: text.trim() }),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (response.status === 401) handleAuthFailure('Session expired. Please sign in again.');
+    throw new Error(json.message || json.error || 'Failed to send message');
+  }
+  return json.data ?? json;
+};
