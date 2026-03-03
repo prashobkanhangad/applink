@@ -4,6 +4,11 @@ import { ArrowRight, Sparkles, Zap, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const HeroSection = () => {
+  const getAuthDestination = () =>
+    typeof window !== "undefined" && localStorage.getItem("authToken")
+      ? "/dashboard"
+      : "/signup";
+
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-28 overflow-hidden link-pattern">
       {/* Background Pattern */}
@@ -65,7 +70,7 @@ export const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <Link to="/signup">
+            <Link to={getAuthDestination()}>
               <Button variant="hero" size="xl" className="group">
                 Start Building Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

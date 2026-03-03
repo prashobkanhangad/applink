@@ -114,7 +114,8 @@ export const Links = () => {
         setUtmContent(u.campaignContent || '');
         setEnableSocialMetaTags(!!(u.previewTitle || u.previewDescription || u.previewImageUrl));
         setEnableUTMTracking(!!(u.campaignSource || u.campaignMedium || u.campaignName || u.campaignTerm || u.campaignContent));
-        setCurrentStep(1);
+        // When editing an existing link, jump directly to Step 2 (dynamic link setup)
+        setCurrentStep(2);
       } catch (err) {
         if (!cancelled) setError(err.message || 'Failed to load link');
       } finally {
@@ -509,6 +510,7 @@ export const Links = () => {
                           type="text"
                           value={path}
                           onChange={(e) => {
+                            if (isEditMode) return;
                             const v = e.target.value;
                             if (v === '' || !v.startsWith('/')) {
                               setPath(v === '' ? '/' : '/' + v.replace(/^\/+/, ''));
@@ -516,7 +518,12 @@ export const Links = () => {
                               setPath(v);
                             }
                           }}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-gray-500"
+                          readOnly={isEditMode}
+                          className={`w-full px-3 py-2 text-sm border rounded-xl text-gray-900 focus:outline-none placeholder:text-gray-500 ${
+                            isEditMode
+                              ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
+                              : 'bg-white border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent'
+                          }`}
                           placeholder="/ e.g. home"
                         />
                       </div>

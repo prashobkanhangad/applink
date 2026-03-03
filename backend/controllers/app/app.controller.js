@@ -20,6 +20,15 @@ function normalizeAndroidFingerPrints(configurations) {
     return { ...configurations, android };
 }
 
+// Simple HTML escape to keep meta tags safe
+const escapeHtml = (str = "") =>
+    String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
 export const createApp = async (req, res) => {
     try {
         const {name , subDomain, fallbackUrl, configurations, domainId} = req.body;
@@ -908,6 +917,62 @@ export const checkValidDeepLink = async (req, res) => {
 
         const ip = req.ip || req.socket?.remoteAddress || "";
         const userAgentStr = req.get("user-agent") || "";
+        const isSocialCrawler = /facebookexternalhit|facebot|Twitterbot|TwitterEmbed|linkedinbot|Slackbot|Slack-ImgProxy|Discordbot|WhatsApp|TelegramBot|Pinterest|redditbot|OGCrawler/i.test(
+            userAgentStr
+        );
+
+        // For social crawlers (Facebook, Twitter/X, LinkedIn, Slack, etc.), return an HTML
+        // page with Open Graph / Twitter meta tags instead of a redirect so they can
+        // generate rich link previews from the stored social meta fields.
+        if (isSocialCrawler) {
+            const url = `${req.protocol}://${host}${path}`;
+            const utm = linkExists.utm || {};
+            const title =
+                utm.previewTitle ||
+                linkExists.linkName ||
+                app.name ||
+                "Deeplink";
+            const description =
+                utm.previewDescription ||
+                `Open ${linkExists.linkName || "this link"} with Deeplink.`;
+            const image = utm.previewImageUrl || "";
+
+            const html = `
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>${escapeHtml(title)}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="${escapeHtml(url)}" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    ${image ? `<meta property="og:image" content="${escapeHtml(image)}" />` : ""}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    ${image ? `<meta name="twitter:image" content="${escapeHtml(image)}" />` : ""}
+
+    <meta http-equiv="refresh" content="0;url=${escapeHtml(
+        linkExists.destinationUrl || app.fallbackUrl || url
+    )}" />
+  </head>
+  <body>
+    <p>Redirecting… If you are not redirected, <a href="${escapeHtml(
+        linkExists.destinationUrl || app.fallbackUrl || url
+    )}">click here</a>.</p>
+  </body>
+</html>`;
+
+            res.status(200).send(html);
+            return;
+        }
+
         const detectedPlatform = detectPlatform(userAgentStr);
         const platform = ["web", "ios", "android"].includes(detectedPlatform) ? detectedPlatform : "web";
         const geo = await getGeoFromIp(ip);

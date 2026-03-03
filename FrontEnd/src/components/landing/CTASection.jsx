@@ -4,6 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const CTASection = () => {
+  const getAuthDestination = () =>
+    typeof window !== "undefined" && localStorage.getItem("authToken")
+      ? "/dashboard"
+      : "/signup";
+
   return (
     <section className="py-24 lg:py-32 relative overflow-hidden">
       {/* Background Pattern */}
@@ -29,7 +34,7 @@ export const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/signup">
+            <Link to={getAuthDestination()}>
               <Button variant="hero" size="xl" className="group">
                 Get Started Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
