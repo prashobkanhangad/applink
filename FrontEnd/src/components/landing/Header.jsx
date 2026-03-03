@@ -17,6 +17,11 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
+  const getAuthDestination = () =>
+    typeof window !== "undefined" && localStorage.getItem("authToken")
+      ? "/dashboard"
+      : "/signup";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-6 py-4">
@@ -81,12 +86,12 @@ export const Header = () => {
                 <Sun className="w-5 h-5" />
               )}
             </button>
-            <Link to="/signup">
+            <Link to={getAuthDestination()}>
               <Button variant="ghost" className="text-muted-foreground">
                 Log In
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link to={getAuthDestination()}>
               <Button variant="hero" size="default">
                 Get Started Free
               </Button>
@@ -167,12 +172,18 @@ export const Header = () => {
                     </>
                   )}
                 </button>
-                <Link to="/signup" onClick={() => setIsOpen(false)}>
+                <Link
+                  to={getAuthDestination()}
+                  onClick={() => setIsOpen(false)}
+                >
                   <Button variant="ghost" className="justify-center w-full">
                     Log In
                   </Button>
                 </Link>
-                <Link to="/signup" onClick={() => setIsOpen(false)}>
+                <Link
+                  to={getAuthDestination()}
+                  onClick={() => setIsOpen(false)}
+                >
                   <Button variant="hero" className="justify-center w-full">
                     Get Started Free
                   </Button>
