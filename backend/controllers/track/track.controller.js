@@ -24,6 +24,21 @@ const detectPlatform = (userAgentStr) => {
 
 const unknown = "unknown";
 
+// Try to derive a stable deviceId from SDK userAgent (when not explicitly sent).
+// For Deeplink SDK we set userAgent like:
+// - Android: "DeeplinkSDK (Android <osVersion>; <model>)"
+// - iOS:     "DeeplinkSDK (iOS <systemVersion>; <machine>)"
+// This helper extracts the last token inside the parentheses, which is model/machine.
+const deriveDeviceIdFromUserAgent = (uaString) => {
+    console.log("[deriveDeviceIdFromUserAgent] uaString:", uaString);
+    if (!uaString || typeof uaString !== "string") return null;
+    const match = uaString.match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
+    if (match && match[1]) {
+        return match[1].trim();
+    }
+    return null;
+};
+
 /**
  * B. When SDK calls .init() (the install)
  * POST /api/track/install
@@ -36,6 +51,7 @@ export const handleTrackInstall = async (req, res) => {
         console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined, linkId: bodyLinkId || undefined });
 
         const ip = getClientIp(req);
+        const ipForMatch = bodyIpAddress ?? ip;
         const userAgentStr = req.headers["user-agent"] || unknown;
         const ua = useragent.parse(userAgentStr);
         const resolvedPlatform = platform || detectPlatform(userAgentStr);
@@ -43,7 +59,7 @@ export const handleTrackInstall = async (req, res) => {
         const osVersion = bodyOSVersion ?? ua?.os ?? unknown;
         const deviceId = bodyDeviceId ?? model ?? referrer ?? unknown;
 
-        console.log("[handleTrackInstall] resolved:", { ip, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
+        console.log("[handleTrackInstall] resolved:", { ip, ipForMatch, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
 
         let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
@@ -57,19 +73,34 @@ export const handleTrackInstall = async (req, res) => {
             }
         }
 
-        // If linkId is still not set, try other attribution (referrer data, iOS IP match)
+        // If linkId is still not set, try other attribution (referrer data, iOS device/IP match)
         if (!linkId) {
             if (platform === "android" && referrer) {
                 responsePayload = { method: "referrer", data: referrer };
                 console.log("[handleTrackInstall] android with referrer");
             } else if (platform === "ios") {
                 const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-                const match = await ClickEvent.findOne({
-                    ipAddress: ip,
-                    createdAt: { $gt: oneHourAgo }
-                })
-                    .sort({ createdAt: -1 })
-                    .lean();
+                let match = null;
+
+                // Prefer matching on deviceId when available (more stable than IP)
+                if (bodyDeviceId) {
+                    match = await ClickEvent.findOne({
+                        deviceId: bodyDeviceId,
+                        createdAt: { $gt: oneHourAgo },
+                    })
+                        .sort({ createdAt: -1 })
+                        .lean();
+                }
+
+                // Fallback to IP-based matching if no deviceId match
+                if (!match) {
+                    match = await ClickEvent.findOne({
+                        ipAddress: ipForMatch,
+                        createdAt: { $gt: oneHourAgo },
+                    })
+                        .sort({ createdAt: -1 })
+                        .lean();
+                }
 
                 if (match) {
                     linkId = match.linkId || null;
@@ -140,7 +171,7 @@ export const handleTrackInstall = async (req, res) => {
  */
 export const handleTrackClick = async (req, res) => {
     try {
-        const { linkId: bodyLinkId, platform: bodyPlatform, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, ipAddress: bodyIpAddress } = req.body || {};
+        const { linkId: bodyLinkId, platform: bodyPlatform, packageName, browser: bodyBrowser, userAgent: bodyUserAgent, ipAddress: bodyIpAddress, deviceId: bodyDeviceId } = req.body || {};
         if (!bodyLinkId) {
             return res.status(400).json({ error: "linkId is required" });
         }
@@ -153,15 +184,27 @@ export const handleTrackClick = async (req, res) => {
 
         const geo = await getGeoFromIp(bodyIpAddress ?? ip);
 
+        // Prefer explicit deviceId from SDK; otherwise try to derive from SDK userAgent format.
+        const effectiveUserAgent = bodyUserAgent ?? userAgentStr;
+        console.log("[handleTrackClick] effectiveUserAgent:", effectiveUserAgent);
+        console.log("[handleTrackClick] bodyDeviceId:", bodyDeviceId);
+
+        const derivedDeviceId = deriveDeviceIdFromUserAgent(effectiveUserAgent);
+        const deviceIdToStore = bodyDeviceId ?? derivedDeviceId ?? null;
+        console.log("[handleTrackClick] deviceIdToStore:", deviceIdToStore);
+        console.log("[handleTrackClick] bodyIpAddress:", bodyIpAddress);
+        console.log("[handleTrackClick] ip:", ip);
+
         await ClickEvent.create({
             linkId: bodyLinkId,
             platform,
             browser,
-            userAgent: bodyUserAgent ?? userAgentStr,
+            userAgent: effectiveUserAgent,
             ipAddress: bodyIpAddress ?? ip,
             country: geo.country,
             state: geo.state,
             city: geo.city,
+            deviceId: deviceIdToStore,
         });
 
         return res.status(200).json({ ok: true });
