@@ -68,7 +68,7 @@ export const handleTrackInstall = async (req, res) => {
                 console.log("[handleTrackInstall] ip:", ip);
                 const match = await ClickEvent.findOne({
                     ipAddress: ip,
-                    createdAt: { $gt: oneHourAgo }
+                    // createdAt: { $gt: oneHourAgo }
                 })
                     .sort({ createdAt: -1 })
                     .lean();
