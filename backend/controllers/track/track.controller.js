@@ -30,6 +30,7 @@ const unknown = "unknown";
 // - iOS:     "DeeplinkSDK (iOS <systemVersion>; <machine>)"
 // This helper extracts the last token inside the parentheses, which is model/machine.
 const deriveDeviceIdFromUserAgent = (uaString) => {
+    console.log("[deriveDeviceIdFromUserAgent] uaString:", uaString);
     if (!uaString || typeof uaString !== "string") return null;
     const match = uaString.match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
     if (match && match[1]) {
@@ -185,8 +186,14 @@ export const handleTrackClick = async (req, res) => {
 
         // Prefer explicit deviceId from SDK; otherwise try to derive from SDK userAgent format.
         const effectiveUserAgent = bodyUserAgent ?? userAgentStr;
+        console.log("[handleTrackClick] effectiveUserAgent:", effectiveUserAgent);
+        console.log("[handleTrackClick] bodyDeviceId:", bodyDeviceId);
+
         const derivedDeviceId = deriveDeviceIdFromUserAgent(effectiveUserAgent);
         const deviceIdToStore = bodyDeviceId ?? derivedDeviceId ?? null;
+        console.log("[handleTrackClick] deviceIdToStore:", deviceIdToStore);
+        console.log("[handleTrackClick] bodyIpAddress:", bodyIpAddress);
+        console.log("[handleTrackClick] ip:", ip);
 
         await ClickEvent.create({
             linkId: bodyLinkId,
