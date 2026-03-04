@@ -38,16 +38,22 @@ const deriveDeviceIdFromUserAgent = (uaString) => {
     return null;
 };
 
-// Extract OS version from a user-agent string (both SDK and browser UAs).
+// Extract OS/app version from a user-agent string (both SDK and browser UAs).
 // Examples:
 // - "DeeplinkSDK (iOS 17.5; iPhone14,2)"        -> "17.5"
 // - "DeeplinkSDK (Android 14; Pixel 7)"        -> "14"
 // - "iPhone OS 18_7 like Mac OS X"             -> "18.7"
+// - "... Version/26.2 Mobile/..."              -> "26.2"
 const extractOsVersionFromUserAgent = (uaString) => {
     if (!uaString || typeof uaString !== "string") return null;
 
+    // Safari / iOS browser pattern: "Version/26.2"
+    let match = uaString.match(/Version\/([0-9._]+)/i);
+    if (!match) {
+        // iOS SDK pattern: "iOS 17.5;"
+        match = uaString.match(/iOS\s+([0-9._]+)/i);
+    }
     // iOS SDK pattern: "iOS 17.5;"
-    let match = uaString.match(/iOS\s+([0-9._]+)/i);
     if (!match) {
         // Browser pattern: "iPhone OS 18_7 like Mac OS X"
         match = uaString.match(/iPhone OS\s+([0-9_]+)/i);
@@ -85,7 +91,7 @@ const computeAttributionScore = (install, click) => {
     // IP-based score: higher when more parts (octets) match (max 30).
     // Example for IPv4:
     // - All 4 parts match: +30
-    // - First 3 parts match: +22
+    // - First 3 parts match: +25
     // (2 or 1 octet matches are treated as 0 – too weak)
     if (click.ipAddress && install.ipAddress && click.ipAddress !== unknown && install.ipAddress !== unknown) {
         const a = click.ipAddress.split(".");
@@ -103,8 +109,8 @@ const computeAttributionScore = (install, click) => {
                 score += 30;
                 breakdown.ip = 30;
             } else if (partsMatch === 3) {
-                score += 22;
-                breakdown.ip = 22;
+                score += 25;
+                breakdown.ip = 25;
             }
         } else if (click.ipAddress === install.ipAddress) {
             // Non-IPv4 (e.g. IPv6) – if exact string matches, give full score.
