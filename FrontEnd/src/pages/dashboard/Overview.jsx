@@ -91,7 +91,7 @@ export const Overview = () => {
   // Main app status is pending if either domain or SDK (Android or iOS) is pending
   const isAppStatusPending = (app) => {
     const domainPending = app?.domainId && app.domainId.status !== 'verified';
-    const sdkPending = !isAndroidSdkVerified(app) || !isIosSdkVerified(app);
+    const sdkPending = (hasAndroidConfig(app) && !isAndroidSdkVerified(app)) || (hasIosConfig(app) && !isIosSdkVerified(app));
     return domainPending || sdkPending;
   };
 
@@ -758,7 +758,8 @@ export const Overview = () => {
                               </div>
                             </div>
 
-                            {/* SDK setup status – Android & iOS (show both if user has either) */}
+                            {/* SDK setup status – only when app has Android or iOS config */}
+                            {(hasAndroidConfig(app) || hasIosConfig(app)) && (
                             <div className="mt-4">
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-xs font-medium text-gray-500">SDK setup</p>
@@ -864,6 +865,7 @@ export const Overview = () => {
                                 )}
                               </div>
                             </div>
+                            )}
 
                             {/* Quick Actions */}
                             <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 w-full min-w-0">
