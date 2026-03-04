@@ -36,6 +36,7 @@ export const handleTrackInstall = async (req, res) => {
         console.log("[handleTrackInstall] body:", { platform, referrer, model: model ? "(present)" : undefined, packageName: packageName || undefined, linkId: bodyLinkId || undefined });
 
         const ip = getClientIp(req);
+        const ipForMatch = bodyIpAddress ?? ip;
         const userAgentStr = req.headers["user-agent"] || unknown;
         const ua = useragent.parse(userAgentStr);
         const resolvedPlatform = platform || detectPlatform(userAgentStr);
@@ -43,7 +44,7 @@ export const handleTrackInstall = async (req, res) => {
         const osVersion = bodyOSVersion ?? ua?.os ?? unknown;
         const deviceId = bodyDeviceId ?? model ?? referrer ?? unknown;
 
-        console.log("[handleTrackInstall] resolved:", { ip, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
+        console.log("[handleTrackInstall] resolved:", { ip, ipForMatch, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
 
         let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
@@ -64,12 +65,9 @@ export const handleTrackInstall = async (req, res) => {
                 console.log("[handleTrackInstall] android with referrer");
             } else if (platform === "ios") {
                 const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-                console.log("[handleTrackInstall] oneHourAgo:", oneHourAgo);
-     
-
                 const match = await ClickEvent.findOne({
-                    ipAddress: ip+"",
-                    // createdAt: { $gt: oneHourAgo }
+                    ipAddress: ipForMatch,
+                    createdAt: { $gt: oneHourAgo },
                 })
                     .sort({ createdAt: -1 })
                     .lean();
@@ -85,8 +83,6 @@ export const handleTrackInstall = async (req, res) => {
                 } else {
                     console.log("[handleTrackInstall] ios no click match (organic)");
                 }
-                console.log("[handleTrackInstall] ip:", typeof ip);
-                console.log("[handleTrackInstall] ip:", ip);
             } else {
                 console.log("[handleTrackInstall] organic");
             }
