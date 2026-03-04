@@ -977,6 +977,18 @@ export const checkValidDeepLink = async (req, res) => {
         const platform = ["web", "ios", "android"].includes(detectedPlatform) ? detectedPlatform : "web";
         const geo = await getGeoFromIp(ip);
 
+        // Derive a pseudo deviceId from userAgent (mainly for SDK/app traffic)
+        // Reuse the same helper format as track.controller: extract model/machine
+        let derivedDeviceId = null;
+        try {
+            const match = (userAgentStr || "").match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
+            if (match && match[1]) {
+                derivedDeviceId = match[1].trim();
+            }
+        } catch (_) {
+            derivedDeviceId = null;
+        }
+
         await ClickEvent.create({
             linkId: linkExists._id,
             platform,
@@ -986,6 +998,7 @@ export const checkValidDeepLink = async (req, res) => {
             country: geo?.country ?? "Unknown",
             state: geo?.state ?? "Unknown",
             city: geo?.city ?? "Unknown",
+            deviceId: derivedDeviceId,
         });
 
         // Navigation: redirect based on platform and link behavior
