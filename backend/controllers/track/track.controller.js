@@ -38,16 +38,49 @@ const deriveDeviceIdFromUserAgent = (uaString) => {
     return null;
 };
 
+// Extract OS version from a user-agent string (both SDK and browser UAs).
+// Examples:
+// - "DeeplinkSDK (iOS 17.5; iPhone14,2)"        -> "17.5"
+// - "DeeplinkSDK (Android 14; Pixel 7)"        -> "14"
+// - "iPhone OS 18_7 like Mac OS X"             -> "18.7"
+const extractOsVersionFromUserAgent = (uaString) => {
+    if (!uaString || typeof uaString !== "string") return null;
+
+    // iOS SDK pattern: "iOS 17.5;"
+    let match = uaString.match(/iOS\s+([0-9._]+)/i);
+    if (!match) {
+        // Browser pattern: "iPhone OS 18_7 like Mac OS X"
+        match = uaString.match(/iPhone OS\s+([0-9_]+)/i);
+    }
+    if (!match) {
+        // Android SDK/browser: "Android 14" or "Android 14.1"
+        match = uaString.match(/Android\s+([0-9.]+)/i);
+    }
+    if (match && match[1]) {
+        return match[1].replace(/_/g, ".").trim();
+    }
+    return null;
+};
+
 // Compute attribution score between an install event and a click event.
-// Higher score = better match. Weights based on IP, geo, platform, and deviceId.
+// Higher score = better match. Weights based on IP, geo, platform, deviceId, and OS version.
 // Max score ~= 100:
-// - deviceId: up to 40
+// - deviceId: up to 25
+// - OSVersion: up to 15
 // - IP:       up to 30
 // - country:  10
 // - city:     10
 // - platform: 10
 const computeAttributionScore = (install, click) => {
     let score = 0;
+    const breakdown = {
+        ip: 0,
+        country: 0,
+        city: 0,
+        platform: 0,
+        osVersion: 0,
+        deviceId: 0,
+    };
 
     // IP-based score: higher when more parts (octets) match (max 30).
     // Example for IPv4:
@@ -68,28 +101,70 @@ const computeAttributionScore = (install, click) => {
             }
             if (partsMatch === 4) {
                 score += 30;
+                breakdown.ip = 30;
             } else if (partsMatch === 3) {
                 score += 22;
+                breakdown.ip = 22;
             }
         } else if (click.ipAddress === install.ipAddress) {
             // Non-IPv4 (e.g. IPv6) – if exact string matches, give full score.
             score += 30;
+            breakdown.ip = 30;
         }
     }
 
     if (click.country && install.country && click.country === install.country) {
         score += 10;
+        breakdown.country = 10;
     }
     if (click.city && install.city && click.city === install.city) {
         score += 10;
+        breakdown.city = 10;
     }
     if (click.platform && install.platform && click.platform === install.platform) {
         score += 10;
+        breakdown.platform = 10;
     }
-    // DeviceId is the strongest signal when present – give it extra weight (up to 40)
+
+    // OS version match (from install.OSVersion vs click.userAgent) – medium weight (up to 15)
+    if (install.OSVersion) {
+        const clickOs = extractOsVersionFromUserAgent(click.userAgent || "");
+        if (clickOs) {
+            // Normalize to major.minor for comparison when possible
+            const norm = (v) => v.toString().split(".").slice(0, 2).join(".");
+            if (norm(install.OSVersion) === norm(clickOs)) {
+                score += 15;
+                breakdown.osVersion = 15;
+            }
+        }
+    }
+
+    // DeviceId is still a strong signal when present – give it good weight (up to 25)
     if (install.deviceId && click.deviceId && install.deviceId === click.deviceId) {
-        score += 40;
+        score += 25;
+        breakdown.deviceId = 25;
     }
+
+    console.log("[computeAttributionScore]", {
+        install: {
+            ip: install.ipAddress,
+            country: install.country,
+            city: install.city,
+            platform: install.platform,
+            OSVersion: install.OSVersion,
+            deviceId: install.deviceId,
+        },
+        click: {
+            ip: click.ipAddress,
+            country: click.country,
+            city: click.city,
+            platform: click.platform,
+            userAgent: click.userAgent,
+            deviceId: click.deviceId,
+        },
+        breakdown,
+        totalScore: score,
+    });
 
     return score;
 };
@@ -182,6 +257,7 @@ export const handleTrackInstall = async (req, res) => {
                     city: geo.city,
                     platform: resolvedPlatform,
                     deviceId: bodyDeviceId || (deviceId !== unknown ? deviceId : null),
+                    OSVersion: osVersion,
                 };
 
                 for (const click of candidates) {
