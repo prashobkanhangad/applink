@@ -36,6 +36,10 @@ const clickEventSchema = new Schema({
         type: String,
         required: true
     },
+    deviceId: {
+        type: String,
+        default: null
+    },
     // utm: {
     //     type: Schema.Types.Mixed,
     //     default: {}
