@@ -1001,7 +1001,7 @@ export const checkValidDeepLink = async (req, res) => {
             country: geo?.country ?? "Unknown",
             state: geo?.state ?? "Unknown",
             city: geo?.city ?? "Unknown",
-            deviceId: derivedDeviceId,
+            deviceId: derivedDeviceId || "null",
         });
 
         // Navigation: redirect based on platform and link behavior
