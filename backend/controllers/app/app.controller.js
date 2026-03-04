@@ -980,11 +980,14 @@ export const checkValidDeepLink = async (req, res) => {
         // Derive a pseudo deviceId from userAgent (mainly for SDK/app traffic)
         // Reuse the same helper format as track.controller: extract model/machine
         let derivedDeviceId = null;
+        console.log("[checkValidDeepLink] userAgentStr:", userAgentStr);
         try {
             const match = (userAgentStr || "").match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
+            console.log("[checkValidDeepLink] match:", match);
             if (match && match[1]) {
                 derivedDeviceId = match[1].trim();
             }
+            console.log("[checkValidDeepLink] derivedDeviceId:", derivedDeviceId);
         } catch (_) {
             derivedDeviceId = null;
         }
