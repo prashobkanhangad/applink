@@ -17,11 +17,12 @@ export const handleTrackInstall = async (req, res) => {
     try {
         console.log("handleTrackInstall", req.body);
         const { referrer, install_type, app_package, device_brand, device_model, manufacturer, os, os_version } = req.body;
+        const ip = req.headers['cf-connecting-ip'];
+        const geo = await getGeoFromIp(ip);
 
         if (os === "android") {
             if (referrer === "source=deeplink") {
-                const ip = req.headers['cf-connecting-ip'] || getClientIp(req);
-                const geo = await getGeoFromIp(ip);
+                
 
                 await InstallEvent.create({
                     packageName: app_package,
@@ -38,7 +39,20 @@ export const handleTrackInstall = async (req, res) => {
                 });
             }
         } else if (os === "ios") {
-            console.log("ios detected");
+            console.log("ios detected", ip);
+            await InstallEvent.create({
+                packageName: app_package,
+                platform: "ios",
+                OSVersion: os_version,
+                userAgent: device_brand + " " + device_model + " " + manufacturer,
+                browser: "ios",
+                ipAddress: ip,
+                country: geo.country,
+                state: geo.state,
+                city: geo.city,
+                deviceId: "device_id",
+                OSVersion: os_version,
+            });
         }
         sendSuccess(req, res, "install tracked successfully", 200);
     } catch (error) {
