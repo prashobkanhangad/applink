@@ -40,24 +40,55 @@ const deriveDeviceIdFromUserAgent = (uaString) => {
 
 // Compute attribution score between an install event and a click event.
 // Higher score = better match. Weights based on IP, geo, platform, and deviceId.
+// Max score ~= 100:
+// - deviceId: up to 40
+// - IP:       up to 30
+// - country:  10
+// - city:     10
+// - platform: 10
 const computeAttributionScore = (install, click) => {
     let score = 0;
 
-    if (click.ipAddress && install.ipAddress && click.ipAddress === install.ipAddress) {
-        score += 40;
+    // IP-based score: higher when more parts (octets) match (max 30).
+    // Example for IPv4:
+    // - All 4 parts match: +30
+    // - First 3 parts match: +22
+    // (2 or 1 octet matches are treated as 0 – too weak)
+    if (click.ipAddress && install.ipAddress && click.ipAddress !== unknown && install.ipAddress !== unknown) {
+        const a = click.ipAddress.split(".");
+        const b = install.ipAddress.split(".");
+        if (a.length === 4 && b.length === 4) {
+            let partsMatch = 0;
+            for (let i = 0; i < 4; i++) {
+                if (a[i] === b[i]) {
+                    partsMatch++;
+                } else {
+                    break;
+                }
+            }
+            if (partsMatch === 4) {
+                score += 30;
+            } else if (partsMatch === 3) {
+                score += 22;
+            }
+        } else if (click.ipAddress === install.ipAddress) {
+            // Non-IPv4 (e.g. IPv6) – if exact string matches, give full score.
+            score += 30;
+        }
     }
+
     if (click.country && install.country && click.country === install.country) {
-        score += 20;
+        score += 10;
     }
     if (click.city && install.city && click.city === install.city) {
-        score += 15;
+        score += 10;
     }
     if (click.platform && install.platform && click.platform === install.platform) {
-        score += 25;
+        score += 10;
     }
-    // DeviceId is the strongest signal when present – give it extra weight
+    // DeviceId is the strongest signal when present – give it extra weight (up to 40)
     if (install.deviceId && click.deviceId && install.deviceId === click.deviceId) {
-        score += 60;
+        score += 40;
     }
 
     return score;
