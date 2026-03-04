@@ -71,6 +71,27 @@ export const getAssetLinks = async (host) => {
   ]
 }
 
+export const getAppleAppSiteAssociationLink = async (host) => {
+  const appExists = await App.findOne({subDomain: host});
+  if(!appExists){
+    return null;
+  }
+  return {
+    "applinks": {
+      "apps": [],
+      "details": [
+        {
+          "appID": `${appExists.configurations.ios.bundleId}`,
+          "paths": ["*"]
+        }
+      ]
+    }
+  }
+}
+
+
+
+
 export const detectBrowser = (userAgent) => {
   if (typeof userAgent !== "string" || !userAgent.trim()) {
     return "unknown";

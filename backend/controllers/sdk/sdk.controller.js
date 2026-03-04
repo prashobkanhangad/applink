@@ -20,7 +20,7 @@ export const handleTrackInstall = async (req, res) => {
 
         if (os === "android") {
             if (referrer === "source=deeplink") {
-                const ip = getClientIp(req);
+                const ip = req.headers['cf-connecting-ip'] || getClientIp(req);
                 const geo = await getGeoFromIp(ip);
 
                 await InstallEvent.create({

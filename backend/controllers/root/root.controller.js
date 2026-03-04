@@ -2,7 +2,7 @@ import { detectPlatform } from "../app/app.service.js";
 import { App } from "../../models/app.model.js";
 import { throwCustomError } from "../../services/error.js";
 import { sendError } from "../../services/requestHandler.js";
-import { getAssetLinks } from "../app/app.service.js";
+import { getAssetLinks , getAppleAppSiteAssociationLink} from "../app/app.service.js";
 
 export const manageHome = async (req, res) => {
     try {
@@ -48,6 +48,20 @@ export const manageAssetLinks = async (req, res) => {
     }
 
     return res.json(assetLinks);
+    } catch (error) {
+        sendError(req,res,error);
+    }
+}
+
+
+export const manageAppleAppSiteAssociation = async (req, res) => {
+    try {
+        const host = req.headers.host;
+        const appleAppSiteAssociationLink = await getAppleAppSiteAssociationLink(host);
+        if(!appleAppSiteAssociationLink){
+            throwCustomError(1009);
+        }
+        return res.json(appleAppSiteAssociationLink);
     } catch (error) {
         sendError(req,res,error);
     }

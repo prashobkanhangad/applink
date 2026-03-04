@@ -1,4 +1,5 @@
 import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -23,9 +24,16 @@ const successOnlyFilter = winston.format((info) =>
   info.level === "success" ? info : false
 );
 
-const infoPath = path.join(logsDir, "info.log");
-const errorPath = path.join(logsDir, "error.log");
-const successPath = path.join(logsDir, "success.log");
+// Rotation: creates a new file when date changes (datePattern) or size exceeds maxSize.
+// Compression: after rotation, the previous file is gzipped (e.g. info-2025-02-28.log.gz).
+// Retention: only the last maxFiles files are kept; older ones are deleted.
+const rotateOptions = {
+  dirname: logsDir,
+  datePattern: "YYYY-MM-DD",
+  maxSize: "20m",
+  maxFiles: "14d", // keep 14 days
+  zippedArchive: true, // gzip rotated files
+};
 
 const customLevels = {
   levels: {
@@ -55,16 +63,19 @@ const logger = winston.createLogger({
     logFormat
   ),
   transports: [
-    new winston.transports.File({
-      filename: infoPath,
+    new DailyRotateFile({
+      ...rotateOptions,
+      filename: "info-%DATE%.log",
       level: "info",
     }),
-    new winston.transports.File({
-      filename: errorPath,
+    new DailyRotateFile({
+      ...rotateOptions,
+      filename: "error-%DATE%.log",
       level: "error",
     }),
-    new winston.transports.File({
-      filename: successPath,
+    new DailyRotateFile({
+      ...rotateOptions,
+      filename: "success-%DATE%.log",
       level: "success",
       format: combine(successOnlyFilter(), timestamp(), logFormat),
     }),
@@ -75,6 +86,6 @@ const logger = winston.createLogger({
 winston.addColors(customLevels.colors);
 
 // Verify file transport on startup (confirms path and write access)
-logger.info(`Logger initialized — writing to ${infoPath}`);
+logger.info(`Logger initialized — writing to ${logsDir} (rotation: daily or 20m, compression: gzip, retain: 14d)`);
 
 export default logger;  

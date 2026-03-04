@@ -11,7 +11,7 @@ import { sendAlert } from './services/telegram.js';
 import mongoose from 'mongoose';
 import { App } from './models/app.model.js';
 import { getAssetLinks, detectPlatform } from './controllers/app/app.service.js';
-import { manageHome, manageAssetLinks } from './controllers/root/root.controller.js';
+import { manageHome, manageAssetLinks, manageAppleAppSiteAssociation} from './controllers/root/root.controller.js';
 import { checkDomain } from './controllers/domain/domain.controller.js';
 import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
@@ -58,6 +58,8 @@ app.get('/check-domain', checkDomain);
 
 // for dynamically setting asset links for the app
 app.get('/.well-known/assetlinks.json', manageAssetLinks)
+
+app.get('/.well-known/apple-app-site-association', manageAppleAppSiteAssociation)
 
 // for redirecting to the app on the home page
 app.get('/', manageHome)
