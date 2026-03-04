@@ -81,7 +81,7 @@ export const getAppleAppSiteAssociationLink = async (host) => {
       "apps": [],
       "details": [
         {
-          "appID": `${appExists.configurations.ios.bundleId}`,
+          "appID": `${appExists.configurations.ios.teamId}.${appExists.configurations.ios.bundleId}`,
           "paths": ["*"]
         }
       ]
