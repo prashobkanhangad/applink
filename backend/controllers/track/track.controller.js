@@ -64,6 +64,8 @@ export const handleTrackInstall = async (req, res) => {
                 console.log("[handleTrackInstall] android with referrer");
             } else if (platform === "ios") {
                 const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+                console.log("[handleTrackInstall] oneHourAgo:", oneHourAgo);
+                console.log("[handleTrackInstall] ip:", ip);
                 const match = await ClickEvent.findOne({
                     ipAddress: ip,
                     createdAt: { $gt: oneHourAgo }
