@@ -30,13 +30,37 @@ const unknown = "unknown";
 // - iOS:     "DeeplinkSDK (iOS <systemVersion>; <machine>)"
 // This helper extracts the last token inside the parentheses, which is model/machine.
 const deriveDeviceIdFromUserAgent = (uaString) => {
-    console.log("[deriveDeviceIdFromUserAgent] uaString:", uaString);
     if (!uaString || typeof uaString !== "string") return null;
     const match = uaString.match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
     if (match && match[1]) {
         return match[1].trim();
     }
     return null;
+};
+
+// Compute attribution score between an install event and a click event.
+// Higher score = better match. Weights based on IP, geo, platform, and deviceId.
+const computeAttributionScore = (install, click) => {
+    let score = 0;
+
+    if (click.ipAddress && install.ipAddress && click.ipAddress === install.ipAddress) {
+        score += 40;
+    }
+    if (click.country && install.country && click.country === install.country) {
+        score += 20;
+    }
+    if (click.city && install.city && click.city === install.city) {
+        score += 15;
+    }
+    if (click.platform && install.platform && click.platform === install.platform) {
+        score += 25;
+    }
+    // DeviceId is the strongest signal when present – give it extra weight
+    if (install.deviceId && click.deviceId && install.deviceId === click.deviceId) {
+        score += 60;
+    }
+
+    return score;
 };
 
 /**
@@ -59,7 +83,20 @@ export const handleTrackInstall = async (req, res) => {
         const osVersion = bodyOSVersion ?? ua?.os ?? unknown;
         const deviceId = bodyDeviceId ?? model ?? referrer ?? unknown;
 
-        console.log("[handleTrackInstall] resolved:", { ip, ipForMatch, resolvedPlatform, browser, osVersion, deviceId: deviceId === unknown ? unknown : "(set)" });
+        const hasBodyGeo = bodyCountry ?? bodyState ?? bodyCity;
+        const geo = hasBodyGeo
+            ? { country: bodyCountry ?? unknown, state: bodyState ?? unknown, city: bodyCity ?? unknown }
+            : await getGeoFromIp(bodyIpAddress ?? ip);
+
+        console.log("[handleTrackInstall] resolved:", {
+            ip,
+            ipForMatch,
+            resolvedPlatform,
+            browser,
+            osVersion,
+            geo,
+            deviceId: deviceId === unknown ? unknown : "(set)",
+        });
 
         let linkId = bodyLinkId || null;
         let responsePayload = { status: "organic" };
@@ -73,45 +110,68 @@ export const handleTrackInstall = async (req, res) => {
             }
         }
 
-        // If linkId is still not set, try other attribution (referrer data, iOS device/IP match)
+        // If linkId is still not set, try other attribution (referrer data, iOS scoring match)
         if (!linkId) {
             if (platform === "android" && referrer) {
                 responsePayload = { method: "referrer", data: referrer };
                 console.log("[handleTrackInstall] android with referrer");
             } else if (platform === "ios") {
                 const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-                let match = null;
 
-                // Prefer matching on deviceId when available (more stable than IP)
+                // Build candidate filter: recent iOS clicks that share at least one signal (ip, deviceId, geo)
+                const candidateFilter = {
+                    platform: "ios",
+                    createdAt: { $gt: oneHourAgo },
+                };
+                const orConditions = [];
                 if (bodyDeviceId) {
-                    match = await ClickEvent.findOne({
-                        deviceId: bodyDeviceId,
-                        createdAt: { $gt: oneHourAgo },
-                    })
-                        .sort({ createdAt: -1 })
-                        .lean();
+                    orConditions.push({ deviceId: bodyDeviceId });
+                }
+                if (ipForMatch && ipForMatch !== unknown) {
+                    orConditions.push({ ipAddress: ipForMatch });
+                }
+                if (geo.country && geo.country !== unknown) {
+                    orConditions.push({ country: geo.country });
+                }
+                if (geo.city && geo.city !== unknown) {
+                    orConditions.push({ city: geo.city });
+                }
+                if (orConditions.length > 0) {
+                    candidateFilter.$or = orConditions;
                 }
 
-                // Fallback to IP-based matching if no deviceId match
-                if (!match) {
-                    match = await ClickEvent.findOne({
-                        ipAddress: ipForMatch,
-                        createdAt: { $gt: oneHourAgo },
-                    })
-                        .sort({ createdAt: -1 })
-                        .lean();
+                const candidates = await ClickEvent.find(candidateFilter).sort({ createdAt: -1 }).lean();
+
+                let bestMatch = null;
+                let bestScore = 0;
+
+                const installFingerprint = {
+                    ipAddress: ipForMatch,
+                    country: geo.country,
+                    city: geo.city,
+                    platform: resolvedPlatform,
+                    deviceId: bodyDeviceId || (deviceId !== unknown ? deviceId : null),
+                };
+
+                for (const click of candidates) {
+                    const score = computeAttributionScore(installFingerprint, click);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = click;
+                    }
                 }
 
-                if (match) {
-                    linkId = match.linkId || null;
-                    if (match.utm && Object.keys(match.utm).length > 0) {
-                        responsePayload = match.utm;
-                        console.log("[handleTrackInstall] ios matched click, linkId:", linkId, "utm keys:", Object.keys(match.utm));
+                // Require a minimum score to avoid random matches
+                if (bestMatch && bestScore >= 60) {
+                    linkId = bestMatch.linkId || null;
+                    if (bestMatch.utm && Object.keys(bestMatch.utm).length > 0) {
+                        responsePayload = bestMatch.utm;
+                        console.log("[handleTrackInstall] ios scored match", { linkId, bestScore, utmKeys: Object.keys(bestMatch.utm) });
                     } else {
-                        console.log("[handleTrackInstall] ios matched click, no utm");
+                        console.log("[handleTrackInstall] ios scored match (no utm)", { linkId, bestScore });
                     }
                 } else {
-                    console.log("[handleTrackInstall] ios no click match (organic)");
+                    console.log("[handleTrackInstall] ios no scored click match (organic)", { bestScore, candidates: candidates.length });
                 }
             } else {
                 console.log("[handleTrackInstall] organic");
@@ -119,11 +179,6 @@ export const handleTrackInstall = async (req, res) => {
         } else {
             console.log("[handleTrackInstall] linkId provided in request:", linkId);
         }
-
-        const hasBodyGeo = bodyCountry ?? bodyState ?? bodyCity;
-        const geo = hasBodyGeo
-            ? { country: bodyCountry ?? unknown, state: bodyState ?? unknown, city: bodyCity ?? unknown }
-            : await getGeoFromIp(bodyIpAddress ?? ip);
 
         // Resolve app for sdkVerifiedAt; last activity is derived from events via linkId (no appId on event)
         const userId = req.apiKeyUserId;
