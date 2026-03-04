@@ -24,6 +24,20 @@ const detectPlatform = (userAgentStr) => {
 
 const unknown = "unknown";
 
+// Try to derive a stable deviceId from SDK userAgent (when not explicitly sent).
+// For Deeplink SDK we set userAgent like:
+// - Android: "DeeplinkSDK (Android <osVersion>; <model>)"
+// - iOS:     "DeeplinkSDK (iOS <systemVersion>; <machine>)"
+// This helper extracts the last token inside the parentheses, which is model/machine.
+const deriveDeviceIdFromUserAgent = (uaString) => {
+    if (!uaString || typeof uaString !== "string") return null;
+    const match = uaString.match(/\((?:Android|iOS) [^;]*; ([^)]+)\)/);
+    if (match && match[1]) {
+        return match[1].trim();
+    }
+    return null;
+};
+
 /**
  * B. When SDK calls .init() (the install)
  * POST /api/track/install
@@ -169,16 +183,21 @@ export const handleTrackClick = async (req, res) => {
 
         const geo = await getGeoFromIp(bodyIpAddress ?? ip);
 
+        // Prefer explicit deviceId from SDK; otherwise try to derive from SDK userAgent format.
+        const effectiveUserAgent = bodyUserAgent ?? userAgentStr;
+        const derivedDeviceId = deriveDeviceIdFromUserAgent(effectiveUserAgent);
+        const deviceIdToStore = bodyDeviceId ?? derivedDeviceId ?? null;
+
         await ClickEvent.create({
             linkId: bodyLinkId,
             platform,
             browser,
-            userAgent: bodyUserAgent ?? userAgentStr,
+            userAgent: effectiveUserAgent,
             ipAddress: bodyIpAddress ?? ip,
             country: geo.country,
             state: geo.state,
             city: geo.city,
-            deviceId: bodyDeviceId ?? null,
+            deviceId: deviceIdToStore,
         });
 
         return res.status(200).json({ ok: true });
