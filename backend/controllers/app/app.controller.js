@@ -930,7 +930,7 @@ export const checkValidDeepLink = async (req, res) => {
         if (app.subDomain !== host) {
             throwCustomError(1017);
         }
-
+        console.log(req.headers['cf-connecting-ip'],"cf-connecting-ip");
         const ip = req.ip || req.socket?.remoteAddress || "";
         const userAgentStr = req.get("user-agent") || "";
         const isSocialCrawler = /facebookexternalhit|facebot|Twitterbot|TwitterEmbed|linkedinbot|Slackbot|Slack-ImgProxy|Discordbot|WhatsApp|TelegramBot|Pinterest|redditbot|OGCrawler/i.test(
