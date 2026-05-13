@@ -209,7 +209,25 @@ export const Links = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 1 && path.trim() !== '') {
+    if (currentStep === 1) {
+      const trimmedPath = (path || '').trim();
+      if (!trimmedPath) {
+        setError('Please enter a path for your link.');
+        return;
+      }
+
+      // Check duplicate path for this app before going to next step
+      const duplicateInState = links.find(
+        (l) =>
+          (l.appId?._id || l.appId || '') === selectedAppId &&
+          (l.path || '') === trimmedPath
+      );
+      if (duplicateInState) {
+        setError('A link with this path already exists for this app. Please choose a different path.');
+        return;
+      }
+
+      setError(null);
       setCurrentStep(2);
     } else if (currentStep === 2 && destinationUrl.trim() !== '') {
       setCurrentStep(3);
@@ -234,6 +252,18 @@ export const Links = () => {
 
     if (!linkName || linkName.trim().length < 3 || linkName.trim().length > 30) {
       setError('Link name must be between 3 and 30 characters.');
+      return;
+    }
+
+    // Prevent creating duplicate path for the same app in the current list (best-effort UX; backend enforces too)
+    const normalizedNewPath = (path || '').trim();
+    const duplicateInState = links.find(
+      (l) =>
+        (l.appId?._id || l.appId || '') === selectedAppId &&
+        (l.path || '') === normalizedNewPath
+    );
+    if (duplicateInState) {
+      setError('A link with this path already exists for this app. Please choose a different path.');
       return;
     }
 
@@ -310,7 +340,16 @@ export const Links = () => {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'Failed to create link. Please try again.');
+      // Surface specific duplicate-path error from backend if present
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to create link. Please try again.';
+      if (msg.toLowerCase().includes('already exists')) {
+        setError('A link with this path already exists for this app. Please choose a different path.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -370,7 +409,15 @@ export const Links = () => {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'Failed to update link. Please try again.');
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to update link. Please try again.';
+      if (msg.toLowerCase().includes('already exists')) {
+        setError('A link with this path already exists for this app. Please choose a different path.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -511,6 +558,7 @@ export const Links = () => {
                           value={path}
                           onChange={(e) => {
                             if (isEditMode) return;
+                            setError(null);
                             const v = e.target.value;
                             if (v === '' || !v.startsWith('/')) {
                               setPath(v === '' ? '/' : '/' + v.replace(/^\/+/, ''));

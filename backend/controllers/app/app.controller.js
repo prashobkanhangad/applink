@@ -236,6 +236,14 @@ export const createAppLink =async  (req, res) => {
         const appId = appExists._id;
         console.log("[createAppLink] ✓ App found, appId:", appId);
 
+        // Enforce unique path per app: prevent duplicate links with same path under the same app
+        const existingLinkWithPath = await Link.findOne({ appId, path });
+        if (existingLinkWithPath) {
+            console.log("[createAppLink] ✗ Duplicate path detected for app:", { appId, path });
+            // 1018: custom error code for "link path already exists" (define in error map)
+            throwCustomError(1018);
+        }
+
         let utmData = {};
         if(utm){
             console.log("[createAppLink] Processing UTM data...");
@@ -313,7 +321,15 @@ export const updateAppLink = async (req, res) => {
         const { error } = schema.validate(req.body);
         if (error) throwCustomError(1006);
 
-        if (path !== undefined) linkExists.path = path;
+        // If path is being changed, ensure uniqueness per app
+        if (path !== undefined && path !== linkExists.path) {
+            const duplicate = await Link.findOne({ appId: app._id, path });
+            if (duplicate) {
+                console.log("[updateAppLink] ✗ Duplicate path detected for app:", { appId: app._id, path });
+                throwCustomError(1018);
+            }
+            linkExists.path = path;
+        }
         if (destinationUrl !== undefined) linkExists.destinationUrl = destinationUrl;
         if (linkName !== undefined) linkExists.linkName = linkName;
         if (androidBehavior !== undefined) linkExists.androidBehavior = androidBehavior;
