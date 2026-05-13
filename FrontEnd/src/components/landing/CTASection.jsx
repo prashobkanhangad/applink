@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "../../utils/cn";
 
 export const CTASection = () => {
   const getAuthDestination = () =>
@@ -40,9 +41,18 @@ export const CTASection = () => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button variant="hero-outline" size="xl">
+            <a
+              href="https://calendly.com/deeplink-info/30min"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "border-2 border-primary text-primary hover:bg-primary/10",
+                "h-14 rounded-lg px-10 text-lg"
+              )}
+            >
               Schedule a Demo
-            </Button>
+            </a>
           </div>
 
           {/* Trust Indicators */}

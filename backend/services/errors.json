@@ -68,6 +68,10 @@
         "1017": {
             "code": 404,
             "error": "the url you are trying to access is not valid"
+        },
+        "1018": {
+            "code": 409,
+            "error": "a link with this path already exists for this app"
         }
 
     }
