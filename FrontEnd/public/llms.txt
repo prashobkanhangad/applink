@@ -1,0 +1,41 @@
+# Deeplink
+
+> Deeplink is a smart deep linking and install attribution platform for mobile apps and the web.
+> Create one link that opens the right Android, iOS, or web destination — including deferred deep linking after install.
+
+Website: https://deeplink.in
+Documentation: https://docs.deeplink.in/
+Docs index for AI agents: https://docs.deeplink.in/llms.txt
+Signup: https://deeplink.in/signup
+Support: info@deeplink.in
+
+## Product pages
+
+- [Deep linking platform](https://deeplink.in/deep-linking-platform): What Deeplink is and how smart deep links work
+- [Deferred deep linking](https://deeplink.in/deferred-deep-linking): Preserve click intent through app install to first open
+- [App deep links (Android & iOS)](https://deeplink.in/app-deep-links): Universal Links, App Links, and fallbacks
+- [About](https://deeplink.in/about): Mission and product philosophy for deep linking teams
+- [Pricing](https://deeplink.in/#pricing): Plans and click limits on the homepage
+- [Affiliate program](https://deeplink.in/affiliate): Partner with Deeplink
+
+## Guides (blog)
+
+- [What is deep linking?](https://deeplink.in/blog/what-is-deep-linking)
+- [Deferred deep linking for product managers](https://deeplink.in/blog/deferred-deep-linking-for-product-managers)
+- [How to implement deep linking on Android & iOS](https://deeplink.in/blog/how-to-implement-deep-linking-android-ios)
+- [Firebase Dynamic Links alternatives (2025)](https://deeplink.in/blog/firebase-dynamic-links-alternatives-2025)
+
+## Key capabilities
+
+- Universal smart deep links for iOS, Android, and web
+- Deferred deep linking and install attribution
+- Dashboard link management with UTM parameters
+- REST APIs, webhooks, and SDKs
+- Click, install, and conversion analytics
+
+## Optional
+
+- [Sitemap](https://deeplink.in/sitemap)
+- [XML sitemap](https://deeplink.in/sitemap.xml)
+- [Privacy](https://deeplink.in/privacy)
+- [Terms](https://deeplink.in/terms)

@@ -1,12 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { Section, Container } from '../design-system';
 import { PageMeta } from '../components/PageMeta';
+import { DOCS_URL } from '../constants/publicSite';
 
 const META = {
-  title: 'About',
-  description: 'We build tools that help teams work better together. Learn about DeepLink\'s mission, product philosophy, and long-term vision.',
+  title: 'About Deeplink',
+  description:
+    'Deeplink builds smart deep linking and install attribution for mobile apps and the web. Learn our mission: one link that opens the right screen on Android, iOS, and web.',
 };
 
 export const About = () => {
@@ -14,135 +17,179 @@ export const About = () => {
     <div className="min-h-screen flex flex-col">
       <PageMeta title={META.title} description={META.description} path="/about" />
       <Header />
-      
+
       <main className="flex-grow">
-        {/* Page Header */}
         <Section padding="lg" background="surface">
           <Container>
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-semibold text-text-primary mb-6">
-                About DeepLink
+                About Deeplink
               </h1>
               <p className="text-xl text-text-secondary leading-relaxed">
-                We build tools that help teams work better together.
+                Deeplink is a smart deep linking and install attribution platform. We help product,
+                growth, and engineering teams create one link that opens the right in-app screen —
+                whether the app is installed or not — across Android, iOS, and web.
               </p>
             </div>
           </Container>
         </Section>
 
-        {/* Mission */}
         <Section padding="default" background="default">
           <Container>
             <div className="max-w-4xl mx-auto">
-              <div className="mb-12">
-                <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
-                  Our Mission
-                </h2>
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-lg text-text-secondary leading-relaxed mb-4">
-                    We believe that software tools should work together seamlessly. 
-                    Too much time is wasted moving data between systems, managing 
-                    duplicate workflows, and maintaining custom integrations.
-                  </p>
-                  <p className="text-lg text-text-secondary leading-relaxed">
-                    Our mission is to eliminate these friction points by providing 
-                    reliable, straightforward integration infrastructure that 
-                    teams can depend on. We focus on solving real problems for 
-                    real teams, without unnecessary complexity.
-                  </p>
-                </div>
+              <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
+                Our Mission
+              </h2>
+              <div className="prose prose-lg max-w-none">
+                <p className="text-lg text-text-secondary leading-relaxed mb-4">
+                  Broken mobile journeys waste installs. Users click a campaign, referral, or product
+                  link, hit the store, install the app, and land on the home screen — losing the
+                  context that made them click. Attribution and deferred deep linking become an
+                  afterthought bolted onto marketing stacks.
+                </p>
+                <p className="text-lg text-text-secondary leading-relaxed">
+                  Our mission is to make deep linking infrastructure simple, reliable, and
+                  developer-friendly: smart links, deferred routing after install, UTM-aware
+                  analytics, and SDKs/APIs that product and growth teams can ship without a
+                  multi-month MMP project.
+                </p>
               </div>
             </div>
           </Container>
         </Section>
 
-        {/* Product Philosophy */}
         <Section padding="default" background="surface">
           <Container>
             <div className="max-w-4xl mx-auto">
-              <div className="mb-12">
-                <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
-                  Product Philosophy
-                </h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-text-primary mb-3">
-                      Reliability over features
-                    </h3>
-                    <p className="text-lg text-text-secondary leading-relaxed">
-                      We prioritize stability and uptime over adding new features. 
-                      When teams depend on our platform to keep their workflows 
-                      running, reliability is not optional. We invest heavily in 
-                      infrastructure, monitoring, and testing to ensure our service 
-                      meets the standards our customers need.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-text-primary mb-3">
-                      Transparency in everything
-                    </h3>
-                    <p className="text-lg text-text-secondary leading-relaxed">
-                      We believe in clear communication about what our product does, 
-                      how it works, and what it costs. No hidden fees, no confusing 
-                      pricing tiers, no marketing language that obscures reality. 
-                      Our documentation is comprehensive, our status page is public, 
-                      and our pricing is straightforward.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-text-primary mb-3">
-                      Build for the long term
-                    </h3>
-                    <p className="text-lg text-text-secondary leading-relaxed">
-                      We design our product and company for sustainability. This means 
-                      making decisions that serve customers over years, not just months. 
-                      We avoid shortcuts that create technical debt, and we invest in 
-                      maintainable systems that will scale with our customers' needs.
-                    </p>
-                  </div>
+              <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
+                What We Build
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    Universal smart deep links
+                  </h3>
+                  <p className="text-lg text-text-secondary leading-relaxed">
+                    One URL that detects device and app availability, then opens the app, the store,
+                    or a web fallback — with Android App Links and iOS Universal Links supported.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    Deferred deep linking &amp; attribution
+                  </h3>
+                  <p className="text-lg text-text-secondary leading-relaxed">
+                    Preserve click intent through install so first open can route to the right screen
+                    and campaigns can be measured with clicks, installs, and conversions.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    APIs, SDKs, and a clear dashboard
+                  </h3>
+                  <p className="text-lg text-text-secondary leading-relaxed">
+                    Create and manage links, set UTMs, and integrate with{' '}
+                    <a
+                      href={DOCS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline underline-offset-2"
+                    >
+                      docs and SDKs
+                    </a>{' '}
+                    without hiding pricing or burying setup behind enterprise sales.
+                  </p>
                 </div>
               </div>
             </div>
           </Container>
         </Section>
 
-        {/* Long-term Vision */}
         <Section padding="default" background="default">
           <Container>
             <div className="max-w-4xl mx-auto">
-              <div className="mb-12">
-                <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
-                  Long-term Vision
-                </h2>
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-lg text-text-secondary leading-relaxed mb-4">
-                    In the next decade, we see a world where software tools integrate 
-                    as easily as they do today, but with far less effort required 
-                    from development teams. Integration infrastructure should be as 
-                    reliable and invisible as electricity or internet connectivity.
-                  </p>
-                  <p className="text-lg text-text-secondary leading-relaxed mb-4">
-                    We're building toward a platform that handles the complexity of 
-                    connecting systems, so teams can focus on building their products 
-                    rather than maintaining integrations. This means expanding our 
-                    coverage of tools and services, improving our reliability and 
-                    performance, and making our platform accessible to teams of all sizes.
-                  </p>
+              <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
+                Product Philosophy
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    Reliability over feature theater
+                  </h3>
                   <p className="text-lg text-text-secondary leading-relaxed">
-                    Our goal is to become the standard infrastructure layer that 
-                    teams use when they need reliable integrations. We measure success 
-                    not by growth metrics, but by how many teams can build better 
-                    products because they're using our platform.
+                    Deep links fail silently when domains, asset links, or fallbacks break. We invest
+                    in routing correctness, monitoring, and platform edge cases so campaigns and
+                    onboarding do not silently drop users.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    Transparent for buyers and builders
+                  </h3>
+                  <p className="text-lg text-text-secondary leading-relaxed">
+                    Clear docs, straightforward plans, and APIs you can try without a sales call.
+                    Product managers and engineers should share the same mental model of how a link
+                    behaves.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                    Built for long-term mobile growth
+                  </h3>
+                  <p className="text-lg text-text-secondary leading-relaxed">
+                    After Firebase Dynamic Links shut down, teams need a durable home for deferred
+                    deep linking. We design for lasting platform support — not a short-lived side
+                    project.
                   </p>
                 </div>
               </div>
+            </div>
+          </Container>
+        </Section>
+
+        <Section padding="default" background="surface">
+          <Container>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-semibold text-text-primary mb-6">
+                Who We Serve
+              </h2>
+              <p className="text-lg text-text-secondary leading-relaxed mb-4">
+                Mobile product managers, growth marketers, and developers at startups and scale-ups
+                who need deferred deep linking, referral flows, and campaign attribution without
+                enterprise MMP complexity. Explore the{' '}
+                <Link to="/deep-linking-platform" className="text-primary underline underline-offset-2">
+                  deep linking platform
+                </Link>
+                ,{' '}
+                <Link to="/deferred-deep-linking" className="text-primary underline underline-offset-2">
+                  deferred deep linking
+                </Link>
+                , and our{' '}
+                <Link to="/blog" className="text-primary underline underline-offset-2">
+                  guides
+                </Link>
+                .
+              </p>
+              <p className="text-lg text-text-secondary leading-relaxed">
+                <Link to="/signup" className="text-primary underline underline-offset-2">
+                  Start free
+                </Link>{' '}
+                or read the{' '}
+                <a
+                  href={DOCS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-2"
+                >
+                  documentation
+                </a>
+                .
+              </p>
             </div>
           </Container>
         </Section>
       </main>
-      
+
       <Footer />
     </div>
   );

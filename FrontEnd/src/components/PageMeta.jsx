@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet-async";
+import { SITE_ORIGIN, TWITTER_SITE, defaultOgImageUrl } from "../constants/publicSite";
 
-const SITE_URL = import.meta.env.VITE_APP_URL || "https://deeplink.in";
 const SITE_NAME = "Deeplink";
-const DEFAULT_IMAGE = `${SITE_URL.replace(/\/$/, "")}/og-image.png`;
+const DEFAULT_IMAGE = defaultOgImageUrl();
 
 /**
  * PageMeta – per-page title, description, Open Graph, and Twitter Card meta tags.
@@ -15,6 +15,7 @@ const DEFAULT_IMAGE = `${SITE_URL.replace(/\/$/, "")}/og-image.png`;
  * @param {string} [ogDescription] - Optional override for og:description (defaults to description)
  * @param {string} [twitterDescription] - Optional override for twitter:description (defaults to description)
  * @param {boolean} [noIndex] - Set true to add noindex
+ * @param {string} [ogType] - Open Graph type (website | article)
  */
 export function PageMeta({
   title,
@@ -26,12 +27,14 @@ export function PageMeta({
   ogDescription,
   twitterDescription,
   noIndex = false,
+  ogType = "website",
 }) {
-  const base = SITE_URL.replace(/\/$/, "");
+  const base = SITE_ORIGIN;
   const url = path === "/" || !path ? base : `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const fullTitle = (title.includes("|") || title.includes("–")) ? title : `${title} | ${SITE_NAME}`;
   const ogDesc = ogDescription ?? description;
   const twDesc = twitterDescription ?? description;
+  const twitterHandle = TWITTER_SITE ? (TWITTER_SITE.startsWith("@") ? TWITTER_SITE : `@${TWITTER_SITE}`) : "";
 
   return (
     <Helmet>
@@ -42,7 +45,7 @@ export function PageMeta({
       {noIndex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph */}
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={ogType} />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={ogDesc} />
@@ -55,6 +58,7 @@ export function PageMeta({
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
+      {twitterHandle && <meta name="twitter:site" content={twitterHandle} />}
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={twDesc} />
       <meta name="twitter:image" content={image} />

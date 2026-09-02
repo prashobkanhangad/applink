@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# App shells are behind auth; avoid spending crawl budget on duplicate SPA HTML.
+Disallow: /dashboard
+Disallow: /admin
+
+# AI / agent-oriented site summary
+Allow: /llms.txt
+
+Sitemap: https://deeplink.in/sitemap.xml

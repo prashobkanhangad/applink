@@ -21,10 +21,12 @@ import { WhatIsDeepLinking } from './pages/blog/WhatIsDeepLinking';
 import { DeferredDeepLinkingForProductManagers } from './pages/blog/DeferredDeepLinkingForProductManagers';
 import { HowToImplementDeepLinking } from './pages/blog/HowToImplementDeepLinking';
 import { Affiliate } from './pages/Affiliate';
+import { VisitorTracker } from './components/VisitorTracker';
 
 function App() {
   return (
     <BrowserRouter>
+      <VisitorTracker />
       <Routes>
         <Route
           path="/"

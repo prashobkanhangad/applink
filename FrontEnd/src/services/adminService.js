@@ -201,3 +201,15 @@ export const sendAdminChatReply = async (userId, text) => {
   });
   return data.data || data;
 };
+
+/**
+ * GET /admin/analytics/visitors?startDate&endDate
+ */
+export const getAdminVisitorAnalytics = async ({ startDate = '', endDate = '' } = {}) => {
+  const params = new URLSearchParams();
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  const query = params.toString();
+  const data = await adminFetch(`/admin/analytics/visitors${query ? `?${query}` : ''}`);
+  return data.data || data;
+};

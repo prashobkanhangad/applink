@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Github, Twitter, Linkedin } from "lucide-react";
+import { BookOpen, Calendar } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { CALENDLY_DEMO_URL, DOCS_URL } from "../../constants/publicSite";
 
 const footerLinks = {
   Product: [
@@ -13,15 +14,13 @@ const footerLinks = {
   Company: [
     { name: "About", href: "/about" },
     { name: "Blog", href: "/blog" },
-    { name: "Careers", href: "#" },
-    { name: "Contact", href: "#" },
+    { name: "Affiliate program", href: "/affiliate" },
+    { name: "Contact", href: CALENDLY_DEMO_URL },
   ],
   Resources: [
     { name: "Sitemap", href: "/sitemap" },
-    { name: "API Reference", href: "#" },
-    { name: "SDK Downloads", href: "#" },
-    { name: "Case Studies", href: "#" },
-    { name: "Help Center", href: "#" },
+    { name: "Documentation", href: DOCS_URL },
+    { name: "llms.txt", href: "/llms.txt" },
   ],
   Legal: [
     { name: "Privacy Policy", href: "/privacy" },
@@ -31,10 +30,9 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [
-  { icon: Twitter, href: "#" },
-  { icon: Github, href: "#" },
-  { icon: Linkedin, href: "#" },
+const brandLinks = [
+  { icon: BookOpen, href: DOCS_URL, label: "Documentation" },
+  { icon: Calendar, href: CALENDLY_DEMO_URL, label: "Book a demo" },
 ];
 
 export const Footer = () => {
@@ -58,11 +56,14 @@ export const Footer = () => {
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xs">
               The intelligent deep linking platform trusted by developers and marketers worldwide.
             </p>
-            <div className="flex gap-4">
-              {socialLinks.map((link, i) => (
+            <div className="flex flex-wrap gap-3">
+              {brandLinks.map((link) => (
                 <a
-                  key={i}
+                  key={link.href}
                   href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
                   className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
                 >
                   <link.icon className="w-5 h-5" />
@@ -76,25 +77,33 @@ export const Footer = () => {
             <div key={category}>
               <h4 className="font-semibold mb-4">{category}</h4>
               <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.name}>
-                    {link.href.startsWith("/") ? (
-                      <Link
-                        to={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    ) : (
-                      <a
-                        href={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.name}
-                      </a>
-                    )}
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const external =
+                    link.href.startsWith("http://") ||
+                    link.href.startsWith("https://");
+                  const staticFile = /\.(txt|xml|json)$/i.test(link.href);
+                  return (
+                    <li key={link.name}>
+                      {link.href.startsWith("/") && !staticFile ? (
+                        <Link
+                          to={link.href}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          target={external ? "_blank" : undefined}
+                          rel={external ? "noopener noreferrer" : undefined}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {link.name}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
