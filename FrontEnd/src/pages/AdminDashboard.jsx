@@ -5,6 +5,7 @@ import { AdminLayout } from '../components/AdminLayout';
 import { useChatSocket } from '../contexts/ChatSocketContext';
 import { playNotificationSound } from '../utils/notificationSound';
 import { getAdminStats, getAdminUsers, getAdminApps, getAdminApp, getAdminUser, updateUserRole, getAdminPlans, getAdminPlan, createAdminPlan, updateAdminPlan, deleteAdminPlan, getAdminLinks, getAdminLink, deleteAdminLink, getAdminAffiliates, getAdminChatConversations, getAdminChatMessages, sendAdminChatReply } from '../services/adminService';
+import { AdminTraffic } from './admin/Traffic';
 
 const META = {
   title: 'Admin Dashboard',
@@ -15,7 +16,8 @@ const META = {
  * Admin overview: stats from API.
  */
 const AdminOverview = () => {
-  const [stats, setStats] = useState({ totalUsers: null, totalApps: null, totalLinks: null, totalAffiliates: null });
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ totalUsers: null, totalApps: null, totalLinks: null, totalAffiliates: null, visitors7d: null, pageViews7d: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -45,27 +47,34 @@ const AdminOverview = () => {
   }
 
   const cards = [
-    { label: 'Total Users', value: stats.totalUsers ?? '—' },
-    { label: 'Total Apps', value: stats.totalApps ?? '—' },
-    { label: 'Total Links', value: stats.totalLinks ?? '—' },
-    { label: 'Affiliate signups', value: stats.totalAffiliates ?? '—' },
+    { label: 'Total Users', value: stats.totalUsers ?? '—', path: '/admin/users' },
+    { label: 'Visitors (7 days)', value: stats.visitors7d ?? '—', path: '/admin/traffic' },
+    { label: 'Page views (7 days)', value: stats.pageViews7d ?? '—', path: '/admin/traffic' },
+    { label: 'Total Apps', value: stats.totalApps ?? '—', path: '/admin/apps' },
+    { label: 'Total Links', value: stats.totalLinks ?? '—', path: '/admin/links' },
+    { label: 'Affiliate signups', value: stats.totalAffiliates ?? '—', path: '/admin/affiliates' },
   ];
 
   return (
     <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {cards.map((card, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 shadow-sm">
+            <button
+              key={i}
+              type="button"
+              onClick={() => card.path && navigate(card.path)}
+              className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 shadow-sm text-left hover:border-gray-300 hover:shadow transition-shadow"
+            >
               <p className="text-sm text-gray-500">{card.label}</p>
               <p className="text-2xl font-semibold text-gray-900 mt-1">{card.value}</p>
-            </div>
+            </button>
           ))}
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Admin Overview</h2>
           <p className="text-sm text-gray-600">
-            Use the sidebar to manage Users and Apps. Stats above are live from the database.
+            Use Traffic to see where visitors come from and which pages they view. Manage users, apps, and links from the sidebar.
           </p>
         </div>
       </div>
@@ -1526,6 +1535,12 @@ export const AdminDashboard = () => {
         return (
           <AdminLayout title="Support" subtitle="Reply to user chats">
             <AdminSupport />
+          </AdminLayout>
+        );
+      case 'traffic':
+        return (
+          <AdminLayout title="Traffic" subtitle="Where visitors come from and which pages they view">
+            <AdminTraffic />
           </AdminLayout>
         );
       case 'overview':

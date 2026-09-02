@@ -1,8 +1,26 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Home, FileText, Shield, Cookie, UserPlus, LayoutGrid, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  Home,
+  FileText,
+  Shield,
+  UserPlus,
+  LayoutGrid,
+  BookOpen,
+  ExternalLink,
+} from "lucide-react";
 import { PageMeta } from "../components/PageMeta";
 import { useTheme } from "../contexts/ThemeContext";
+import { CALENDLY_DEMO_URL, DOCS_URL } from "../constants/publicSite";
+
+function isExternalHref(href) {
+  return href.startsWith("http://") || href.startsWith("https://");
+}
+
+function isStaticPublicFile(href) {
+  return /\.(txt|xml|json|png|jpg|jpeg|webp|svg|ico)$/i.test(href);
+}
 
 const META = {
   title: "Sitemap",
@@ -37,6 +55,16 @@ const groups = [
     links: [
       { name: "About", href: "/about" },
       { name: "Blog", href: "/blog" },
+      { name: "Affiliate program", href: "/affiliate" },
+    ],
+  },
+  {
+    title: "Resources",
+    icon: ExternalLink,
+    links: [
+      { name: "Sitemap", href: "/sitemap" },
+      { name: "Documentation", href: DOCS_URL },
+      { name: "llms.txt (AI / agents)", href: "/llms.txt" },
     ],
   },
   {
@@ -131,6 +159,15 @@ export const Sitemap = () => {
                       {link.href.startsWith("/#") ? (
                         <a
                           href={link.href}
+                          className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {link.name}
+                        </a>
+                      ) : isExternalHref(link.href) || isStaticPublicFile(link.href) ? (
+                        <a
+                          href={link.href}
+                          target={isExternalHref(link.href) ? "_blank" : undefined}
+                          rel={isExternalHref(link.href) ? "noopener noreferrer" : undefined}
                           className="text-sm text-muted-foreground hover:text-primary transition-colors"
                         >
                           {link.name}

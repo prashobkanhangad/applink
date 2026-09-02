@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Zap, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CALENDLY_DEMO_URL } from "../../constants/publicSite";
 import { cn } from "../../utils/cn";
 
 export const HeroSection = () => {
@@ -78,7 +79,7 @@ export const HeroSection = () => {
               </Button>
             </Link>
             <a
-              href="https://calendly.com/deeplink-info/30min"
+              href={CALENDLY_DEMO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(

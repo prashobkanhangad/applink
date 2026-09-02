@@ -2,14 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vitejs.dev/config/
+// Prerender runs as a separate postbuild script (scripts/prerender.mjs) — vite-plugin-prerender
+// is incompatible with ESM vite configs in this project.
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.jpg'],
+      includeAssets: ['favicon.jpg', 'llms.txt', 'robots.txt', 'sitemap.xml'],
       manifest: {
         name: 'Deeplink – Smart Deep Linking Platform',
         short_name: 'Deeplink',
@@ -25,7 +30,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,jpg,jpeg,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,jpg,jpeg,png,svg,woff2,txt,xml}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/, /^\/llms\.txt$/, /^\/sitemap\.xml$/, /^\/robots\.txt$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/accounts\.google\.com\/.*/i,

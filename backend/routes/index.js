@@ -11,6 +11,7 @@ import affiliateRoute from "./affiliate.js";
 import keysRoute from "./keys.js";
 import paymentRoute from "./payment.js";
 import chatRoute from "./chat.js";
+import analyticsRoute from "./analytics.js";
 
 const indexRoute = Router();
 
@@ -26,5 +27,6 @@ indexRoute.use("/affiliate", affiliateRoute);
 indexRoute.use("/keys", keysRoute);
 indexRoute.use("/payment", paymentRoute);
 indexRoute.use("/chat", chatRoute);
+indexRoute.use("/analytics", analyticsRoute);
 
 export default indexRoute;

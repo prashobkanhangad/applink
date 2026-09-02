@@ -4,26 +4,48 @@ import { Link } from '../../models/links.model.js';
 import { PricingPlans } from '../../models/pricingPlans.model.js';
 import { AffiliateSignup } from '../../models/affiliateSignup.model.js';
 import { SupportMessage } from '../../models/supportMessage.model.js';
+import { PageView } from '../../models/pageView.model.js';
 import { sendSuccess, sendError } from '../../services/requestHandler.js';
 import { emitToUser } from '../../services/socketService.js';
 
 /**
  * GET /admin/stats
- * Returns counts for admin overview: totalUsers, totalApps, totalLinks, totalAffiliates.
+ * Returns counts for admin overview: totalUsers, totalApps, totalLinks, totalAffiliates, recent visitors.
  */
 export const getStats = async (req, res) => {
   try {
-    const [totalUsers, totalApps, totalLinks, totalAffiliates] = await Promise.all([
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const [totalUsers, totalApps, totalLinks, totalAffiliates, visitorAgg] = await Promise.all([
       User.countDocuments(),
       App.countDocuments(),
       Link.countDocuments(),
       AffiliateSignup.countDocuments(),
+      PageView.aggregate([
+        { $match: { createdAt: { $gte: weekAgo } } },
+        {
+          $group: {
+            _id: null,
+            pageViews: { $sum: 1 },
+            visitors: { $addToSet: '$visitorId' },
+          },
+        },
+        {
+          $project: {
+            pageViews: 1,
+            uniqueVisitors: { $size: '$visitors' },
+            _id: 0,
+          },
+        },
+      ]),
     ]);
+    const visitors7d = visitorAgg[0] || { pageViews: 0, uniqueVisitors: 0 };
     await sendSuccess(req, res, 'Admin stats fetched successfully', 200, {
       totalUsers,
       totalApps,
       totalLinks,
       totalAffiliates,
+      visitors7d: visitors7d.uniqueVisitors,
+      pageViews7d: visitors7d.pageViews,
     });
   } catch (error) {
     console.error('[getAdminStats]', error);
