@@ -27,9 +27,7 @@ function resolveChrome() {
   for (const candidate of CHROME_CANDIDATES) {
     if (fs.existsSync(candidate)) return candidate
   }
-  throw new Error(
-    'No Chrome/Chromium found. Set CHROME_PATH or install Google Chrome for prerender.'
-  )
+  return null
 }
 
 function routeToOutputPath(route) {
@@ -39,12 +37,26 @@ function routeToOutputPath(route) {
 }
 
 async function main() {
+  if (process.env.SKIP_PRERENDER === '1' || process.env.SKIP_PRERENDER === 'true') {
+    console.log('[prerender] SKIP_PRERENDER set — skipping static prerender')
+    return
+  }
+
   if (!fs.existsSync(path.join(distDir, 'index.html'))) {
     console.error('[prerender] dist/index.html missing — run vite build first')
     process.exit(1)
   }
 
   const executablePath = resolveChrome()
+  if (!executablePath) {
+    // Vercel/CI images do not ship Chrome; SPA build is still valid.
+    console.warn(
+      '[prerender] No Chrome/Chromium found — skipping prerender (SPA fallback). ' +
+        'Set CHROME_PATH locally or install Google Chrome to enable static HTML output.'
+    )
+    return
+  }
+
   console.log(`[prerender] using Chrome at ${executablePath}`)
 
   const server = createServer((req, res) =>
