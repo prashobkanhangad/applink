@@ -16,10 +16,7 @@ import { DeepLinkingPlatform } from './pages/DeepLinkingPlatform';
 import { DeferredDeepLinking } from './pages/DeferredDeepLinking';
 import { AppDeepLinks } from './pages/AppDeepLinks';
 import { Blog } from './pages/Blog';
-import { FirebaseDynamicLinksAlternatives2025 } from './pages/blog/FirebaseDynamicLinksAlternatives2025';
-import { WhatIsDeepLinking } from './pages/blog/WhatIsDeepLinking';
-import { DeferredDeepLinkingForProductManagers } from './pages/blog/DeferredDeepLinkingForProductManagers';
-import { HowToImplementDeepLinking } from './pages/blog/HowToImplementDeepLinking';
+import { BlogPost } from './pages/BlogPost';
 import { Affiliate } from './pages/Affiliate';
 import { VisitorTracker } from './components/VisitorTracker';
 
@@ -50,10 +47,7 @@ function App() {
         <Route path="/deferred-deep-linking" element={<DeferredDeepLinking />} />
         <Route path="/app-deep-links" element={<AppDeepLinks />} />
         <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/firebase-dynamic-links-alternatives-2025" element={<FirebaseDynamicLinksAlternatives2025 />} />
-        <Route path="/blog/what-is-deep-linking" element={<WhatIsDeepLinking />} />
-        <Route path="/blog/deferred-deep-linking-for-product-managers" element={<DeferredDeepLinkingForProductManagers />} />
-        <Route path="/blog/how-to-implement-deep-linking-android-ios" element={<HowToImplementDeepLinking />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/affiliate" element={<Affiliate />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         {/* <Route path="/dashboard/links" element={<Links />} /> */}

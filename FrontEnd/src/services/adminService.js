@@ -213,3 +213,73 @@ export const getAdminVisitorAnalytics = async ({ startDate = '', endDate = '' } 
   const data = await adminFetch(`/admin/analytics/visitors${query ? `?${query}` : ''}`);
   return data.data || data;
 };
+
+// ─── Blog (admin) ─────────────────────────────────────────────────────────────
+
+/** GET /admin/blog?page=1&limit=20&search=&status= */
+export const getAdminBlogPosts = async ({ page = 1, limit = 20, search = '', status = '' } = {}) => {
+  const params = new URLSearchParams({ page, limit });
+  if (search) params.set('search', search);
+  if (status) params.set('status', status);
+  const data = await adminFetch(`/admin/blog?${params}`);
+  return data.data || data;
+};
+
+/** GET /admin/blog/:id */
+export const getAdminBlogPost = async (id) => {
+  const data = await adminFetch(`/admin/blog/${id}`);
+  return data.data || data;
+};
+
+/** POST /admin/blog */
+export const createAdminBlogPost = async (payload) => {
+  const data = await adminFetch('/admin/blog', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return data.data || data;
+};
+
+/** PUT /admin/blog/:id */
+export const updateAdminBlogPost = async (id, payload) => {
+  const data = await adminFetch(`/admin/blog/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  return data.data || data;
+};
+
+/** DELETE /admin/blog/:id */
+export const deleteAdminBlogPost = async (id) => {
+  const data = await adminFetch(`/admin/blog/${id}`, { method: 'DELETE' });
+  return data.data || data;
+};
+
+/** PATCH /admin/blog/:id/toggle — toggle draft ↔ published */
+export const toggleAdminBlogPostStatus = async (id) => {
+  const data = await adminFetch(`/admin/blog/${id}/toggle`, { method: 'PATCH' });
+  return data.data || data;
+};
+
+// ─── Auto Blog ──────────────────────────────────────────────────────────────
+
+/** GET /admin/auto-blog/status */
+export const getAutoBlogStatus = async () => {
+  const data = await adminFetch('/admin/auto-blog/status');
+  return data.data || data;
+};
+
+/** GET /admin/auto-blog/logs?limit=20 */
+export const getAutoBlogLogs = async (limit = 20) => {
+  const data = await adminFetch(`/admin/auto-blog/logs?limit=${limit}`);
+  return data.data || data;
+};
+
+/** POST /admin/auto-blog/run — manually trigger */
+export const triggerAutoBlog = async (count = 5) => {
+  const data = await adminFetch('/admin/auto-blog/run', {
+    method: 'POST',
+    body: JSON.stringify({ count }),
+  });
+  return data;
+};

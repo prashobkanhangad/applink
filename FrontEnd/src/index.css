@@ -24,6 +24,16 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 0 0% 0%;
     --radius: 0.5rem;
+
+    --brand: 51 100% 50%;
+    --brand-foreground: 240 6% 9%;
+    --brand-soft: 51 100% 93%;
+    --surface-cream: 45 71% 97%;
+    --surface-mint: 155 45% 96%;
+    --surface-lilac: 255 60% 97%;
+    --surface-peach: 22 85% 97%;
+    --soft-shadow: 0 20px 45px -24px hsl(240 30% 20% / 0.22);
+    --soft-shadow-lg: 0 40px 80px -32px hsl(240 30% 20% / 0.28);
   }
 
   .dark {
@@ -46,6 +56,16 @@
     --border: 217.2 32.6% 22%;
     --input: 217.2 32.6% 17.5%;
     --ring: 0 0% 98%;
+
+    --brand: 51 100% 52%;
+    --brand-foreground: 240 6% 9%;
+    --brand-soft: 51 45% 14%;
+    --surface-cream: 222 45% 8%;
+    --surface-mint: 195 40% 8%;
+    --surface-lilac: 255 35% 10%;
+    --surface-peach: 20 30% 9%;
+    --soft-shadow: 0 20px 45px -24px hsl(0 0% 0% / 0.6);
+    --soft-shadow-lg: 0 40px 80px -32px hsl(0 0% 0% / 0.7);
   }
 
   * {
@@ -94,6 +114,60 @@
 
   .animate-pulse-glow {
     animation: pulse-glow 4s ease-in-out infinite;
+  }
+
+  .display-heading {
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Marker-pen highlight behind inline text, survives line wraps */
+  .brand-highlight {
+    background-image: linear-gradient(
+      to top,
+      hsl(var(--brand) / 0.75) 0,
+      hsl(var(--brand) / 0.75) 28%,
+      transparent 28%
+    );
+    padding: 0 0.12em;
+    border-radius: 0.12em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* On dark surfaces a translucent wash muddies to olive, so use a crisp bar */
+  .dark .brand-highlight {
+    background-image: linear-gradient(
+      to top,
+      hsl(var(--brand)) 0,
+      hsl(var(--brand)) 14%,
+      transparent 14%
+    );
+  }
+
+  .soft-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / 0.7);
+    border-radius: 1.5rem;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .soft-card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .soft-card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--soft-shadow-lg);
   }
 }
 

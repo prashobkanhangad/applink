@@ -12,48 +12,54 @@ export const CTASection = () => {
       : "/signup";
 
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[120px]" />
-      </div>
-
+    <section className="py-20 lg:py-28 relative overflow-hidden bg-background">
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
-          className="bg-card rounded-3xl p-8 sm:p-12 lg:p-16 text-center max-w-4xl mx-auto border border-border shadow-xl"
+          className="relative overflow-hidden bg-brand text-brand-foreground rounded-[2.5rem] px-8 py-14 sm:px-12 sm:py-16 lg:px-16 lg:py-20 text-center max-w-5xl mx-auto shadow-soft-lg"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Use App Deep Links to{" "}
-            <span className="text-gradient">Increase Retention</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Join thousands of developers and marketers who trust Deeplink as their deep linking platform 
-            for user acquisition. Start free, upgrade when you're ready.
-          </p>
+          {/* Decorative rings */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.12]">
+            <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full border-[24px] border-brand-foreground" />
+            <div className="absolute -bottom-28 -right-10 w-80 h-80 rounded-full border-[24px] border-brand-foreground" />
+          </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to={getAuthDestination()}>
-              <Button variant="hero" size="xl" className="group">
-                Get Started Free
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <a
-              href={CALENDLY_DEMO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                "border-2 border-primary text-primary hover:bg-primary/10",
-                "h-14 rounded-lg px-10 text-lg"
-              )}
-            >
-              Schedule a Demo
-            </a>
+          <div className="relative">
+            <h2 className="display-heading text-3xl sm:text-4xl lg:text-[3.5rem] mb-6">
+              Use App Deep Links to{" "}
+              <span className="underline decoration-brand-foreground/30 decoration-[6px] underline-offset-[10px]">
+                Increase Retention
+              </span>
+            </h2>
+            <p className="text-base sm:text-lg text-brand-foreground/80 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+              Join thousands of developers and marketers who trust Deeplink as their deep linking platform 
+              for user acquisition. Start free, upgrade when you're ready.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to={getAuthDestination()} className="w-full sm:w-auto">
+                <Button variant="on-brand" size="pill" className="group w-full sm:w-auto">
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <a
+                href={CALENDLY_DEMO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold w-full sm:w-auto",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-foreground focus-visible:ring-offset-2",
+                  "h-14 rounded-full px-9 text-base border-2 border-brand-foreground/30 text-brand-foreground",
+                  "hover:border-brand-foreground hover:bg-brand-foreground/5 [transition:all_.25s_ease]"
+                )}
+              >
+                Schedule a Demo
+              </a>
+            </div>
           </div>
 
           {/* Trust Indicators */}

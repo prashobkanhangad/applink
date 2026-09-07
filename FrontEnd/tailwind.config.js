@@ -51,6 +51,21 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        brand: {
+          DEFAULT: "hsl(var(--brand))",
+          foreground: "hsl(var(--brand-foreground))",
+          soft: "hsl(var(--brand-soft))",
+        },
+        surface: {
+          cream: "hsl(var(--surface-cream))",
+          mint: "hsl(var(--surface-mint))",
+          lilac: "hsl(var(--surface-lilac))",
+          peach: "hsl(var(--surface-peach))",
+        },
+      },
+      boxShadow: {
+        soft: "var(--soft-shadow)",
+        "soft-lg": "var(--soft-shadow-lg)",
       },
       borderRadius: {
         lg: "var(--radius)",

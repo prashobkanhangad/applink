@@ -6,6 +6,8 @@ import { useChatSocket } from '../contexts/ChatSocketContext';
 import { playNotificationSound } from '../utils/notificationSound';
 import { getAdminStats, getAdminUsers, getAdminApps, getAdminApp, getAdminUser, updateUserRole, getAdminPlans, getAdminPlan, createAdminPlan, updateAdminPlan, deleteAdminPlan, getAdminLinks, getAdminLink, deleteAdminLink, getAdminAffiliates, getAdminChatConversations, getAdminChatMessages, sendAdminChatReply } from '../services/adminService';
 import { AdminTraffic } from './admin/Traffic';
+import { AdminBlog } from './admin/Blog';
+import { AdminAutoBlog } from './admin/AutoBlog';
 
 const META = {
   title: 'Admin Dashboard',
@@ -1535,6 +1537,18 @@ export const AdminDashboard = () => {
         return (
           <AdminLayout title="Support" subtitle="Reply to user chats">
             <AdminSupport />
+          </AdminLayout>
+        );
+      case 'blog':
+        return (
+          <AdminLayout title="Blog" subtitle="Create and manage blog posts">
+            <AdminBlog />
+          </AdminLayout>
+        );
+      case 'auto-blog':
+        return (
+          <AdminLayout title="Auto Blog" subtitle="AI writes 3 blog posts daily with cover images">
+            <AdminAutoBlog />
           </AdminLayout>
         );
       case 'traffic':

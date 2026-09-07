@@ -12,6 +12,7 @@ import keysRoute from "./keys.js";
 import paymentRoute from "./payment.js";
 import chatRoute from "./chat.js";
 import analyticsRoute from "./analytics.js";
+import blogRoute from "./blog.js";
 
 const indexRoute = Router();
 
@@ -28,5 +29,6 @@ indexRoute.use("/keys", keysRoute);
 indexRoute.use("/payment", paymentRoute);
 indexRoute.use("/chat", chatRoute);
 indexRoute.use("/analytics", analyticsRoute);
+indexRoute.use("/blog", blogRoute);
 
 export default indexRoute;
