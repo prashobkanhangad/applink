@@ -19,7 +19,8 @@ export function buildFaqSchema(faqs = []) {
 }
 
 /**
- * Build Article JSON-LD for blog posts.
+ * Build BlogPosting JSON-LD for blog posts.
+ * Uses BlogPosting (more specific than Article) — preferred by Google for blog content.
  */
 export function buildArticleSchema({
   title,
@@ -28,11 +29,14 @@ export function buildArticleSchema({
   datePublished,
   dateModified,
   authorName = "Deeplink Team",
+  imageUrl,
+  keywords,
+  wordCount,
 }) {
   const url = `${SITE_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
-  return {
+  const schema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: title,
     description,
     url,
@@ -46,6 +50,7 @@ export function buildArticleSchema({
       "@type": "Organization",
       name: authorName,
       url: `${SITE_ORIGIN}/`,
+      sameAs: [`${SITE_ORIGIN}/`],
     },
     publisher: {
       "@type": "Organization",
@@ -54,9 +59,24 @@ export function buildArticleSchema({
       logo: {
         "@type": "ImageObject",
         url: `${SITE_ORIGIN}/logo_dark.png`,
+        width: 200,
+        height: 60,
       },
     },
   };
+
+  if (imageUrl) {
+    schema.image = {
+      "@type": "ImageObject",
+      url: imageUrl,
+      width: 1536,
+      height: 864,
+    };
+  }
+  if (keywords) schema.keywords = keywords;
+  if (wordCount) schema.wordCount = wordCount;
+
+  return schema;
 }
 
 /**

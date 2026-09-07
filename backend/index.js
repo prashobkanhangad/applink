@@ -17,6 +17,7 @@ import morgan from 'morgan';
 import { initCronJobs } from './services/cron.service.js';
 import indexRoute from './routes/index.js';
 import { checkValidDeepLink } from './controllers/app/app.controller.js';
+import { serveSitemap } from './controllers/sitemap.controller.js';
 import { sendSuccess } from './services/requestHandler.js';
 import { setupSocketHandlers } from './socketHandlers.js';
 dotenv.config()
@@ -69,6 +70,9 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/api/v1', indexRoute)
+
+// Dynamic sitemap — always fresh, includes all published blog posts
+app.get('/sitemap.xml', serveSitemap)
 
 app.use('*', checkValidDeepLink)
 

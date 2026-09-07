@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 import { createServer } from 'http'
 import handler from 'serve-handler'
 import puppeteer from 'puppeteer-core'
-import { PRERENDER_ROUTES } from '../src/constants/prerenderRoutes.js'
+import { PRERENDER_ROUTES, KNOWN_BLOG_SLUGS } from '../src/constants/prerenderRoutes.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.join(__dirname, '..', 'dist')
@@ -36,6 +36,22 @@ function routeToOutputPath(route) {
   return path.join(distDir, clean, 'index.html')
 }
 
+/** Fetch published blog slugs from the API to include in the prerender. */
+async function fetchBlogSlugs() {
+  const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1'
+  try {
+    const res = await fetch(`${apiBase}/blog?limit=100`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    const slugs = (data.posts || []).map((p) => p.slug).filter(Boolean)
+    console.log(`[prerender] fetched ${slugs.length} blog slugs from API`)
+    return slugs
+  } catch (err) {
+    console.warn(`[prerender] could not fetch blog slugs (${err.message}) — using known slugs`)
+    return KNOWN_BLOG_SLUGS
+  }
+}
+
 async function main() {
   if (process.env.SKIP_PRERENDER === '1' || process.env.SKIP_PRERENDER === 'true') {
     console.log('[prerender] SKIP_PRERENDER set — skipping static prerender')
@@ -46,6 +62,10 @@ async function main() {
     console.error('[prerender] dist/index.html missing — run vite build first')
     process.exit(1)
   }
+
+  const blogSlugs = await fetchBlogSlugs()
+  const blogRoutes = blogSlugs.map((s) => `/blog/${s}`)
+  const allRoutes = [...PRERENDER_ROUTES, ...blogRoutes]
 
   const executablePath = resolveChrome()
   if (!executablePath) {
@@ -80,7 +100,7 @@ async function main() {
   const page = await browser.newPage()
 
   try {
-    for (const route of PRERENDER_ROUTES) {
+    for (const route of allRoutes) {
       const url = `http://127.0.0.1:${PORT}${route}`
       try {
         await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })

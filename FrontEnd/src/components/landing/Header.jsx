@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "../../contexts/ThemeContext";
+import { cn } from "../../utils/cn";
 
 const navLinks = [
   { name: "Features", href: "/#features" },
@@ -15,7 +16,15 @@ const navLinks = [
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const getAuthDestination = () =>
     typeof window !== "undefined" && localStorage.getItem("authToken")
@@ -23,7 +32,14 @@ export const Header = () => {
       : "/signup";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 [transition:background-color_.3s_ease,box-shadow_.3s_ease]",
+        isScrolled || isOpen
+          ? "bg-background/85 backdrop-blur-xl shadow-soft"
+          : "bg-transparent"
+      )}
+    >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -77,7 +93,7 @@ export const Header = () => {
           >
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
             >
               {theme === "light" ? (
@@ -87,12 +103,12 @@ export const Header = () => {
               )}
             </button>
             <Link to={getAuthDestination()}>
-              <Button variant="ghost" className="text-muted-foreground">
+              <Button variant="ghost" size="pill-sm" className="font-bold">
                 Log In
               </Button>
             </Link>
             <Link to={getAuthDestination()}>
-              <Button variant="hero" size="default">
+              <Button variant="brand" size="pill-sm">
                 Get Started Free
               </Button>
             </Link>
@@ -176,7 +192,11 @@ export const Header = () => {
                   to={getAuthDestination()}
                   onClick={() => setIsOpen(false)}
                 >
-                  <Button variant="ghost" className="justify-center w-full">
+                  <Button
+                    variant="brand-outline"
+                    size="pill-sm"
+                    className="justify-center w-full"
+                  >
                     Log In
                   </Button>
                 </Link>
@@ -184,7 +204,11 @@ export const Header = () => {
                   to={getAuthDestination()}
                   onClick={() => setIsOpen(false)}
                 >
-                  <Button variant="hero" className="justify-center w-full">
+                  <Button
+                    variant="brand"
+                    size="pill-sm"
+                    className="justify-center w-full"
+                  >
                     Get Started Free
                   </Button>
                 </Link>

@@ -3,6 +3,7 @@ import { DomainVerification } from '../models/domainVerification.model.js';
 import { App } from '../models/app.model.js';
 import { verifyDomain } from './domainVerification.service.js';
 import { getLastSdkActivityByAppPlatform } from './sdkActivity.service.js';
+import { runAutoBlogGeneration } from './autoBlog.service.js';
 
 const SDK_STALE_DAYS = 10;
 const SDK_STALE_MS = SDK_STALE_DAYS * 24 * 60 * 60 * 1000;
@@ -148,6 +149,22 @@ export const initCronJobs = () => {
             console.error('[Cron] Stale SDK verification clear failed:', error);
         }
     });
+
+    // Daily auto-blog generation — runs at 06:30 IST (01:00 UTC)
+    // Skipped if OPENAI_API_KEY or SUPABASE_URL is not configured
+    if (process.env.OPENAI_API_KEY && process.env.SUPABASE_URL) {
+        cron.schedule('0 1 * * *', async () => {
+            console.log('[Cron] Running daily auto-blog generation...');
+            try {
+                await runAutoBlogGeneration('cron');
+            } catch (error) {
+                console.error('[Cron] Auto-blog generation failed:', error.message);
+            }
+        });
+        console.log('  - Auto-blog generation: Daily at 06:30 IST');
+    } else {
+        console.log('  - Auto-blog generation: DISABLED (set OPENAI_API_KEY + SUPABASE_URL to enable)');
+    }
 
     // Optional: Re-verify existing domains every 6 hours
     // Uncomment if you want to detect when users remove their CNAME records

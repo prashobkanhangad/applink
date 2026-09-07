@@ -30,10 +30,13 @@ const steps = [
 
 export const HowItWorksSection = () => {
   return (
-    <section id="how-it-works" className="py-24 lg:py-32 bg-secondary/50 relative overflow-hidden">
-      {/* Background Pattern */}
+    <section
+      id="how-it-works"
+      className="py-24 lg:py-32 bg-surface-lilac relative overflow-hidden"
+    >
+      {/* Soft brand glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent" />
+        <div className="absolute -bottom-40 -left-24 w-[520px] h-[520px] rounded-full bg-brand/15 blur-[130px]" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
@@ -45,17 +48,18 @@ export const HowItWorksSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+          <span className="mx-auto mb-6 block h-1.5 w-16 rounded-full bg-brand" />
+          <h2 className="display-heading text-3xl sm:text-4xl lg:text-[3.25rem] mb-6">
             Mobile Deep Linking for{" "}
-            <span className="text-gradient">Android & iOS Apps</span>
+            <span className="brand-highlight">Android &amp; iOS Apps</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground leading-relaxed">
             Get started in minutes, not weeks. Here's how app deep links work.
           </p>
         </motion.div>
 
         {/* Steps */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
           {steps.map((step, i) => (
             <motion.div
               key={i}
@@ -65,25 +69,22 @@ export const HowItWorksSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
             >
-              {/* Connector Line (hidden on last item and mobile) */}
-              {i < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-border to-transparent z-0" />
-              )}
-
-              <div className="relative z-10">
+              <div className="soft-card soft-card-hover h-full p-7 pt-9 relative">
                 {/* Number Badge */}
-                <div className="text-5xl font-bold text-primary/20 mb-4 font-mono">
+                <span className="absolute -top-5 left-7 w-12 h-12 rounded-full bg-brand text-brand-foreground font-extrabold text-base flex items-center justify-center shadow-soft">
                   {step.number}
-                </div>
+                </span>
 
                 {/* Icon */}
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 border border-primary/20">
-                  <step.icon className="w-7 h-7 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center mb-5">
+                  <step.icon className="w-6 h-6 text-foreground" />
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-bold tracking-tight mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>

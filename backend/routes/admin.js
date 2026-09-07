@@ -3,6 +3,8 @@ import { verifyJWT } from '../services/jwt.js';
 import { requireAdmin } from '../services/requireAdmin.js';
 import { getStats, getUsers, getApps, updateUserRole, getUserById, getAppById, getPlans, getPlanById, createPlan, updatePlan, deletePlan, getLinks, getLinkById, deleteLink, getAffiliates, getChatConversations, getChatMessagesForUser, sendChatReply } from '../controllers/admin/admin.controller.js';
 import { getVisitorAnalytics } from '../controllers/admin/visitorAnalytics.controller.js';
+import { adminListPosts, adminGetPost, adminCreatePost, adminUpdatePost, adminDeletePost, adminToggleStatus } from '../controllers/admin/adminBlog.controller.js';
+import { triggerAutoBlog, getRunLogs, getRunStatus } from '../controllers/admin/autoBlog.controller.js';
 
 const adminRoute = Router();
 
@@ -28,5 +30,16 @@ adminRoute.get('/chat/conversations', getChatConversations);
 adminRoute.get('/chat/conversations/:userId/messages', getChatMessagesForUser);
 adminRoute.post('/chat/conversations/:userId/messages', sendChatReply);
 adminRoute.get('/analytics/visitors', getVisitorAnalytics);
+
+adminRoute.get('/blog', adminListPosts);
+adminRoute.post('/blog', adminCreatePost);
+adminRoute.get('/blog/:id', adminGetPost);
+adminRoute.put('/blog/:id', adminUpdatePost);
+adminRoute.delete('/blog/:id', adminDeletePost);
+adminRoute.patch('/blog/:id/toggle', adminToggleStatus);
+
+adminRoute.get('/auto-blog/status', getRunStatus);
+adminRoute.get('/auto-blog/logs', getRunLogs);
+adminRoute.post('/auto-blog/run', triggerAutoBlog);
 
 export default adminRoute;
