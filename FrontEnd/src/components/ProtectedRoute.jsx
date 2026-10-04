@@ -7,7 +7,7 @@ import { handleAuthFailure, getCurrentUser } from '../services/authService';
  * Redirects to signup if no token; redirects to onboarding if profile incomplete.
  */
 export const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('authToken');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   const [checking, setChecking] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 

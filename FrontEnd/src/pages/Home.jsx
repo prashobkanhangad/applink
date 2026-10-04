@@ -1,108 +1,60 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import {
   HeroSection,
   FeaturesSection,
   HowItWorksSection,
   PricingSection,
   CTASection,
-} from '../components/landing';
-import { PageMeta } from '../components/PageMeta';
+} from "../components/landing";
+import { UseCasesSection } from "../components/landing/UseCasesSection";
+import { PageMeta } from "../components/PageMeta";
+import { JsonLd } from "../components/JsonLd";
+import { marketingMeta, PRODUCT_DESCRIPTION } from "../constants/siteCopy";
+import { HOME_FAQS } from "../content/homeFaq";
+import { plansWithVisiblePrice, readPrerenderedPlans } from "../content/pricingPlans";
 import {
-  SITE_ORIGIN,
-  DOCS_URL,
-  SOCIAL_SAME_AS,
-  SUPPORT_EMAIL,
-  defaultOgImageUrl,
-} from '../constants/publicSite';
+  buildFaqSchema,
+  buildHomeGraph,
+  buildSoftwareApplicationSchema,
+  offersFromPlans,
+} from "../utils/seoSchema";
 
-const ORGANIZATION_JSON_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': `${SITE_ORIGIN}/#organization`,
-  name: 'Deeplink',
-  url: `${SITE_ORIGIN}/`,
-  logo: `${SITE_ORIGIN}/logo_dark.png`,
-  description:
-    'Deeplink is a smart deep linking platform for mobile apps and websites—smart links, routing across Android, iOS, and web, deferred deep linking, analytics, APIs, and SDKs.',
-  email: SUPPORT_EMAIL,
-  sameAs: SOCIAL_SAME_AS,
-};
-
-const WEBSITE_JSON_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  '@id': `${SITE_ORIGIN}/#website`,
-  name: 'Deeplink',
-  url: `${SITE_ORIGIN}/`,
-  description:
-    'Smart deep linking platform for apps and web with deferred deep linking, analytics, APIs, and SDKs.',
-  publisher: { '@id': `${SITE_ORIGIN}/#organization` },
-};
-
-const SOFTWARE_APPLICATION_JSON_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'Deeplink',
-  applicationCategory: 'DeveloperApplication',
-  operatingSystem: 'Android, iOS, Web',
-  url: `${SITE_ORIGIN}/`,
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-    description:
-      'Free and paid plans with monthly click limits as shown on the live pricing section of deeplink.in.',
-  },
-  feature: [
-    'Universal smart deep links for iOS, Android, and web',
-    'Deferred deep linking through install to first open',
-    'Real-time attribution for clicks, installs, and conversions',
-    'REST APIs, webhooks, and SDKs',
-    'Dashboard link management with UTM campaign parameters',
-  ],
-  screenshot: defaultOgImageUrl(),
-  softwareHelp: DOCS_URL,
-  publisher: { '@id': `${SITE_ORIGIN}/#organization` },
-};
-
-const META = {
-  title: 'Deeplink – Smart Deep Linking Platform for Apps & Web',
-  description: 'Deeplink is a smart deep linking platform that helps you create deep links for mobile apps and websites with seamless redirection, analytics, and better user engagement.',
-  ogDescription: 'Deeplink is a smart deep linking platform. Create smart deep links for mobile apps and websites with seamless redirection, analytics, and better engagement.',
-  twitterDescription: 'One smart link for apps and web. Deep linking, redirection, and analytics made simple.',
-  keywords: 'deep linking, deeplink platform, smart links, mobile deep linking, app deep links, deferred deep linking, URL redirection, app attribution, deep link analytics, universal links, android app links',
-  imageAlt: 'Deeplink – Smart Deep Linking Platform',
-};
+const meta = marketingMeta("/");
 
 export const Home = () => {
+  const pricedPlans = plansWithVisiblePrice(readPrerenderedPlans());
+
   return (
     <div className="min-h-screen bg-background">
       <PageMeta
-        title={META.title}
-        description={META.description}
-        keywords={META.keywords}
-        ogDescription={META.ogDescription}
-        twitterDescription={META.twitterDescription}
-        imageAlt={META.imageAlt}
+        title={meta.title}
+        description={PRODUCT_DESCRIPTION}
         path="/"
+        imageAlt="Deeplink, a deep linking platform for apps and websites"
       />
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(ORGANIZATION_JSON_LD)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(WEBSITE_JSON_LD)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(SOFTWARE_APPLICATION_JSON_LD)}
-        </script>
-      </Helmet>
+      <JsonLd data={buildHomeGraph()} />
+      <JsonLd data={buildSoftwareApplicationSchema(offersFromPlans(pricedPlans))} />
+      <JsonLd data={buildFaqSchema(HOME_FAQS)} />
       <main>
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <UseCasesSection />
         <PricingSection />
+        <section id="faq" className="py-24 lg:py-32 bg-background">
+          <div className="container mx-auto px-6 max-w-3xl">
+            <h2 className="display-heading text-3xl sm:text-4xl mb-10 text-center">
+              Frequently asked questions
+            </h2>
+            <div className="space-y-6">
+              {HOME_FAQS.map((faq) => (
+                <article key={faq.question} className="soft-card p-6">
+                  <h3 className="text-lg font-bold mb-2">{faq.question}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
         <CTASection />
       </main>
     </div>

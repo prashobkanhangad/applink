@@ -1,14 +1,21 @@
+import { CANONICAL_ORIGIN, PRODUCT_DESCRIPTION } from "./siteCopy.js";
+
 /** Public marketing site URLs — keep OG image path in sync with `index.html` and `/public`. */
-export const SITE_ORIGIN = (import.meta.env.VITE_APP_URL || "https://deeplink.in").replace(
+export const SITE_ORIGIN = (import.meta.env.VITE_APP_URL || CANONICAL_ORIGIN).replace(
   /\/$/,
   ""
 );
+
+export { PRODUCT_DESCRIPTION };
 
 export const DOCS_URL = "https://docs.deeplink.in/";
 export const CALENDLY_DEMO_URL = "https://calendly.com/deeplink-info/30min";
 export const SUPPORT_EMAIL = "info@deeplink.in";
 
-/** Organization sameAs entity URLs for JSON-LD (add LinkedIn / X / GitHub when live). */
+/**
+ * Organization sameAs URLs that exist in the repo.
+ * TODO: [fact needed] official LinkedIn, X, and GitHub profile URLs.
+ */
 export const SOCIAL_SAME_AS = [
   "https://docs.deeplink.in",
 ];

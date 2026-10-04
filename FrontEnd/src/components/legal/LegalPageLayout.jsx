@@ -20,7 +20,9 @@ export const LegalPageLayout = ({ title, lastUpdated, backHref = "/", backLabel 
             <Link to="/" className="flex items-center gap-2 text-foreground">
               <img
                 src={logoSrc}
-                alt="DeepLink"
+                alt="Deeplink"
+                width={164}
+                height={56}
                 className="h-14 w-auto object-contain"
               />
 

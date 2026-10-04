@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import { Header, Footer } from '../components/landing';
 import { Section, Container } from '../design-system';
 import { PageMeta } from '../components/PageMeta';
 import { DOCS_URL } from '../constants/publicSite';
@@ -14,7 +13,7 @@ const META = {
 
 export const About = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pt-24">
       <PageMeta title={META.title} description={META.description} path="/about" />
       <Header />
 
@@ -26,7 +25,7 @@ export const About = () => {
                 About Deeplink
               </h1>
               <p className="text-xl text-text-secondary leading-relaxed">
-                Deeplink is a smart deep linking and install attribution platform. We help product,
+                Deeplink (deeplink.in) is a smart deep linking and install attribution platform. We help product,
                 growth, and engineering teams create one link that opens the right in-app screen —
                 whether the app is installed or not — across Android, iOS, and web.
               </p>

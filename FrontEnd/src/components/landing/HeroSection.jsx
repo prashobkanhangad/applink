@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/button";
 import { CALENDLY_DEMO_URL } from "../../constants/publicSite";
 import { cn } from "../../utils/cn";
 
-const stats = [
-  { value: "99.9%", label: "Uptime SLA" },
-  { value: "50ms", label: "Avg Response" },
-  { value: "5 min", label: "SDK Setup" },
-  { value: "150+", label: "Countries" },
-];
-
 const previewCards = [
   {
     icon: Zap,
@@ -63,7 +56,7 @@ export const HeroSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Sparkles className="inline-block w-4 h-4 mr-2 align-[-3px] text-brand-foreground dark:text-brand" />
-            Trusted by 10,000+ developers worldwide
+            Deep linking for Android, iOS, and the web
           </motion.p>
 
           {/* Headline - Primary keyword for SEO */}
@@ -73,8 +66,7 @@ export const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Smart Deep Linking{" "}
-            <span className="brand-highlight">Platform for Apps &amp; Web</span>
+            Deep links for mobile apps and websites
           </motion.h1>
 
           {/* First 100 words - Context lock with primary & secondary keywords */}
@@ -84,7 +76,7 @@ export const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Deeplink is a powerful deep linking platform that helps businesses create smart deep links for mobile apps and websites. With support for mobile deep linking and app deep links, Deeplink ensures users land in the right place across Android, iOS, and web.
+            Deeplink (deeplink.in) is a deep linking platform for product, growth, and engineering teams. It creates links that open the right screen in a mobile app or on a website, with deferred deep linking after install, Universal Links, Android App Links, and click analytics.
           </motion.p>
           <motion.p
             className="text-sm font-semibold mb-10"
@@ -128,32 +120,6 @@ export const HeroSection = () => {
             </a>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            className="soft-card max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 overflow-hidden"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            {stats.map((stat, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "px-4 py-6 text-center border-border/70",
-                  i % 2 === 0 && "border-r",
-                  i === 1 && "md:border-r",
-                  i < 2 && "border-b md:border-b-0"
-                )}
-              >
-                <div className="display-heading text-2xl sm:text-3xl mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-xs sm:text-sm text-muted-foreground font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </motion.div>
         </div>
 
         {/* Hero Visual */}

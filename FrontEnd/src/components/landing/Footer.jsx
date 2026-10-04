@@ -2,14 +2,25 @@ import { Link } from "react-router-dom";
 import { BookOpen, Calendar } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { CALENDLY_DEMO_URL, DOCS_URL } from "../../constants/publicSite";
+import { PRODUCT_DESCRIPTION } from "../../constants/siteCopy";
 
 const footerLinks = {
   Product: [
-    { name: "Features", href: "/#features" },
-    { name: "Pricing", href: "/#pricing" },
-    { name: "Deep Linking Platform", href: "/deep-linking-platform" },
-    { name: "Deferred Deep Linking", href: "/deferred-deep-linking" },
-    { name: "App Deep Links", href: "/app-deep-links" },
+    { name: "Features", href: "/features" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "How deep linking works", href: "/#how-it-works" },
+    { name: "Compare Deeplink capabilities", href: "/compare" },
+    { name: "Deep linking platform", href: "/deep-linking-platform" },
+    { name: "Deferred deep linking", href: "/deferred-deep-linking" },
+    { name: "App deep links", href: "/app-deep-links" },
+  ],
+  Guides: [
+    { name: "All guides", href: "/guides" },
+    { name: "What is deep linking?", href: "/guides/what-is-deep-linking" },
+    { name: "Deferred deep linking", href: "/guides/deferred-deep-linking" },
+    { name: "Universal Links vs App Links", href: "/guides/universal-links-vs-app-links" },
+    { name: "Deep links for WhatsApp campaigns", href: "/guides/deep-links-whatsapp-campaigns" },
+    { name: "QR code deep links", href: "/guides/qr-code-deep-links" },
   ],
   Company: [
     { name: "About", href: "/about" },
@@ -42,19 +53,22 @@ export const Footer = () => {
   return (
     <footer className="bg-secondary/50 border-t border-border py-16 lg:py-20">
       <div className="container mx-auto px-6">
-        <div className="grid lg:grid-cols-6 gap-12 mb-12">
+        <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-12 mb-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <img
                 src={logoSrc}
-                alt="DeepLink"
+                alt="Deeplink"
+                width={164}
+                height={56}
+                loading="lazy"
                 className="h-14 w-auto object-contain"
               />
 
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xs">
-              The intelligent deep linking platform trusted by developers and marketers worldwide.
+              {PRODUCT_DESCRIPTION}
             </p>
             <div className="flex flex-wrap gap-3">
               {brandLinks.map((link) => (
@@ -112,7 +126,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DeepLink. All rights reserved.
+            © {new Date().getFullYear()} Deeplink. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link to="/sitemap" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

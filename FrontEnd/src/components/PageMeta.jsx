@@ -9,7 +9,6 @@ const DEFAULT_IMAGE = defaultOgImageUrl();
  * @param {string} title - Page title
  * @param {string} description - Meta description
  * @param {string} path - Path for canonical and og:url
- * @param {string} [keywords] - Optional meta keywords
  * @param {string} [image] - Optional og:image URL
  * @param {string} [imageAlt] - Optional og:image:alt
  * @param {string} [ogDescription] - Optional override for og:description (defaults to description)
@@ -21,7 +20,6 @@ export function PageMeta({
   title,
   description,
   path = "/",
-  keywords,
   image = DEFAULT_IMAGE,
   imageAlt,
   ogDescription,
@@ -30,8 +28,8 @@ export function PageMeta({
   ogType = "website",
 }) {
   const base = SITE_ORIGIN;
-  const url = path === "/" || !path ? base : `${base}${path.startsWith("/") ? path : `/${path}`}`;
-  const fullTitle = (title.includes("|") || title.includes("–")) ? title : `${title} | ${SITE_NAME}`;
+  const url = path === "/" || !path ? `${base}/` : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const fullTitle = /[|–—:]/.test(title) ? title : `${title} | ${SITE_NAME}`;
   const ogDesc = ogDescription ?? description;
   const twDesc = twitterDescription ?? description;
   const twitterHandle = TWITTER_SITE ? (TWITTER_SITE.startsWith("@") ? TWITTER_SITE : `@${TWITTER_SITE}`) : "";
@@ -40,9 +38,15 @@ export function PageMeta({
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={url} />
-      {noIndex && <meta name="robots" content="noindex, nofollow" />}
+      <meta
+        name="robots"
+        content={
+          noIndex
+            ? "noindex, nofollow"
+            : "index, follow, max-image-preview:large, max-snippet:-1"
+        }
+      />
 
       {/* Open Graph */}
       <meta property="og:type" content={ogType} />
@@ -50,8 +54,8 @@ export function PageMeta({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={ogDesc} />
       <meta property="og:image" content={image} />
-      <meta property="og:image:width" content={ogType === "article" ? "1536" : "1200"} />
-      <meta property="og:image:height" content={ogType === "article" ? "864" : "630"} />
+      <meta property="og:image:width" content={ogType === "article" ? "1536" : "1024"} />
+      <meta property="og:image:height" content={ogType === "article" ? "864" : "1024"} />
       {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content="en_US" />

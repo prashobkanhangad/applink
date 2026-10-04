@@ -10,7 +10,7 @@ export function FaqSection({ faqs = [], title = "FAQ" }) {
       <div className="space-y-5 mb-4">
         {faqs.map(({ question, answer }) => (
           <div key={question}>
-            <p className="font-semibold text-foreground mb-1">{question}</p>
+            <h3 className="text-base font-semibold text-foreground mb-1">{question}</h3>
             <p className="text-muted-foreground leading-relaxed mb-0">{answer}</p>
           </div>
         ))}
