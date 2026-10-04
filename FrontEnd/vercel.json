@@ -1,12 +1,38 @@
 {
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/sitemap.xml",
-      "destination": "https://api.lorrymithra.in/sitemap.xml"
-    },
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "deeplink.in" }],
+      "destination": "https://www.deeplink.in/:path*",
+      "statusCode": 301
+    }
+  ],
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/spa.html" },
+    { "source": "/dashboard/:path*", "destination": "/spa.html" },
+    { "source": "/admin", "destination": "/spa.html" },
+    { "source": "/admin/:path*", "destination": "/spa.html" },
+    { "source": "/onboarding", "destination": "/spa.html" },
+    { "source": "/blog/:slug", "destination": "/spa.html" }
+  ],
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    },
+    {
+      "source": "/llms.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
     }
   ]
 }

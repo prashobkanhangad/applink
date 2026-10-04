@@ -1,8 +1,17 @@
 import { BlogPost } from "../models/blog.model.js";
 
-const SITE = "https://deeplink.in";
+const SITE = "https://www.deeplink.in";
 const STATIC_PAGES = [
   { loc: "/",                       changefreq: "weekly",  priority: "1.0" },
+  { loc: "/features",               changefreq: "monthly", priority: "0.9" },
+  { loc: "/pricing",                changefreq: "weekly",  priority: "0.9" },
+  { loc: "/guides",                 changefreq: "weekly",  priority: "0.9" },
+  { loc: "/guides/what-is-deep-linking", changefreq: "monthly", priority: "0.8" },
+  { loc: "/guides/deferred-deep-linking", changefreq: "monthly", priority: "0.8" },
+  { loc: "/guides/universal-links-vs-app-links", changefreq: "monthly", priority: "0.8" },
+  { loc: "/guides/deep-links-whatsapp-campaigns", changefreq: "monthly", priority: "0.8" },
+  { loc: "/guides/qr-code-deep-links", changefreq: "monthly", priority: "0.8" },
+  { loc: "/compare",                changefreq: "monthly", priority: "0.6" },
   { loc: "/about",                  changefreq: "monthly", priority: "0.8" },
   { loc: "/signup",                 changefreq: "monthly", priority: "0.9" },
   { loc: "/deep-linking-platform",  changefreq: "monthly", priority: "0.85" },

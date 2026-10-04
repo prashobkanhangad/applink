@@ -1,41 +1,39 @@
 # Deeplink
 
-> Deeplink is a smart deep linking and install attribution platform for mobile apps and the web.
-> Create one link that opens the right Android, iOS, or web destination — including deferred deep linking after install.
+> Create deep links that open the right screen in your app or site. Deferred deep linking, universal links, Android App Links and click analytics.
 
-Website: https://deeplink.in
+Deeplink (deeplink.in) is a deep linking platform for mobile apps and websites. The canonical site is https://www.deeplink.in.
+
+Website: https://www.deeplink.in
 Documentation: https://docs.deeplink.in/
 Docs index for AI agents: https://docs.deeplink.in/llms.txt
-Signup: https://deeplink.in/signup
+Signup: https://www.deeplink.in/signup
 Support: info@deeplink.in
 
 ## Product pages
 
-- [Deep linking platform](https://deeplink.in/deep-linking-platform): What Deeplink is and how smart deep links work
-- [Deferred deep linking](https://deeplink.in/deferred-deep-linking): Preserve click intent through app install to first open
-- [App deep links (Android & iOS)](https://deeplink.in/app-deep-links): Universal Links, App Links, and fallbacks
-- [About](https://deeplink.in/about): Mission and product philosophy for deep linking teams
-- [Pricing](https://deeplink.in/#pricing): Plans and click limits on the homepage
-- [Affiliate program](https://deeplink.in/affiliate): Partner with Deeplink
+- [Home](https://www.deeplink.in/): What Deeplink is, how deep linking works, use cases, pricing, and FAQs
+- [Features](https://www.deeplink.in/features): Smart links, deferred deep linking, analytics, APIs, and QR codes
+- [Pricing](https://www.deeplink.in/pricing): Free plan and paid plans with monthly click limits
+- [Deep linking platform](https://www.deeplink.in/deep-linking-platform): How Deeplink routes one link across Android, iOS, and web
+- [Deferred deep linking](https://www.deeplink.in/deferred-deep-linking): Preserve click intent through app install to first open
+- [App deep links](https://www.deeplink.in/app-deep-links): Universal Links, App Links, and fallbacks
+- [Compare](https://www.deeplink.in/compare): Deeplink capabilities, with unverified competitor cells left blank
+- [About](https://www.deeplink.in/about): Mission and product philosophy
 
-## Guides (blog)
+## Guides
 
-- [What is deep linking?](https://deeplink.in/blog/what-is-deep-linking)
-- [Deferred deep linking for product managers](https://deeplink.in/blog/deferred-deep-linking-for-product-managers)
-- [How to implement deep linking on Android & iOS](https://deeplink.in/blog/how-to-implement-deep-linking-android-ios)
-- [Firebase Dynamic Links alternatives (2025)](https://deeplink.in/blog/firebase-dynamic-links-alternatives-2025)
-
-## Key capabilities
-
-- Universal smart deep links for iOS, Android, and web
-- Deferred deep linking and install attribution
-- Dashboard link management with UTM parameters
-- REST APIs, webhooks, and SDKs
-- Click, install, and conversion analytics
+- [Guides index](https://www.deeplink.in/guides): All long-form deep linking guides
+- [What is deep linking?](https://www.deeplink.in/guides/what-is-deep-linking): A URL that opens a specific screen, plus fallbacks
+- [What is deferred deep linking?](https://www.deeplink.in/guides/deferred-deep-linking): Keeping the destination through install
+- [Universal Links vs Android App Links](https://www.deeplink.in/guides/universal-links-vs-app-links): The two verified HTTPS link systems
+- [Deep links in WhatsApp campaigns](https://www.deeplink.in/guides/deep-links-whatsapp-campaigns): Paste one URL into WhatsApp, email, or SMS
+- [QR code deep links](https://www.deeplink.in/guides/qr-code-deep-links): A QR image of a Deeplink URL
 
 ## Optional
 
-- [Sitemap](https://deeplink.in/sitemap)
-- [XML sitemap](https://deeplink.in/sitemap.xml)
-- [Privacy](https://deeplink.in/privacy)
-- [Terms](https://deeplink.in/terms)
+- [Sitemap](https://www.deeplink.in/sitemap)
+- [XML sitemap](https://www.deeplink.in/sitemap.xml)
+- [Privacy](https://www.deeplink.in/privacy)
+- [Terms](https://www.deeplink.in/terms)
+- [Cookies](https://www.deeplink.in/cookies)

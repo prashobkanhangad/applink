@@ -5,42 +5,12 @@ import { Check, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPlans } from "@/services/appService";
 import { cn } from "../../utils/cn";
+import { mapPlanFromDb, readPrerenderedPlans } from "../../content/pricingPlans";
 
-/** Map DB plan (title, price, benefits, notIncludedBenefits, isPopular, monthlyClickLimit) to UI shape */
-function mapPlanFromDb(plan) {
-  const isEnterprise = String(plan.title || "").toUpperCase() === "ENTERPRISE";
-  const priceNum = Number(plan.price);
-  const displayPrice = priceNum === 0 ? "$0" : `$${priceNum}`;
-  const discountedNum = plan.discountedPrice != null ? Number(plan.discountedPrice) : null;
-  const priceDisplay = isEnterprise
-    ? "Custom pricing"
-    : discountedNum != null && discountedNum > 0
-      ? `$${discountedNum}`
-      : displayPrice;
-  const features = [
-    ...(Array.isArray(plan.benefits) ? plan.benefits.map((text) => ({ text: String(text), included: true })) : []),
-    ...(Array.isArray(plan.notIncludedBenefits) ? plan.notIncludedBenefits.map((text) => ({ text: String(text), included: false })) : []),
-  ];
-  const description = isEnterprise
-    ? "Over 500K monthly clicks"
-    : plan.monthlyClickLimit != null && plan.monthlyClickLimit > 0
-      ? `Up to ${Number(plan.monthlyClickLimit).toLocaleString()} clicks/mo`
-      : "";
-  return {
-    name: plan.title || "Plan",
-    subtitle: "",
-    price: priceDisplay,
-    period: isEnterprise || priceNum === 0 ? "" : "/mo",
-    description,
-    features: features.length ? features : [{ text: "Contact us", included: true }],
-    cta: "Get Started",
-    popular: Boolean(plan.isPopular),
-  };
-}
-
-export const PricingSection = () => {
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+export const PricingSection = ({ showHeading = true }) => {
+  const seededPlans = readPrerenderedPlans();
+  const [plans, setPlans] = useState(seededPlans);
+  const [loading, setLoading] = useState(seededPlans.length === 0);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -67,6 +37,18 @@ export const PricingSection = () => {
     <section id="pricing" className="py-24 lg:py-32 relative bg-background">
       <div className="container mx-auto px-6">
         {/* Section Header */}
+        <div className="max-w-3xl mx-auto mb-8 text-center">
+          <p className="text-muted-foreground leading-relaxed">
+            Deeplink includes a free plan and paid plans. Each plan has a monthly click limit.
+          </p>
+          {plans.length === 0 && (
+            <p className="text-sm text-muted-foreground mt-4">
+              TODO: [fact needed] current public plan names, prices, currency, and monthly click limits, so this section does not depend on JavaScript.
+            </p>
+          )}
+        </div>
+
+        {showHeading && (
         <motion.div
           className="text-center max-w-3xl mx-auto mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -76,13 +58,13 @@ export const PricingSection = () => {
         >
           <span className="mx-auto mb-6 block h-1.5 w-16 rounded-full bg-brand" />
           <h2 className="display-heading text-3xl sm:text-4xl lg:text-[3.25rem] mb-6">
-            Simple, Transparent{" "}
-            <span className="brand-highlight">Pricing</span>
+            Pricing
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
             Start free, scale as you grow. No hidden fees, no surprises.
           </p>
         </motion.div>
+        )}
 
         {/* Pricing Cards */}
         {loading && (

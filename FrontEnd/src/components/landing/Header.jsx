@@ -7,11 +7,11 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../utils/cn";
 
 const navLinks = [
-  { name: "Features", href: "/#features" },
-  { name: "How It Works", href: "/#how-it-works" },
-  { name: "Pricing", href: "/#pricing" },
+  { name: "Features", href: "/features" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Guides", href: "/guides" },
+  { name: "Compare", href: "/compare" },
   { name: "Blog", href: "/blog" },
-  { name: "Affiliate", href: "/affiliate" },
 ];
 
 export const Header = () => {
@@ -52,7 +52,9 @@ export const Header = () => {
             >
               <img
                 src={theme === "dark" ? "/logo_light.png" : "/logo_dark.png"}
-                alt="DeepLink"
+                alt="Deeplink"
+                width={164}
+                height={56}
                 className="h-14 w-auto object-contain"
               />
             </motion.div>

@@ -28,15 +28,11 @@ export const CTASection = () => {
           </div>
 
           <div className="relative">
-            <h2 className="display-heading text-3xl sm:text-4xl lg:text-[3.5rem] mb-6">
-              Use App Deep Links to{" "}
-              <span className="underline decoration-brand-foreground/30 decoration-[6px] underline-offset-[10px]">
-                Increase Retention
-              </span>
+            <h2 id="get-started" className="display-heading text-3xl sm:text-4xl lg:text-[3.5rem] mb-6">
+              Get started
             </h2>
             <p className="text-base sm:text-lg text-brand-foreground/80 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
-              Join thousands of developers and marketers who trust Deeplink as their deep linking platform 
-              for user acquisition. Start free, upgrade when you're ready.
+              Create an account to make a smart link, set a web fallback, and review click and install analytics.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

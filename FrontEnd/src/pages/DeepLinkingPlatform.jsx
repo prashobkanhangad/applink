@@ -68,7 +68,7 @@ export const DeepLinkingPlatform = () => {
       </Helmet>
 
       <p>
-        Deeplink is a deep linking platform that connects users to the right content inside mobile
+        Deeplink (deeplink.in) is a deep linking platform that connects users to the right content inside mobile
         apps and websites. Instead of dumping every click on a generic homepage, Deeplink routes
         people to a specific screen—or to the store and then that screen after install—across
         Android, iOS, and desktop. Smart deep links, deferred deep linking, fallbacks, and analytics

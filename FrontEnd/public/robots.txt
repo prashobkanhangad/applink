@@ -1,11 +1,48 @@
+# Marketing site. Link-redirect hosts are separate from these paths.
+
 User-agent: *
 Allow: /
-
-# App shells are behind auth; avoid spending crawl budget on duplicate SPA HTML.
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding
+Disallow: /api/
 
-# AI / agent-oriented site summary
-Allow: /llms.txt
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding
+Disallow: /api/
 
-Sitemap: https://deeplink.in/sitemap.xml
+User-agent: ClaudeBot
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding
+Disallow: /api/
+
+Sitemap: https://www.deeplink.in/sitemap.xml

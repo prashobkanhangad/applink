@@ -1,4 +1,5 @@
-import { SITE_ORIGIN } from "../constants/publicSite";
+import { SITE_ORIGIN, SOCIAL_SAME_AS, SUPPORT_EMAIL } from "../constants/publicSite";
+import { PRODUCT_DESCRIPTION } from "../constants/siteCopy";
 
 /**
  * Build FAQPage JSON-LD from [{ question, answer }].
@@ -28,15 +29,16 @@ export function buildArticleSchema({
   path,
   datePublished,
   dateModified,
-  authorName = "Deeplink Team",
+  authorName = "Deeplink",
   imageUrl,
   keywords,
   wordCount,
+  type = "BlogPosting",
 }) {
   const url = `${SITE_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
   const schema = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": type,
     headline: title,
     description,
     url,
@@ -50,7 +52,7 @@ export function buildArticleSchema({
       "@type": "Organization",
       name: authorName,
       url: `${SITE_ORIGIN}/`,
-      sameAs: [`${SITE_ORIGIN}/`],
+      sameAs: SOCIAL_SAME_AS,
     },
     publisher: {
       "@type": "Organization",
@@ -111,4 +113,80 @@ export function buildBreadcrumbSchema(items = []) {
       item: `${SITE_ORIGIN}${item.path === "/" ? "/" : item.path.startsWith("/") ? item.path : `/${item.path}`}`,
     })),
   };
+}
+
+const organizationId = `${SITE_ORIGIN}/#organization`;
+const websiteId = `${SITE_ORIGIN}/#website`;
+
+/**
+ * Organization and WebSite in one @graph.
+ * sameAs lists only profile URLs that exist in the repo.
+ */
+export function buildHomeGraph() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: "Deeplink",
+        url: `${SITE_ORIGIN}/`,
+        description: PRODUCT_DESCRIPTION,
+        email: SUPPORT_EMAIL,
+        logo: {
+          "@type": "ImageObject",
+          "@id": `${SITE_ORIGIN}/#logo`,
+          url: `${SITE_ORIGIN}/logo_dark.png`,
+          contentUrl: `${SITE_ORIGIN}/logo_dark.png`,
+          width: 1024,
+          height: 350,
+          caption: "Deeplink",
+        },
+        sameAs: SOCIAL_SAME_AS,
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: "Deeplink",
+        url: `${SITE_ORIGIN}/`,
+        description: PRODUCT_DESCRIPTION,
+        publisher: { "@id": organizationId },
+      },
+    ],
+  };
+}
+
+/**
+ * SoftwareApplication for the marketing site.
+ * Pass offers only when those prices are visible HTML on the page.
+ */
+export function buildSoftwareApplicationSchema(offers = []) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": `${SITE_ORIGIN}/#software`,
+    name: "Deeplink",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: `${SITE_ORIGIN}/`,
+    description: PRODUCT_DESCRIPTION,
+    publisher: { "@id": organizationId },
+  };
+
+  if (offers.length) {
+    schema.offers = offers;
+  }
+
+  return schema;
+}
+
+export function offersFromPlans(plans = []) {
+  return plans.map((plan) => ({
+    "@type": "Offer",
+    name: plan.name,
+    price: plan.price.replace("$", ""),
+    priceCurrency: "USD",
+    description: plan.description || plan.name,
+    url: `${SITE_ORIGIN}/pricing`,
+  }));
 }
