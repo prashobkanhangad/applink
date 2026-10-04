@@ -39,6 +39,7 @@ export const loginUser = async (req, res) => {
             })
             console.log(userExists,"userExists");
 
+            let isNewUser = false;
             if (!userExists) {
                 const freePlan = await getFreePlan();
                 userExists = await User.create({
@@ -48,6 +49,7 @@ export const loginUser = async (req, res) => {
                     image_url: user?.picture,
                     origin: "google",
                     planId: freePlan?._id ?? undefined,
+                    onboardingCompleted: false,
                 });
                 if (freePlan?._id) {
                     await PlanChange.create({
@@ -57,18 +59,32 @@ export const loginUser = async (req, res) => {
                         source: "signup",
                     });
                 }
-                userExists.new = true;
+                isNewUser = true;
             }
+
+            // New signups must complete onboarding; existing users without the flag are skipped
+            const needsOnboarding = userExists.onboardingCompleted === false;
 
             response = {
                 username: userExists.username,
                 email: userExists.email,
                 createdAt: userExists.createdAt,
-                new: userExists?.new
+                new: isNewUser,
+                isNewUser,
+                onboardingCompleted: userExists.onboardingCompleted !== false,
+                needsOnboarding,
             }
 
-            const token = jwt.sign(response, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES })
-            const refreshToken = jwt.sign(response, process.env.JWT_SECRET, { expiresIn: '7d' })
+            const token = jwt.sign(
+                { email: userExists.email, username: userExists.username },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_EXPIRES }
+            );
+            const refreshToken = jwt.sign(
+                { email: userExists.email, username: userExists.username },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' }
+            );
 
             response.token = token;
             response.refreshToken = refreshToken;
@@ -114,6 +130,8 @@ export const me = async (req, res) => {
         const currentPlan = plan?.title ?? getPlanDisplayName(performingUser?.planSlug ?? "free");
         const planId = plan?._id?.toString() ?? null;
 
+        const needsOnboarding = performingUser.onboardingCompleted === false;
+
         const response = {
             username: performingUser.username,
             email: performingUser.email,
@@ -122,11 +140,92 @@ export const me = async (req, res) => {
             userType: performingUser?.role || "user",
             currentPlan,
             planId,
+            onboardingCompleted: !needsOnboarding,
+            needsOnboarding,
+            phoneCountryCode: performingUser.phoneCountryCode || null,
+            phoneNumber: performingUser.phoneNumber || null,
+            companyName: performingUser.companyName || null,
+            jobRole: performingUser.jobRole || null,
+            buildingType: performingUser.buildingType || null,
+            primaryUseCase: performingUser.primaryUseCase || null,
+            platforms: performingUser.platforms || [],
+            mauRange: performingUser.mauRange || null,
+            teamSize: performingUser.teamSize || null,
+            heardFrom: performingUser.heardFrom || null,
+            currentSolution: performingUser.currentSolution || null,
         };
 
         await sendSuccess(req, res, "user fetched successfully", 200, response);
     } catch (error) {
         sendError(req, res, error);
+    }
+};
+
+/**
+ * PATCH /auth/onboarding — save post-signup onboarding answers (2 sections)
+ */
+export const completeOnboarding = async (req, res) => {
+    try {
+        const { performingUser } = req;
+        const body = req.body || {};
+
+        const schema = Joi.object({
+            phoneCountryCode: Joi.string().trim().required(),
+            phoneNumber: Joi.string().trim().min(6).max(20).required(),
+            companyName: Joi.string().trim().min(1).max(120).required(),
+            jobRole: Joi.string().trim().required(),
+            buildingType: Joi.string().trim().required(),
+            primaryUseCase: Joi.string().trim().required(),
+            platforms: Joi.array().items(Joi.string().trim()).min(1).required(),
+            mauRange: Joi.string().trim().required(),
+            teamSize: Joi.string().trim().required(),
+            heardFrom: Joi.string().trim().required(),
+            currentSolution: Joi.string().trim().required(),
+            onboardingOther: Joi.object({
+                buildingType: Joi.string().trim().allow("", null),
+                currentSolution: Joi.string().trim().allow("", null),
+                heardFrom: Joi.string().trim().allow("", null),
+            }).optional(),
+        });
+
+        const { error, value } = schema.validate(body);
+        if (error) {
+            return res.status(400).json({
+                status: "error",
+                message: error.details[0]?.message || "Invalid onboarding data",
+            });
+        }
+
+        const updated = await User.findByIdAndUpdate(
+            performingUser._id,
+            {
+                phoneCountryCode: value.phoneCountryCode,
+                phoneNumber: value.phoneNumber.replace(/\s+/g, ""),
+                companyName: value.companyName,
+                jobRole: value.jobRole,
+                buildingType: value.buildingType,
+                primaryUseCase: value.primaryUseCase,
+                platforms: value.platforms,
+                mauRange: value.mauRange,
+                teamSize: value.teamSize,
+                heardFrom: value.heardFrom,
+                currentSolution: value.currentSolution,
+                onboardingOther: value.onboardingOther || {},
+                onboardingCompleted: true,
+                onboardingCompletedAt: new Date(),
+            },
+            { new: true }
+        ).lean();
+
+        await sendSuccess(req, res, "Onboarding completed", 200, {
+            onboardingCompleted: true,
+            needsOnboarding: false,
+            companyName: updated.companyName,
+            phoneCountryCode: updated.phoneCountryCode,
+            phoneNumber: updated.phoneNumber,
+        });
+    } catch (err) {
+        sendError(req, res, err);
     }
 };
 
