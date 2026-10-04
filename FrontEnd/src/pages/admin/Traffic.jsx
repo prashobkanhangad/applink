@@ -17,6 +17,14 @@ const SOURCE_TYPE_LABELS = {
 
 const formatNumber = (value) => Number(value || 0).toLocaleString();
 
+/** Format YYYY-MM-DD → short label e.g. "Oct 4" */
+const formatDayLabel = (isoDate) => {
+  if (!isoDate) return '';
+  const d = new Date(`${isoDate}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
 const BarRow = ({ label, count, total, sub }) => {
   const pct = total > 0 ? (count / total) * 100 : 0;
   return (
@@ -100,7 +108,7 @@ export const AdminTraffic = () => {
   const daily = data?.daily || [];
   const countries = data?.countries || [];
   const devices = data?.devices || [];
-  const maxDailyViews = Math.max(1, ...daily.map((d) => d.views || 0));
+  const maxDailyVisitors = Math.max(1, ...daily.map((d) => d.visitors || d.views || 0));
   const sourceVisitorTotal = sources.reduce((sum, s) => sum + (s.visitors || 0), 0) || 1;
   const countryTotal = countries.reduce((sum, c) => sum + (c.count || 0), 0) || 1;
   const deviceTotal = devices.reduce((sum, d) => sum + (d.count || 0), 0) || 1;
@@ -149,27 +157,37 @@ export const AdminTraffic = () => {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Visitors over time</h3>
-          {daily.some((d) => d.views > 0) ? (
-            <div className="flex items-end gap-1 h-40">
-              {daily.map((day) => (
-                <div key={day.date} className="flex-1 flex flex-col items-center justify-end h-full min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Visitors over time</h3>
+          <p className="text-xs text-gray-500 mb-4">Daily unique visitors (number on each bar).</p>
+          {daily.some((d) => d.views > 0 || d.visitors > 0) ? (
+            <div className="flex items-end gap-1.5 sm:gap-2 h-52 overflow-x-auto pb-1">
+              {daily.map((day) => {
+                const value = day.visitors ?? day.views ?? 0;
+                const heightPct = value > 0
+                  ? Math.max((value / maxDailyVisitors) * 100, 8)
+                  : 0;
+                return (
                   <div
-                    className="w-full max-w-[18px] bg-primary rounded-t"
-                    style={{ height: `${Math.max((day.views / maxDailyViews) * 100, day.views > 0 ? 4 : 0)}%` }}
-                    title={`${day.date}: ${day.visitors} visitors, ${day.views} views`}
-                  />
-                </div>
-              ))}
+                    key={day.date}
+                    className="flex-1 flex flex-col items-center justify-end h-full min-w-[36px] sm:min-w-[44px]"
+                    title={`${day.date}: ${formatNumber(day.visitors)} visitors, ${formatNumber(day.views)} views`}
+                  >
+                    <span className="text-[11px] sm:text-xs font-semibold text-gray-900 mb-1 tabular-nums leading-none">
+                      {formatNumber(value)}
+                    </span>
+                    <div
+                      className="w-full max-w-[28px] bg-primary rounded-t"
+                      style={{ height: `${heightPct}%`, minHeight: value > 0 ? '8px' : '0' }}
+                    />
+                    <span className="mt-2 text-[10px] sm:text-xs text-gray-500 text-center leading-tight whitespace-nowrap">
+                      {formatDayLabel(day.date)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <EmptyState message="No visits in this date range yet. Open a public page to start collecting data." />
-          )}
-          {daily.length > 0 && daily.some((d) => d.views > 0) && (
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span>{daily[0].date}</span>
-              <span>{daily[daily.length - 1].date}</span>
-            </div>
           )}
         </div>
 

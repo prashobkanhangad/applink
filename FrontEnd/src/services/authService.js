@@ -267,18 +267,34 @@ export const authenticateWithGoogle = async (googleUser) => {
       console.log('Storing token in localStorage as authToken');
     }
     
+    const isNewUser = !!(
+      data.isNewUser ||
+      data.data?.isNewUser ||
+      data.data?.new ||
+      userData.isNewUser ||
+      userData.new
+    );
+    const needsOnboarding = !!(
+      data.data?.needsOnboarding ||
+      userData.needsOnboarding ||
+      userData.onboardingCompleted === false
+    );
+
     return {
       success: true,
-      isNewUser: data.isNewUser || data.data?.isNewUser || false, // Indicates if user was just registered
+      isNewUser,
+      needsOnboarding,
       user: {
         username: userData.username,
         email: userData.email,
         createdAt: userData.createdAt,
         ...userData,
+        isNewUser,
+        needsOnboarding,
       },
       token: token,
       refreshToken: data.data?.refreshToken || data.refreshToken,
-      message: data.message || (data.isNewUser ? 'Account created successfully!' : 'Signed in successfully!'),
+      message: data.message || (isNewUser ? 'Account created successfully!' : 'Signed in successfully!'),
     };
   } catch (error) {
     // Handle network errors or API errors
@@ -377,11 +393,59 @@ export const getCurrentUser = async () => {
       isAppExists: userData?.isAppExists || false,
       userType: userData?.userType,
       currentPlan: userData?.currentPlan,
+      needsOnboarding: !!userData?.needsOnboarding,
+      onboardingCompleted: userData?.onboardingCompleted !== false,
     };
   } catch (error) {
     console.error('Get current user API error:', error);
     throw error;
   }
+};
+
+/**
+ * PATCH /auth/onboarding — save post-signup profile answers
+ */
+export const completeOnboarding = async (payload) => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    handleAuthFailure('Please sign in to continue.');
+    throw new Error('Authentication required.');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/onboarding`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Failed to save onboarding: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const result = data.data || data;
+
+  // Keep local cache in sync
+  try {
+    const cached = JSON.parse(localStorage.getItem('user') || '{}');
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        ...cached,
+        ...result,
+        onboardingCompleted: true,
+        needsOnboarding: false,
+      })
+    );
+  } catch {
+    /* ignore */
+  }
+
+  return { success: true, ...result };
 };
 
 /**

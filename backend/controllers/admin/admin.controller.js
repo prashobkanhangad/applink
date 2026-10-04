@@ -69,12 +69,14 @@ export const getUsers = async (req, res) => {
       filter.$or = [
         { email: { $regex: search, $options: 'i' } },
         { username: { $regex: search, $options: 'i' } },
+        { companyName: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } },
       ];
     }
 
     const [users, total] = await Promise.all([
       User.find(filter)
-        .select('email username role status authProvider createdAt image_url')
+        .select('email username role status authProvider createdAt image_url companyName phoneCountryCode phoneNumber onboardingCompleted jobRole primaryUseCase')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -178,7 +180,11 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id)
-      .select('email username role status authProvider createdAt updatedAt image_url lastLoginAt')
+      .select(
+        'email username role status authProvider createdAt updatedAt image_url lastLoginAt ' +
+        'onboardingCompleted onboardingCompletedAt phoneCountryCode phoneNumber companyName ' +
+        'jobRole buildingType primaryUseCase platforms mauRange teamSize heardFrom currentSolution onboardingOther'
+      )
       .lean();
     if (!user) {
       return res.status(404).json({ status: 'error', message: 'User not found' });

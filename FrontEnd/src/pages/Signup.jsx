@@ -106,10 +106,20 @@ export const Signup = () => {
           localStorage.setItem('authToken', result.token);
           localStorage.setItem('user', JSON.stringify(result.user));
         }
-        // Fetch current user to get userType (from /auth/me); then redirect admin to /admin, others to /dashboard
+
+        // New users (or users with incomplete onboarding) go through signup profile flow
+        if (result.needsOnboarding || result.isNewUser || result.user?.needsOnboarding) {
+          setTimeout(() => navigate('/onboarding'), 400);
+          return;
+        }
+
+        // Returning users: admin → /admin, others → /dashboard
         const goTo = async () => {
           try {
             const current = await getCurrentUser();
+            if (current?.needsOnboarding || current?.user?.needsOnboarding) {
+              return '/onboarding';
+            }
             const userType = current?.userType || current?.user?.userType || current?.user?.role;
             return userType === 'admin' ? '/admin' : '/dashboard';
           } catch {

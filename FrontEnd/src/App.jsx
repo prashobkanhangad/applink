@@ -6,6 +6,7 @@ import { AdminRoute } from './components/AdminRoute';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Signup } from './pages/Signup';
+import { Onboarding } from './pages/Onboarding';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
@@ -39,6 +40,7 @@ function App() {
         />
         <Route path="/about" element={<About />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookies" element={<CookiePolicy />} />

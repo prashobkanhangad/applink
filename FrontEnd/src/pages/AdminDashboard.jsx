@@ -166,6 +166,9 @@ const AdminUsers = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-14">Photo</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Onboarding</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
@@ -197,6 +200,19 @@ const AdminUsers = () => {
                           >
                             {u.username || u.email || '—'}
                           </button>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{u.companyName || '—'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                          {u.phoneNumber ? `${u.phoneCountryCode || ''} ${u.phoneNumber}`.trim() : '—'}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {u.onboardingCompleted === true ? (
+                            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Done</span>
+                          ) : u.onboardingCompleted === false ? (
+                            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pending</span>
+                          ) : (
+                            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">N/A</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">{u.role || 'user'}</td>
                         <td className="px-4 py-3 text-sm text-gray-600">{u.status || 'active'}</td>
@@ -715,6 +731,110 @@ const AdminUserView = ({ userId: userIdProp }) => {
                 </dl>
               </div>
             </div>
+
+            {/* Signup onboarding profile */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Signup profile / onboarding</h2>
+                {user.onboardingCompleted === true ? (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                ) : user.onboardingCompleted === false ? (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pending</span>
+                ) : (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Not collected (legacy user)</span>
+                )}
+              </div>
+
+              {!user.companyName && !user.phoneNumber && user.onboardingCompleted !== true ? (
+                <p className="text-sm text-gray-500">No onboarding data submitted yet.</p>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Section 1 — About you & use case</h3>
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <dt className="text-gray-500">Mobile</dt>
+                        <dd className="font-medium text-gray-900">
+                          {user.phoneNumber
+                            ? `${user.phoneCountryCode || ''} ${user.phoneNumber}`.trim()
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Company / team</dt>
+                        <dd className="font-medium text-gray-900">{user.companyName || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Job role</dt>
+                        <dd className="font-medium text-gray-900">{user.jobRole || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">What they&apos;re building</dt>
+                        <dd className="font-medium text-gray-900">
+                          {user.buildingType || '—'}
+                          {user.buildingType === 'Other' && user.onboardingOther?.buildingType
+                            ? ` — ${user.onboardingOther.buildingType}`
+                            : ''}
+                        </dd>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <dt className="text-gray-500">Primary use case</dt>
+                        <dd className="font-medium text-gray-900">{user.primaryUseCase || '—'}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-5">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Section 2 — Product & team</h3>
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <dt className="text-gray-500">Platforms</dt>
+                        <dd className="font-medium text-gray-900">
+                          {Array.isArray(user.platforms) && user.platforms.length
+                            ? user.platforms.join(', ')
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Monthly installs / MAU</dt>
+                        <dd className="font-medium text-gray-900">{user.mauRange || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Team size</dt>
+                        <dd className="font-medium text-gray-900">{user.teamSize || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Heard about us</dt>
+                        <dd className="font-medium text-gray-900">
+                          {user.heardFrom || '—'}
+                          {user.heardFrom === 'Other' && user.onboardingOther?.heardFrom
+                            ? ` — ${user.onboardingOther.heardFrom}`
+                            : ''}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Current solution</dt>
+                        <dd className="font-medium text-gray-900">
+                          {user.currentSolution || '—'}
+                          {user.currentSolution === 'Other' && user.onboardingOther?.currentSolution
+                            ? ` — ${user.onboardingOther.currentSolution}`
+                            : ''}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-500">Completed at</dt>
+                        <dd className="font-medium text-gray-900">
+                          {user.onboardingCompletedAt
+                            ? new Date(user.onboardingCompletedAt).toLocaleString()
+                            : '—'}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <h2 className="text-lg font-semibold text-gray-900 p-4 border-b border-gray-200">Apps ({apps.length})</h2>
               {apps.length === 0 ? <p className="p-4 text-sm text-gray-500">No apps created yet.</p> : (
