@@ -14,7 +14,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.jpg', 'llms.txt', 'robots.txt', 'sitemap.xml'],
+      includeAssets: ['favicon.jpg', 'llms.txt', 'robots.txt'],
       manifest: {
         name: 'Deeplink – Smart Deep Linking Platform',
         short_name: 'Deeplink',
