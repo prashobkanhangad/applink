@@ -36,6 +36,8 @@ const groups = [
       { name: "Features", href: "/features" },
       { name: "How deep linking works", href: "/#how-it-works" },
       { name: "Pricing", href: "/pricing" },
+      { name: "Free QR code generator", href: "/free-qr-code-generator" },
+      { name: "Deep link tester", href: "/deep-link-tester" },
       { name: "Guides", href: "/guides" },
       { name: "Compare", href: "/compare" },
     ],
@@ -46,6 +48,8 @@ const groups = [
     links: [
       { name: "Features", href: "/features" },
       { name: "Pricing", href: "/pricing" },
+      { name: "Free QR code generator", href: "/free-qr-code-generator" },
+      { name: "Deep link tester", href: "/deep-link-tester" },
       { name: "Deep Linking Platform", href: "/deep-linking-platform" },
       { name: "Deferred Deep Linking", href: "/deferred-deep-linking" },
       { name: "App Deep Links", href: "/app-deep-links" },

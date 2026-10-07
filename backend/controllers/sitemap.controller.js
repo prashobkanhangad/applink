@@ -12,6 +12,8 @@ const STATIC_PAGES = [
   { loc: "/guides/deep-links-whatsapp-campaigns", changefreq: "monthly", priority: "0.8" },
   { loc: "/guides/qr-code-deep-links", changefreq: "monthly", priority: "0.8" },
   { loc: "/compare",                changefreq: "monthly", priority: "0.6" },
+  { loc: "/free-qr-code-generator", changefreq: "weekly",  priority: "0.9" },
+  { loc: "/deep-link-tester",       changefreq: "weekly",  priority: "0.9" },
   { loc: "/about",                  changefreq: "monthly", priority: "0.8" },
   { loc: "/signup",                 changefreq: "monthly", priority: "0.9" },
   { loc: "/deep-linking-platform",  changefreq: "monthly", priority: "0.85" },

@@ -54,6 +54,22 @@ export const MARKETING_PAGES = [
     priority: "0.6",
   },
   {
+    path: "/free-qr-code-generator",
+    title: "Free QR Code Generator | Track Scans with Deeplink",
+    description:
+      "Create a free QR code PNG for any URL. For scan tracking, deep linking, and install analytics, create a Deeplink smart link and encode that URL.",
+    changefreq: "weekly",
+    priority: "0.9",
+  },
+  {
+    path: "/deep-link-tester",
+    title: "Free Deep Link Tester | Inspect URLs with Deeplink",
+    description:
+      "Paste a deep link to inspect scheme, host, path, and UTMs. Open it in the browser, then create a Deeplink account for analytics and deferred routing.",
+    changefreq: "weekly",
+    priority: "0.9",
+  },
+  {
     path: "/about",
     title: "About Deeplink",
     description:

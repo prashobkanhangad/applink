@@ -21,6 +21,16 @@ export const UseCasesSection = () => {
               <Link to={item.href} className="text-sm font-semibold underline underline-offset-2">
                 {item.linkLabel}
               </Link>
+              {item.title === "QR codes" && (
+                <p className="mt-3">
+                  <Link
+                    to="/free-qr-code-generator"
+                    className="text-sm font-semibold underline underline-offset-2"
+                  >
+                    Try the free QR code generator
+                  </Link>
+                </p>
+              )}
             </article>
           ))}
         </div>
