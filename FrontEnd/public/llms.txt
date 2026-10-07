@@ -19,6 +19,8 @@ Support: info@deeplink.in
 - [Deferred deep linking](https://www.deeplink.in/deferred-deep-linking): Preserve click intent through app install to first open
 - [App deep links](https://www.deeplink.in/app-deep-links): Universal Links, App Links, and fallbacks
 - [Compare](https://www.deeplink.in/compare): Deeplink capabilities, with unverified competitor cells left blank
+- [Free QR code generator](https://www.deeplink.in/free-qr-code-generator): Create a free QR PNG; create an account to track scans with smart links
+- [Deep link tester](https://www.deeplink.in/deep-link-tester): Inspect scheme, host, path, and UTMs; create an account for tracked smart links
 - [About](https://www.deeplink.in/about): Mission and product philosophy
 
 ## Guides

@@ -8,6 +8,8 @@ const footerLinks = {
   Product: [
     { name: "Features", href: "/features" },
     { name: "Pricing", href: "/pricing" },
+    { name: "Free QR code generator", href: "/free-qr-code-generator" },
+    { name: "Deep link tester", href: "/deep-link-tester" },
     { name: "How deep linking works", href: "/#how-it-works" },
     { name: "Compare Deeplink capabilities", href: "/compare" },
     { name: "Deep linking platform", href: "/deep-linking-platform" },

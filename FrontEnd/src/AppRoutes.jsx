@@ -19,6 +19,8 @@ import { Affiliate } from "./pages/Affiliate";
 import { Features } from "./pages/Features";
 import { PricingPage } from "./pages/PricingPage";
 import { Compare } from "./pages/Compare";
+import { FreeQrCodeGenerator } from "./pages/FreeQrCodeGenerator";
+import { DeepLinkTester } from "./pages/DeepLinkTester";
 import { GuidesIndex } from "./pages/guides/GuidesIndex";
 import { GuidePage } from "./pages/guides/GuidePage";
 import { NotFound } from "./pages/NotFound";
@@ -52,6 +54,8 @@ export function AppRoutes() {
         <Route path="/guides" element={<GuidesIndex />} />
         <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/compare" element={<Compare />} />
+        <Route path="/free-qr-code-generator" element={<FreeQrCodeGenerator />} />
+        <Route path="/deep-link-tester" element={<DeepLinkTester />} />
         <Route path="/about" element={<About />} />
         <Route path="/signup" element={<Signup />} />
         <Route
