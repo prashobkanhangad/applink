@@ -18,9 +18,9 @@ export const PricingSection = ({ showHeading = true }) => {
     getPlans()
       .then((data) => {
         if (!cancelled && Array.isArray(data)) {
-          const sortPrice = (p) =>
-            String(p.title || "").toUpperCase() === "ENTERPRISE" ? Infinity : Number(p.price) ?? 0;
-          const sorted = [...data].sort((a, b) => sortPrice(a) - sortPrice(b));
+          const sorted = [...data].sort(
+            (a, b) => Number(a.monthlyClickLimit) - Number(b.monthlyClickLimit)
+          );
           setPlans(sorted.map(mapPlanFromDb));
         }
       })

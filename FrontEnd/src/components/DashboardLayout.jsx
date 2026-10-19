@@ -207,13 +207,13 @@ export const DashboardLayout = ({ children, title = 'Overview', subtitle = 'Home
               ©2026 Deeplink.in 
             </p>
             <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
-              <a href="#" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">
+              <a href="/terms" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">
                 Terms of Use
               </a>
-              <a href="#" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">
+              <a href="/privacy" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">
                 Privacy Policy
               </a>
-              <a href="#" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900">
+              <a href="https://docs.deeplink.in/" className="text-xs sm:text-sm text-gray-600 hover:text-gray-900" target="_blank" rel="noopener noreferrer">
                 Docs
               </a>
             </div>

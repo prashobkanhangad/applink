@@ -34,7 +34,7 @@ export const PRODUCT_FEATURES = [
   {
     title: "Custom domains and QR codes",
     description:
-      "Links are hosted on a chottu.link subdomain or a verified custom domain. The link screen can generate a QR code for that URL.",
+      "Links are hosted on a Deeplink subdomain or a verified custom domain. The link screen can generate a QR code for that URL.",
     href: "/guides/qr-code-deep-links",
   },
 ];
@@ -48,7 +48,7 @@ export const HOW_IT_WORKS_STEPS = [
   {
     title: "Share the URL",
     description:
-      "Put the same URL in an ad, an email, a WhatsApp message, or a QR code. The link is served on your chottu.link subdomain or on a custom domain you have verified.",
+      "Put the same URL in an ad, an email, a WhatsApp message, or a QR code. The link is served on your Deeplink subdomain or on a custom domain you have verified.",
   },
   {
     title: "Route the tap",

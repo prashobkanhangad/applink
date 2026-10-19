@@ -170,8 +170,8 @@ export const completeOnboarding = async (req, res) => {
         const body = req.body || {};
 
         const schema = Joi.object({
-            phoneCountryCode: Joi.string().trim().required(),
-            phoneNumber: Joi.string().trim().min(6).max(20).required(),
+            phoneCountryCode: Joi.string().trim().allow("", null).optional(),
+            phoneNumber: Joi.string().trim().allow("", null).max(20).optional(),
             companyName: Joi.string().trim().min(1).max(120).required(),
             jobRole: Joi.string().trim().required(),
             buildingType: Joi.string().trim().required(),
@@ -196,11 +196,22 @@ export const completeOnboarding = async (req, res) => {
             });
         }
 
+        if (value.phoneNumber) {
+            const digits = value.phoneNumber.replace(/[\s-]/g, "");
+            if (!/^\d{6,15}$/.test(digits)) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Enter a valid mobile number (digits only), or leave it blank.",
+                });
+            }
+            value.phoneNumber = digits;
+        }
+
         const updated = await User.findByIdAndUpdate(
             performingUser._id,
             {
-                phoneCountryCode: value.phoneCountryCode,
-                phoneNumber: value.phoneNumber.replace(/\s+/g, ""),
+                phoneCountryCode: value.phoneNumber ? (value.phoneCountryCode || null) : null,
+                phoneNumber: value.phoneNumber ? value.phoneNumber.replace(/[\s-]/g, "") : null,
                 companyName: value.companyName,
                 jobRole: value.jobRole,
                 buildingType: value.buildingType,

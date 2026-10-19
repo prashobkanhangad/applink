@@ -75,36 +75,41 @@ export const Pricing = () => {
     getPlans()
       .then((data) => {
         if (cancelled || !Array.isArray(data)) return;
-        const sortPrice = (p) =>
-            String(p.title || "").toUpperCase() === "ENTERPRISE" ? Infinity : Number(p.price) ?? 0;
-        const sorted = [...data].sort((a, b) => sortPrice(a) - sortPrice(b));
+        const sorted = [...data].sort(
+          (a, b) => Number(a.monthlyClickLimit) - Number(b.monthlyClickLimit)
+        );
         setPlans(
           sorted.map((p) => {
             const priceNum = Number(p.price);
-            const yearlyNum = p.yearlyPrice != null ? Number(p.yearlyPrice) : priceNum * 10;
+            const discountedNum = p.discountedPrice != null ? Number(p.discountedPrice) : null;
+            const charge =
+              discountedNum != null && discountedNum > 0 && discountedNum < priceNum
+                ? discountedNum
+                : priceNum;
+            const yearlyNum = p.yearlyPrice != null ? Number(p.yearlyPrice) : charge * 10;
+            const isFree = charge === 0;
             const benefits = Array.isArray(p.benefits) ? p.benefits : [];
-            const notIncluded = Array.isArray(p.notIncludedBenefits) ? p.notIncludedBenefits : [];
+            const notIncluded = isFree || !Array.isArray(p.notIncludedBenefits) ? [] : p.notIncludedBenefits;
             const features = [
               ...benefits.map((text) => ({ text: String(text), included: true })),
               ...notIncluded.map((text) => ({ text: String(text), included: false })),
             ];
             const isEnterprise = String(p.title || '').toUpperCase() === 'ENTERPRISE';
-            const description = isEnterprise
-              ? 'Over 500K monthly clicks'
-              : p.monthlyClickLimit != null && p.monthlyClickLimit > 0
-                ? `Up to ${Number(p.monthlyClickLimit).toLocaleString()} clicks/mo`
-                : '';
+            const clickLimit = p.monthlyClickLimit != null ? Number(p.monthlyClickLimit) : 0;
+            const description = clickLimit > 0
+              ? `Up to ${clickLimit.toLocaleString()} clicks/mo`
+              : '';
             return {
               id: p._id?.toString?.() ?? p._id,
               name: p.title || 'Plan',
               subtitle: '',
               description,
-              price: isEnterprise ? null : { monthly: priceNum, yearly: yearlyNum },
-              period: isEnterprise || priceNum === 0 ? '' : '/mo',
+              price: { monthly: charge, yearly: yearlyNum },
+              period: isFree ? '' : '/mo',
               features: features.length ? features : [{ text: 'Contact us', included: true }],
               cta: 'Choose Plan',
               popular: Boolean(p.isPopular),
-              isFree: priceNum === 0 && !isEnterprise,
+              isFree,
               isEnterprise,
               monthlyClickLimit: p.monthlyClickLimit != null ? Number(p.monthlyClickLimit) : null,
             };
@@ -237,13 +242,13 @@ export const Pricing = () => {
   };
 
   const getPriceDisplay = (plan) => {
-    if (plan.isEnterprise || plan.price === null) return 'Custom pricing';
+    if (!plan.price) return 'Custom pricing';
     const amount = plan.price[billingPeriod];
     return amount === 0 ? '$0' : `$${amount}`;
   };
 
   const getPeriodDisplay = (plan) => {
-    if (plan.isEnterprise || plan.isFree) return plan.period || '';
+    if (plan.isFree) return plan.period || '';
     return billingPeriod === 'yearly' ? '/year' : '/mo';
   };
 

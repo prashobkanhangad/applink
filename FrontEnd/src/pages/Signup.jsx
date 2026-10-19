@@ -6,12 +6,29 @@ import { authenticateWithGoogle, waitForGoogleIdentity, getCurrentUser } from '.
 import { PageMeta } from '../components/PageMeta';
 import { useTheme } from '../contexts/ThemeContext';
 
-const META = {
-  title: 'Sign Up',
-  description: 'Create your DeepLink account. Get started with deep linking and attribution in seconds. Sign in with Google.',
+const COPY = {
+  signup: {
+    title: 'Sign Up',
+    description: 'Create your Deeplink account. Get started with deep linking and attribution in seconds. Sign in with Google.',
+    heading: 'Create your account',
+    subheading: 'Get started with Deeplink in seconds',
+    prompt: 'Already have an account?',
+    action: 'Log in',
+    actionHref: '/login',
+  },
+  login: {
+    title: 'Log In',
+    description: 'Log in to your Deeplink account with Google.',
+    heading: 'Log in',
+    subheading: 'Use the Google account on your Deeplink account',
+    prompt: 'Need an account?',
+    action: 'Sign up',
+    actionHref: '/signup',
+  },
 };
 
-export const Signup = () => {
+export const Signup = ({ mode = 'signup' }) => {
+  const copy = COPY[mode] || COPY.signup;
   const navigate = useNavigate();
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
@@ -165,7 +182,7 @@ export const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden link-pattern">
-      <PageMeta title={META.title} description={META.description} path="/signup" />
+      <PageMeta title={copy.title} description={copy.description} path={mode === 'login' ? '/login' : '/signup'} />
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[120px] animate-pulse-glow" />
@@ -203,10 +220,10 @@ export const Signup = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <h1 className="text-3xl md:text-4xl font-bold mb-3">
-                Create your account
+                {copy.heading}
               </h1>
               <p className="text-muted-foreground">
-                Get started with DeepLink in seconds
+                {copy.subheading}
               </p>
             </motion.div>
 
@@ -328,7 +345,7 @@ export const Signup = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              By continuing, you agree to DeepLink's{' '}
+              By continuing, you agree to Deeplink's{' '}
               <Link to="/terms" className="text-primary hover:text-primary/80 underline underline-offset-2">
                 Terms of Service
               </Link>{' '}
@@ -347,9 +364,9 @@ export const Signup = () => {
               transition={{ duration: 0.6, delay: 0.6 }}
             >
               <p className="text-sm text-muted-foreground">
-                Already have an account?{' '}
-                <Link to="/signup" className="text-primary hover:text-primary/80 font-medium">
-                  Sign in
+                {copy.prompt}{' '}
+                <Link to={copy.actionHref} className="text-primary hover:text-primary/80 font-medium">
+                  {copy.action}
                 </Link>
               </p>
             </motion.div>
@@ -364,7 +381,7 @@ export const Signup = () => {
           >
             <p className="text-sm text-muted-foreground">
               Need help?{' '}
-              <a href="#support" className="text-primary hover:text-primary/80">
+              <a href="mailto:info@deeplink.in" className="text-primary hover:text-primary/80">
                 Contact support
               </a>
             </p>

@@ -12,7 +12,7 @@ const rows = [
   ["Click and install analytics", "Yes. Clicks, installs, click-to-install rate, plus location, platform, and device.", "TODO: [fact needed]"],
   ["UTM parameters", "Yes. Stored on the link in the dashboard.", "TODO: [fact needed]"],
   ["REST API, webhooks, and SDKs", "Yes. Documented at docs.deeplink.in.", "TODO: [fact needed]"],
-  ["Custom domains", "Yes. A verified custom domain or a chottu.link subdomain.", "TODO: [fact needed]"],
+  ["Custom domains", "Yes. A verified custom domain or a Deeplink subdomain.", "TODO: [fact needed]"],
   ["QR code for a link", "Yes. The dashboard link screen can generate one.", "TODO: [fact needed]"],
   ["Published price list", "TODO: [fact needed] current public prices as static HTML.", "TODO: [fact needed]"],
 ];

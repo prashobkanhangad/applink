@@ -10,6 +10,18 @@ import {
   buildFaqSchema,
 } from "../../utils/seoSchema";
 
+const GUIDE_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function formatGuideDate(iso) {
+  const [year, month, day] = String(iso).split("-");
+  const monthName = GUIDE_MONTHS[Number(month) - 1];
+  if (!year || !monthName || !day) return iso;
+  return `${monthName} ${Number(day)}, ${year}`;
+}
+
 export function GuidePage() {
   const { slug } = useParams();
   const guide = GUIDES.find((entry) => entry.slug === slug);
@@ -30,12 +42,13 @@ export function GuidePage() {
       />
       <JsonLd
         data={buildArticleSchema({
-          type: "TechArticle",
+          type: "Article",
           title: guide.title,
           description: guide.description,
           path,
           datePublished: guide.datePublished,
-          dateModified: guide.datePublished,
+          dateModified: guide.dateModified || guide.datePublished,
+          authorName: guide.author,
         })}
       />
       <JsonLd
@@ -58,7 +71,13 @@ export function GuidePage() {
           </ol>
         </nav>
 
-        <h1 className="display-heading text-4xl mb-6">{guide.title}</h1>
+        <h1 className="display-heading text-4xl mb-3">{guide.title}</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          By {guide.author} · Published <time dateTime={guide.datePublished}>{formatGuideDate(guide.datePublished)}</time>
+          {guide.dateModified && guide.dateModified !== guide.datePublished && (
+            <> · Updated <time dateTime={guide.dateModified}>{formatGuideDate(guide.dateModified)}</time></>
+          )}
+        </p>
         <p className="text-lg text-foreground leading-relaxed mb-10">{guide.directAnswer}</p>
 
         {guide.sections.map((section) => (
