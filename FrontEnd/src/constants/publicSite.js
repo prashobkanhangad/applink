@@ -12,12 +12,11 @@ export const DOCS_URL = "https://docs.deeplink.in/";
 export const CALENDLY_DEMO_URL = "https://calendly.com/deeplink-info/30min";
 export const SUPPORT_EMAIL = "info@deeplink.in";
 
-/**
- * Organization sameAs URLs that exist in the repo.
- * TODO: [fact needed] official LinkedIn, X, and GitHub profile URLs.
- */
+/** Public profiles that use the Deeplink name. */
 export const SOCIAL_SAME_AS = [
   "https://docs.deeplink.in",
+  "https://www.linkedin.com/company/deeplink-in",
+  "https://github.com/ConnectingDotsInfotech",
 ];
 
 /** Twitter / X handle without @ — leave empty until the official account is confirmed. */

@@ -8,13 +8,18 @@ Website: https://www.deeplink.in
 Documentation: https://docs.deeplink.in/
 Docs index for AI agents: https://docs.deeplink.in/llms.txt
 Signup: https://www.deeplink.in/signup
+Log in: https://www.deeplink.in/login
 Support: info@deeplink.in
+
+Profiles:
+- https://www.linkedin.com/company/deeplink-in
+- https://github.com/ConnectingDotsInfotech
 
 ## Product pages
 
 - [Home](https://www.deeplink.in/): What Deeplink is, how deep linking works, use cases, pricing, and FAQs
 - [Features](https://www.deeplink.in/features): Smart links, deferred deep linking, analytics, APIs, and QR codes
-- [Pricing](https://www.deeplink.in/pricing): Free plan and paid plans with monthly click limits
+- [Pricing](https://www.deeplink.in/pricing): Free $0 up to 1,000 clicks/month; Growth $24 up to 50,000; Scale $49 up to 200,000; Enterprise $4,499 up to 500,000 (list price $4,999)
 - [Deep linking platform](https://www.deeplink.in/deep-linking-platform): How Deeplink routes one link across Android, iOS, and web
 - [Deferred deep linking](https://www.deeplink.in/deferred-deep-linking): Preserve click intent through app install to first open
 - [App deep links](https://www.deeplink.in/app-deep-links): Universal Links, App Links, and fallbacks

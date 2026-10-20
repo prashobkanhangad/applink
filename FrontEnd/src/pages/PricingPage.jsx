@@ -1,14 +1,20 @@
 import { PageMeta } from "../components/PageMeta";
+import { JsonLd } from "../components/JsonLd";
 import { MarketingShell } from "../components/MarketingShell";
 import { PricingSection } from "../components/landing/PricingSection";
 import { marketingMeta } from "../constants/siteCopy";
+import { plansWithVisiblePrice, readPrerenderedPlans } from "../content/pricingPlans";
+import { buildSoftwareApplicationSchema, offersFromPlans } from "../utils/seoSchema";
 
 const meta = marketingMeta("/pricing");
 
 export function PricingPage() {
+  const pricedPlans = plansWithVisiblePrice(readPrerenderedPlans());
+
   return (
     <MarketingShell>
       <PageMeta {...meta} />
+      <JsonLd data={buildSoftwareApplicationSchema(offersFromPlans(pricedPlans))} />
       <div className="container mx-auto px-6 pt-4 max-w-3xl">
         <h1 className="display-heading text-4xl mb-4">Pricing</h1>
         <p className="text-muted-foreground leading-relaxed">

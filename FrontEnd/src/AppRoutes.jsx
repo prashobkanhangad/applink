@@ -57,7 +57,8 @@ export function AppRoutes() {
         <Route path="/free-qr-code-generator" element={<FreeQrCodeGenerator />} />
         <Route path="/deep-link-tester" element={<DeepLinkTester />} />
         <Route path="/about" element={<About />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<Signup mode="signup" />} />
+        <Route path="/login" element={<Signup mode="login" />} />
         <Route
           path="/onboarding"
           element={

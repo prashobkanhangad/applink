@@ -1,6 +1,9 @@
 import { countWords } from "../constants/siteCopy.js";
 
 const published = "2026-10-04";
+const modified = "2026-10-18";
+
+export const GUIDE_AUTHOR = "Deeplink";
 
 /**
  * Long-form guides. Word count is the visible article body.
@@ -13,6 +16,8 @@ export const GUIDES = [
     description:
       "A deep link is a URL that opens a specific screen in an app or on a website. Learn how routing, fallbacks, and deferred deep linking fit together.",
     datePublished: published,
+    dateModified: modified,
+    author: GUIDE_AUTHOR,
     directAnswer:
       "Deep linking is the use of a URL to open a specific screen inside a mobile app or on a website, instead of always landing on a home page. If the app is missing, the same URL should still resolve to a store listing or a web page. Deeplink (deeplink.in) hosts and routes those links.",
     sections: [
@@ -29,7 +34,7 @@ export const GUIDES = [
         paragraphs: [
           "A person taps the link in a browser, an email, a message, or a camera app that understands QR codes. The phone looks at the domain. If an app is installed and the domain association is valid, the app opens and receives the URL. The app, or a library it embeds, maps that URL onto a screen. If no app can claim the domain, the link loads as a normal web page or follows a redirect the link host configured.",
           "That branch is why teams bother with a deep linking platform instead of only publishing a website. The website can be the fallback, the store can be the fallback, and the app can be the preferred target, all from one URL. Deeplink stores a path and a fallback URL on the link, and it serves the association files for the link domain so Android and iOS can verify the app.",
-          "Links created in this product are hosted on a subdomain of chottu.link, or on a custom domain after that domain is verified. The marketing site at www.deeplink.in is not the host that redirects campaign clicks. Campaign URLs use the link domain configured for the app.",
+          "Links created in this product are hosted on a subdomain Deeplink assigns, or on a custom domain after that domain is verified. The marketing site at www.deeplink.in is not the host that redirects campaign clicks. Campaign URLs use the link domain configured for the app.",
         ],
       },
       {
@@ -70,7 +75,7 @@ export const GUIDES = [
     },
     example: {
       heading: "Example",
-      text: "A link hosted at https://your-app.chottu.link/product/42, or on a verified custom domain with the same path, is one URL. The path identifies the product. The fallback URL is the web page you stored for people who do not open the app. Replace your-app with the subdomain configured for that app. This is a pattern from how Deeplink builds link hosts, not a live customer URL.",
+      text: "A link hosted at https://your-app.example/product/42, or on a verified custom domain with the same path, is one URL. The path identifies the product. The fallback URL is the web page you stored for people who do not open the app. Replace your-app with the subdomain configured for that app. This is a pattern from how Deeplink builds link hosts, not a live customer URL.",
     },
     faqs: [
       {
@@ -91,6 +96,8 @@ export const GUIDES = [
     description:
       "Deferred deep linking keeps the clicked destination through an app install so the first open still lands on that screen. How the flow works and what Deeplink records.",
     datePublished: published,
+    dateModified: modified,
+    author: GUIDE_AUTHOR,
     directAnswer:
       "Deferred deep linking keeps a link’s destination when the app is not installed yet. The person installs from the store, and the first open still routes to the content they clicked. A normal deep link only works if the app is already installed. Deeplink (deeplink.in) stores that click so the first session can resume it.",
     sections: [
@@ -167,6 +174,8 @@ export const GUIDES = [
     description:
       "Universal Links and Android App Links are the verified HTTPS deep links for iOS and Android. Compare the association files and how Deeplink serves them.",
     datePublished: published,
+    dateModified: modified,
+    author: GUIDE_AUTHOR,
     directAnswer:
       "Universal Links are Apple’s verified HTTPS links for iOS. Android App Links are Google’s verified HTTPS links for Android. Each platform checks a file on your domain before it will open the app instead of the browser. Deeplink (deeplink.in) serves those files for the link domain and stores the app ids the files must contain.",
     sections: [
@@ -183,7 +192,7 @@ export const GUIDES = [
         paragraphs: [
           "The API process serves both files. Requests to /.well-known/assetlinks.json and /.well-known/apple-app-site-association are handled by the backend so each link domain can publish the apps configured for it. In the dashboard, an Android app is stored with a package name and SHA-256 fingerprints. An iOS app is stored with a bundle id and an Apple team id. Those are the values the association files have to agree with.",
           "The link itself still has a path and a fallback URL. Verification only answers “may this app open this domain?” The path answers “which screen?” The fallback answers “where does the browser go if the app does not open?” You need all three. Verification without a path mapping dumps people on the app home screen. A path without verification leaves them on the website even when the app is installed.",
-          "Link hosts are a chottu.link subdomain or a custom domain you verify. The association files have to be reachable on the host that appears in the campaign URL. Pointing the AASA file at www.deeplink.in does not verify a link that people actually tap on your-app.chottu.link or on your own domain.",
+          "Link hosts are a subdomain Deeplink assigns or a custom domain you verify. The association files have to be reachable on the host that appears in the campaign URL. Pointing the AASA file at www.deeplink.in does not verify a link that people actually tap on that subdomain or on your own domain.",
         ],
       },
       {
@@ -246,6 +255,8 @@ export const GUIDES = [
     description:
       "Use one Deeplink URL in WhatsApp, email, and SMS. How taps are routed, how to label the campaign with UTMs, and what this product does not add for WhatsApp.",
     datePublished: published,
+    dateModified: modified,
+    author: GUIDE_AUTHOR,
     directAnswer:
       "Paste one Deeplink URL into the WhatsApp message, email, or SMS. Deeplink does not ship a separate WhatsApp API. The tap uses the same link as any other channel: the app opens when it can, otherwise the person gets the store or the web fallback you saved. Add UTM parameters on the link so the campaign is labeled in analytics.",
     sections: [
@@ -268,7 +279,7 @@ export const GUIDES = [
       {
         heading: "What to put in the message",
         paragraphs: [
-          "Use the full HTTPS URL of the link host, not the homepage of www.deeplink.in and not a custom scheme, if you want the message to look like a normal link and to fall back on the web. A chottu.link subdomain or a verified custom domain are the hosts this product configures. A custom domain is easier to read in a chat. Verification of that domain is required before you should trust it as the campaign host.",
+          "Use the full HTTPS URL of the link host, not the homepage of www.deeplink.in and not a custom scheme, if you want the message to look like a normal link and to fall back on the web. A subdomain Deeplink assigns or a verified custom domain are the hosts this product configures. A custom domain is easier to read in a chat. Verification of that domain is required before you should trust it as the campaign host.",
           "Say what will open. “Track your order” is a true statement only if the path you created maps to that order screen and the app handles a logged-out visitor. The link cannot collect a WhatsApp phone number by itself. If you need the phone number, your own form or the messaging platform has to ask for it.",
           "QR codes are the same URL in another wrapper. If the WhatsApp campaign and a printed code should be measured separately, give them different UTM parameters or different links. The routing rules do not have to change.",
         ],
@@ -325,6 +336,8 @@ export const GUIDES = [
     description:
       "A QR code deep link is a Deeplink URL encoded as a QR image. The dashboard can generate that image. Scanning uses the same routing as a tap.",
     datePublished: published,
+    dateModified: modified,
+    author: GUIDE_AUTHOR,
     directAnswer:
       "A QR code deep link is a Deeplink URL encoded as a QR image. Scanning it opens the app when the app and domain association allow it, or the store or web fallback when they do not. Deeplink (deeplink.in) generates that image from the link in the dashboard. The code is not a different kind of link.",
     sections: [

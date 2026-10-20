@@ -8,6 +8,7 @@ import { ArrowLeft, Clock, User, Tag, ChevronRight, BookOpen } from "lucide-reac
 import { PageMeta } from "../components/PageMeta";
 import { useTheme } from "../contexts/ThemeContext";
 import { getBlogPostBySlug } from "../services/blogService";
+import { readBlogRenderData } from "../content/blogRender";
 import {
   buildArticleSchema,
   buildBreadcrumbSchema,
@@ -27,7 +28,7 @@ const formatDate = (iso) => {
 /** Custom renderers for react-markdown to apply Tailwind prose-like classes */
 const markdownComponents = {
   h1: ({ children }) => (
-    <h1 className="text-3xl font-bold text-gray-900 mt-8 mb-4 leading-tight">{children}</h1>
+    <h2 className="text-3xl font-bold text-gray-900 mt-8 mb-4 leading-tight">{children}</h2>
   ),
   h2: ({ children }) => (
     <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4 leading-snug">{children}</h2>
@@ -107,11 +108,14 @@ export const BlogPost = () => {
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
 
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const seeded = readBlogRenderData()?.post;
+  const seededPost = seeded && seeded.slug === slug ? seeded : null;
+  const [post, setPost] = useState(seededPost);
+  const [loading, setLoading] = useState(!seededPost);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (seededPost) return undefined;
     setLoading(true);
     setError(null);
     getBlogPostBySlug(slug)
@@ -124,7 +128,8 @@ export const BlogPost = () => {
         }
       })
       .finally(() => setLoading(false));
-  }, [slug, navigate]);
+    return undefined;
+  }, [slug, navigate, seededPost]);
 
   if (loading) {
     return (
@@ -302,7 +307,7 @@ export const BlogPost = () => {
               rehypePlugins={[rehypeRaw]}
               components={markdownComponents}
             >
-              {post.content}
+              {String(post.content || "").replace(/<h1(\s[^>]*)?>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>")}
             </ReactMarkdown>
           </div>
 

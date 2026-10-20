@@ -25,10 +25,10 @@ export const Header = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const getAuthDestination = () =>
-    typeof window !== "undefined" && localStorage.getItem("authToken")
-      ? "/dashboard"
-      : "/signup";
+  const isLoggedIn =
+    typeof window !== "undefined" && Boolean(localStorage.getItem("authToken"));
+  const loginHref = isLoggedIn ? "/dashboard" : "/login";
+  const signupHref = isLoggedIn ? "/dashboard" : "/signup";
 
   return (
     <header
@@ -103,12 +103,12 @@ export const Header = () => {
                 <Sun className="w-5 h-5" />
               )}
             </button>
-            <Link to={getAuthDestination()}>
+            <Link to={loginHref}>
               <Button variant="ghost" size="pill-sm" className="font-bold">
                 Log In
               </Button>
             </Link>
-            <Link to={getAuthDestination()}>
+            <Link to={signupHref}>
               <Button variant="brand" size="pill-sm">
                 Get Started Free
               </Button>
@@ -190,7 +190,7 @@ export const Header = () => {
                   )}
                 </button>
                 <Link
-                  to={getAuthDestination()}
+                  to={loginHref}
                   onClick={() => setIsOpen(false)}
                 >
                   <Button
@@ -202,7 +202,7 @@ export const Header = () => {
                   </Button>
                 </Link>
                 <Link
-                  to={getAuthDestination()}
+                  to={signupHref}
                   onClick={() => setIsOpen(false)}
                 >
                   <Button

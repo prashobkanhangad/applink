@@ -15,7 +15,8 @@ import { PageMeta } from "../components/PageMeta";
 import { useTheme } from "../contexts/ThemeContext";
 import { listBlogPosts } from "../services/blogService";
 import { buildBreadcrumbSchema } from "../utils/seoSchema";
-import { SITE_ORIGIN } from "../constants/publicSite";
+import { DOCS_URL, SITE_ORIGIN } from "../constants/publicSite";
+import { readBlogRenderData } from "../content/blogRender";
 
 /* ─── constants ──────────────────────────────────────────────────────────────── */
 const META = {
@@ -307,18 +308,36 @@ export const Blog = () => {
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? "/logo_light.png" : "/logo_dark.png";
 
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const seededPosts = readBlogRenderData()?.list || null;
+  const [posts, setPosts] = useState(seededPosts || []);
+  const [loading, setLoading] = useState(!seededPosts);
   const [error, setError] = useState(null);
   const [activeTag, setActiveTag] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    listBlogPosts({ limit: 50 })
-      .then((data) => setPosts(data.posts || []))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+    if (seededPosts) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const first = await listBlogPosts({ page: 1, limit: 50 });
+        const all = [...(first.posts || [])];
+        const pages = first.totalPages || 1;
+        for (let page = 2; page <= pages; page += 1) {
+          const next = await listBlogPosts({ page, limit: 50 });
+          all.push(...(next.posts || []));
+        }
+        if (!cancelled) setPosts(all);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [seededPosts]);
 
   /* Derive unique tags across all posts */
   const allTags = useMemo(() => {
@@ -380,7 +399,7 @@ export const Blog = () => {
             <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
             <Link to="/deep-linking-platform" className="hover:text-gray-900 transition-colors">Platform</Link>
             <Link to="/blog" className="text-gray-900 font-semibold">Blog</Link>
-            <Link to="/docs" className="hover:text-gray-900 transition-colors">Docs</Link>
+            <a href={DOCS_URL} className="hover:text-gray-900 transition-colors">Docs</a>
           </nav>
           <Link
             to="/signup"

@@ -96,7 +96,8 @@ const groups = [
     title: "Account",
     icon: UserPlus,
     links: [
-      { name: "Sign Up / Log In", href: "/signup" },
+      { name: "Log In", href: "/login" },
+      { name: "Sign Up", href: "/signup" },
       { name: "Dashboard", href: "/dashboard" },
     ],
   },

@@ -120,7 +120,7 @@ const websiteId = `${SITE_ORIGIN}/#website`;
 
 /**
  * Organization and WebSite in one @graph.
- * sameAs lists only profile URLs that exist in the repo.
+ * sameAs lists the docs, LinkedIn, and GitHub profiles.
  */
 export function buildHomeGraph() {
   return {
